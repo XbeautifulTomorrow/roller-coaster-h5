@@ -120,7 +120,8 @@ import config from "@/services/env";
 import { defineComponent } from 'vue';
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
-import { accurateDecimal } from "@/utils"
+import { accurateDecimal } from "@/utils";
+import { addOrder, getOrderData } from "@/services/api/order.js";
 
 export default defineComponent({
   data() {
@@ -154,6 +155,9 @@ export default defineComponent({
       buyType: "MANUAL",
       buyNum: 1000 as number | any, // 购买数量
       buyMultiplier: 1 as number | any, // 倍数
+      finished: false,
+      page: 1,
+      size: 10
     };
   },
   components: {
@@ -225,6 +229,7 @@ export default defineComponent({
               return item.price;
             }),
             smooth: true,
+            sampling: 'lttb',
             symbol: "none",
             showSymbol: false,
             showLegendSymbol: false
@@ -259,18 +264,51 @@ export default defineComponent({
         }
       };
     },
+    // 全局关闭下拉
     handleAll() {
       this.showType = false;
     },
+    // 更改折线图类型
     handleType(event: any) {
       this.sseType = event.val;
       this.showType = false;
     },
+    // 购买数量增加
     handlePlus() {
       this.buyNum = Number(this.buyNum * 2).toFixed(2);
     },
+    // 购买数量减少
     handleMinus() {
       this.buyNum = Number(this.buyNum / 2).toFixed(2);
+    },
+    // 购买
+    async handleBuy() {
+      const params = {
+        buyType: this.buyType,
+        buyNum: this.buyNum,
+        buyMultiplier: this.buyMultiplier,
+      };
+      const res = await addOrder(params);
+      if (res.code == 200) {
+
+      }
+    },
+    async fetchOrderData(type = 1, isSearch = true) {
+      if (this.finished) return;
+      let _page = this.page;
+      if (isSearch) {
+        this.finished = false;
+        this.page = 1;
+        _page = 1;
+      }
+      const res = await getOrderData({
+        pageIndex: _page,
+        pageSize: this.size
+      })
+
+      if (res.code == 200) {
+
+      }
     },
     // 设置购买类型
     handlebuyType(event: any) {

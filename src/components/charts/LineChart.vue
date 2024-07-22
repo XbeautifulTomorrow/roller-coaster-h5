@@ -5,10 +5,8 @@
 <script>
 import * as echarts from "echarts";
 import "echarts/theme/macarons"; // echarts theme
-import resize from "../mixins/resize";
 
 export default {
-  // mixins: [resize],
   props: {
     className: {
       type: String,
