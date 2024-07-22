@@ -1,6 +1,6 @@
 const config = {
   dev: {
-    api: "http://222.214.219.202:4501/",
+    api: "https://test2.xlab.red:4501/",
   },
   test: {
     api: "https://test2.xlab.red:4501/",

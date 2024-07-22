@@ -3,7 +3,8 @@
     <div class="toolbar_panel">
       <div class="game_info">
         <div :class="['price_box', isDrop ? 'drop' : 'up']">
-          <v-img :width="16" cover :src="isDrop ? drop : up"></v-img>
+          <v-img :width="16" cover v-if="isDrop" :src="drop"></v-img>
+          <v-img :width="16" cover v-else :src="up"></v-img>
           <span>{{ Number(currentPrice).toLocaleString() }}</span>
         </div>
         <div class="close_time">
@@ -71,12 +72,12 @@
         </div>
       </div>
       <div class="buy_btns">
-        <div class="buy_item_btn up">
+        <div class="buy_item_btn up" @click="handleBuy('buy')">
           <span>PLACE BET </span>
           <v-img :width="12" cover :src="up"></v-img>
           <span> UP</span>
         </div>
-        <div class="buy_item_btn drop">
+        <div class="buy_item_btn drop" @click="handleBuy('sell')">
           <span>PLACE BET</span>
           <v-img :width="12" cover :src="drop"></v-img>
           <span>DOWN</span>
@@ -108,6 +109,32 @@
           <div class="title_item">EBUST PRICE</div>
           <div class="title_item">P&L</div>
         </div>
+        <div class="order_data">
+          <div class="order_data_item" v-for="(item, index) in orderData" :key="index">
+            <div class="data_item_info">
+              <div class="info_data">
+                <v-img :width="16" cover :src="item.side == 'sell' ? drop : up"></v-img>
+              </div>
+              <div class="info_data">
+                <span>{{ unitConversion(item.amount) }}</span>
+                <v-img :width="14" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
+              </div>
+              <div class="info_data">{{ `X ${item.multiplier}` }}</div>
+              <div class="info_data">{{ item.price }}</div>
+              <div class="info_data">{{ item.exitPrice }}</div>
+              <div :class="['info_data', item.income >= 0 ? 'up' : 'drop']">
+                {{ `${Number(item.income) >= 0 ? '+' : '-'}` + unitConversion(item.income || 0) }}
+              </div>
+            </div>
+            <div class="data_item_operating">
+              <div class="operating_btn">CASH OUT</div>
+              <div class="config_btn">
+                <v-img :width="14" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
+                <v-img :width="12" class="up" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -120,15 +147,34 @@ import config from "@/services/env";
 import { defineComponent } from 'vue';
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
-import { accurateDecimal } from "@/utils";
+import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
 import { addOrder, getOrderData } from "@/services/api/order.js";
+import { useMessageStore } from "@/store/message.js";
+
+interface orderInfo {
+  "id": number, // ID
+  "userName": string, // 用户昵称
+  "userId": number, // 用户ID
+  "amount": number, // 购买数量
+  "coinName": string, //币种:RCP/RCT,
+  "price": number, // 价格
+  "multiplier": number, // 倍数
+  "exitPrice": number, // 退出价格
+  "income": number, // 收益
+  "roi": string, // 盈亏
+  "createTime": string, // 创建时间
+  "updateTime": string, // 更新时间
+  "strikeOut": number,  // 退出状态
+  "side": string // 买入类型
+  [x: string]: string | number | any;
+}
 
 export default defineComponent({
   data() {
     return {
       sseType: "ms500",
       eventSource: null as any,
-      currentPrice: 1024 as number | any,
+      currentPrice: 1000 as number | any,
       isDrop: false,
       up,
       drop,
@@ -153,8 +199,10 @@ export default defineComponent({
       ],
       myChart: null as any,
       buyType: "MANUAL",
+      buyStatus: "", // 买/多 buy  卖/空 sell
       buyNum: 1000 as number | any, // 购买数量
       buyMultiplier: 1 as number | any, // 倍数
+      orderData: [] as Array<orderInfo>,
       finished: false,
       page: 1,
       size: 10
@@ -172,8 +220,10 @@ export default defineComponent({
   },
   created() {
     this.createSSE();
+    this.fetchOrderData();
   },
   methods: {
+    unitConversion: unitConversion,
     createSSE() {
       if (window.EventSource) {
         // 根据环境的不同，变更url
@@ -215,8 +265,20 @@ export default defineComponent({
             if (this.chartData.length <= 0) {
               this.chartData = chart;
               this.chartData.reverse();
+              this.currentPrice = this.chartData[this.chartData.length - 1].price;
             } else {
               this.chartData.push(...chart);
+              let last = null as any
+              if (chart.length > 0) {
+                last = chart[0];
+              }
+              if (Number(last.price) > Number(this.currentPrice)) {
+                this.isDrop = false;
+              } else {
+                this.isDrop = true;
+              }
+
+              this.currentPrice = last.price;
               this.chartData.shift();
             }
           } catch (error) {
@@ -232,7 +294,52 @@ export default defineComponent({
             sampling: 'lttb',
             symbol: "none",
             showSymbol: false,
-            showLegendSymbol: false
+            showLegendSymbol: false,
+            animation: true,
+            animationDurationUpdate: 300, // 数据更新的动画时长
+            animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
+            animationDelayUpdate: 0, // 数据更新的动画延迟时间
+            areaStyle: {
+              color: {
+                type: "linear",
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
+                  },
+                  {
+                    offset: 1,
+                    color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
+                  },
+                ],
+                global: false, // 缺省为 false
+              },
+            },
+            markLine: {
+              animation: false,
+              symbol: 'none', // 标记线两端的标记类型
+              lineStyle: {
+                color: this.isDrop ? '#ff4949' : '#72f238',
+              },
+              data: [
+                {
+                  name: this.chartData[this.chartData.length - 1].price,
+                  yAxis: this.chartData[this.chartData.length - 1].price
+                }
+              ],
+              label: {
+                height: 20,
+                lineHeight: 1,
+                formatter: this.chartData[this.chartData.length - 1].price,
+                backgroundColor: this.isDrop ? '#ff4949' : '#72f238',
+                borderRadius: 2,
+                padding: [0, 4, 0, 4]
+              }
+            }
           });
 
           let xAxis = this.chartData.map((item) => {
@@ -241,6 +348,11 @@ export default defineComponent({
 
           this.setOptions(xAxis, series);
         });
+
+
+        this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
+          this.fetchOrderData();
+        })
       };
 
       this.eventSource.onerror = (event: any) => {
@@ -282,17 +394,21 @@ export default defineComponent({
       this.buyNum = Number(this.buyNum / 2).toFixed(2);
     },
     // 购买
-    async handleBuy() {
+    async handleBuy(type: string) {
       const params = {
-        buyType: this.buyType,
-        buyNum: this.buyNum,
-        buyMultiplier: this.buyMultiplier,
+        coinName: "RCP",
+        multiplier: this.buyMultiplier,
+        amount: this.buyNum,
+        carOrderTypeEnum: type
       };
       const res = await addOrder(params);
       if (res.code == 200) {
 
+        const { setMessageText } = useMessageStore();
+        setMessageText("Bet placed");
       }
     },
+    // 获取订单列表
     async fetchOrderData(type = 1, isSearch = true) {
       if (this.finished) return;
       let _page = this.page;
@@ -307,8 +423,21 @@ export default defineComponent({
       })
 
       if (res.code == 200) {
+        if (res.data.current >= res.data.pages) {
+          this.finished = true;
+        }
 
+        if (type == 1) {
+          this.orderData = res.data.records;
+        } else {
+          this.orderData.push.apply(this.orderData, res.data.records);
+        }
       }
+    },
+    // 加载更多
+    nextQuery() {
+      this.page++;
+      this.fetchOrderData(2, false);
     },
     // 设置购买类型
     handlebuyType(event: any) {
@@ -318,7 +447,7 @@ export default defineComponent({
     setOptions(xAxis: any, series: any) {
 
       this.lineChartData = {
-        color: ["#00F380"],
+        color: ["#FFB018"],
         xAxis: {
           type: "category",
           data: xAxis,
@@ -339,6 +468,16 @@ export default defineComponent({
               return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
             }
           },
+          axisPointer: {
+            show: true,
+            color: "#393E51",
+            label: {
+              formatter: function (params: any) {
+                return timeForStr(params.value, "MM/dd HH:mm:ss");
+              },
+              backgroundColor: "#303545"
+            },
+          }
         },
         grid: {
           left: 10,
@@ -367,6 +506,13 @@ export default defineComponent({
           axisLabel: {
             color: "#c4bfbd"
           },
+          axisPointer: {
+            show: true,
+            color: "#393E51",
+            label: {
+              backgroundColor: "#303545"
+            },
+          },
           splitLine: {
             lineStyle: { color: "rgba(255,255,255,0.1)" },
           }, //网格线配置
@@ -376,13 +522,23 @@ export default defineComponent({
           {
             type: 'inside',
             filterMode: 'filter',
-            start: 95,
+            start: 98,
             end: 100
           }
         ],
         series: series,
       };
     },
+  },
+  mounted() {
+    const _this = this;
+    window.addEventListener('scroll', function () {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (!_this.finished) {
+          _this.nextQuery();
+        }
+      }
+    });
   },
   watch: {
     sseType(newV, oldV) {
@@ -422,7 +578,7 @@ export default defineComponent({
 
   &.drop {
     color: #ff4949;
-
+    background-color: rgba(234, 69, 31, 0.2);
   }
 
   &.up {
@@ -730,9 +886,11 @@ export default defineComponent({
 
 .order_list {
   padding-top: 8px;
+  overflow-x: scroll;
 }
 
 .order_title {
+  width: 430px;
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -740,6 +898,147 @@ export default defineComponent({
 
   .title_item {
     flex: 1;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .title_item:nth-child(1) {
+    min-width: 30px;
+  }
+
+  .title_item:nth-child(2) {
+    min-width: 80px;
+  }
+
+  .title_item:nth-child(3) {
+    min-width: 60px;
+  }
+
+  .title_item:nth-child(4) {
+    min-width: 100px;
+  }
+
+  .title_item:nth-child(5) {
+    min-width: 100px;
+  }
+
+  .title_item:nth-child(6) {
+    min-width: 60px;
+  }
+}
+
+.order_data {
+  width: 430px;
+
+  .order_data_item:nth-child(2n-1) {
+    background-color: #2d303e;
+  }
+}
+
+.order_data_item {
+  padding: 4px 0;
+
+  .data_item_info {
+    display: flex;
+    align-items: center;
+
+    .info_data {
+      flex: 1;
+      white-space: nowrap;
+      color: #fff;
+      font-weight: bold;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .info_data:nth-child(1) {
+      min-width: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .v-img {
+        flex: none;
+      }
+    }
+
+    .info_data:nth-child(2) {
+      min-width: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .v-img {
+        flex: none;
+        margin-left: 4px;
+      }
+    }
+
+    .info_data:nth-child(3) {
+      min-width: 60px;
+    }
+
+    .info_data:nth-child(4) {
+      min-width: 100px;
+    }
+
+    .info_data:nth-child(5) {
+      min-width: 100px;
+    }
+
+    .info_data:nth-child(6) {
+      min-width: 60px;
+
+      &.drop {
+        color: #ff4949;
+      }
+
+      &.up {
+        color: #72f238;
+      }
+    }
+  }
+
+  .data_item_operating {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+
+    .operating_btn {
+      width: 90%;
+      background-color: rgba(122, 255, 0, 0.1843137254901961);
+      border-radius: 4px;
+      padding: 4px;
+      color: #10A200;
+      font-size: 12px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+    }
+
+    .config_btn {
+      width: 22px;
+      height: 22px;
+      position: relative;
+      margin-right: 4px;
+
+      .drop {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+      }
+
+      .up {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    }
   }
 }
 </style>
