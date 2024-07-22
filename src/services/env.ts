@@ -3,10 +3,10 @@ const config = {
     api: "http://222.214.219.202:4501/",
   },
   test: {
-    api: "http://222.214.219.202:4501/",
+    api: "https://test2.xlab.red:4501/",
   },
   prod: {
-    api: "http://222.214.219.202:4501/",
+    api: "https://api.tonrollercoaster.com/",
   },
 };
 
