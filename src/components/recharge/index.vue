@@ -91,7 +91,7 @@ export default defineComponent({
     },
   },
   created() {
-    this.fetchProductList()
+    // this.fetchProductList()
   },
   methods: {
     unitConversion: unitConversion,
