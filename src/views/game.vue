@@ -30,6 +30,19 @@
         <div :class="['buy_type_item', buyType == 'AUTO' && 'active']" @click="handlebuyType('AUTO')">AUTO</div>
       </div>
       <div class="manual_box">
+        <div class="buy_type_box">
+          <div :class="['buy_type_slider', buyStatus == 'sell' && 'down']"></div>
+          <div :class="['buy_type_item', buyStatus == 'buy' && 'up_active']" @click="buyStatus = 'buy'">
+            <v-img :width="16" v-if="buyStatus == 'buy'" cover :src="up"></v-img>
+            <v-img :width="16" v-else cover src="@/assets/images/svg/game/type_white.svg"></v-img>
+            <span>UP</span>
+          </div>
+          <div :class="['buy_type_item', buyStatus == 'sell' && 'down_active']" @click="buyStatus = 'sell'">
+            <v-img :width="16" v-if="buyStatus == 'sell'" cover :src="drop"></v-img>
+            <v-img :width="16" class="type_down" v-else cover src="@/assets/images/svg/game/type_white.svg"></v-img>
+            <span>DOWN</span>
+          </div>
+        </div>
         <div class="buy_numer_info">
           <div class="buy_price">
             <span>BUY</span>
@@ -51,14 +64,14 @@
               </div>
               <div class="bust_price">
                 <div>Bust Price:</div>
-                <div class="bust_val">1000</div>
+                <div class="bust_val">{{ EbustPrice }}</div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="multiples_slider_box">
-        <v-slider v-model="buyMultiplier" :max="1000" :step="0.01" hide-details="auto" thumb-size="14"
+        <v-slider v-model="buyMultiplier" :min="1" :max="1000" :step="0.01" hide-details="auto" thumb-size="14"
           track-fill-color="rgba(0,0,0,0)" thumb-color="#fff" track-size="12"></v-slider>
         <div class="multiples_point">
           <div class="start">
@@ -71,17 +84,8 @@
           </div>
         </div>
       </div>
-      <div class="buy_btns">
-        <div class="buy_item_btn up" @click="handleBuy('buy')">
-          <span>PLACE BET </span>
-          <v-img :width="12" cover :src="up"></v-img>
-          <span> UP</span>
-        </div>
-        <div class="buy_item_btn drop" @click="handleBuy('sell')">
-          <span>PLACE BET</span>
-          <v-img :width="12" cover :src="drop"></v-img>
-          <span>DOWN</span>
-        </div>
+      <div :class="['buy_btn', buyStatus == 'sell' && 'down']" @click="handleBuy('buy')">
+        <span>PLACE BET</span>
       </div>
       <div class="other_box">
         <div class="other_item">
@@ -150,6 +154,7 @@ import drop from "@/assets/images/svg/game/drop.svg";
 import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
 import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
 import { useMessageStore } from "@/store/message.js";
+import bigNumber from 'bignumber.js';
 
 interface orderInfo {
   "id": number, // ID
@@ -197,9 +202,8 @@ export default defineComponent({
         { text: "12h", val: "h12" },
         { text: "1d", val: "d1" },
       ],
-      myChart: null as any,
       buyType: "MANUAL",
-      buyStatus: "", // 买/多 buy  卖/空 sell
+      buyStatus: "buy", // 买/多 buy  卖/空 sell
       buyNum: 1000 as number | any, // 购买数量
       buyMultiplier: 1 as number | any, // 倍数
       orderData: [] as Array<orderInfo>,
@@ -212,11 +216,30 @@ export default defineComponent({
     LineChart
   },
   computed: {
+    // 长连接类型
     currentType() {
       const { typeDrop } = this;
       const current = typeDrop.find((item: any) => item.val == this.sseType);
       return current?.text;
-    }
+    },
+    // 当前爆仓价格
+    EbustPrice() {
+      const { currentPrice, buyStatus, buyMultiplier } = this;
+      // 倍率
+      const multiple = new bigNumber(1).dividedBy(buyMultiplier).minus(0.00068);
+      if (buyStatus == "buy") {
+        // 多 开仓价1000， 倍数100，当前价格
+        // 当前价格<=1000*(1-(1 / 100 - 0.00068))  时 爆仓
+        const price = new bigNumber(1).minus(multiple).multipliedBy(currentPrice);
+        return accurateDecimal(price, 2)
+      } else {
+        // 空 开仓价1000， 倍数100，当前价格
+        //当前价格>=1000*(1+(1 / 100 - 0.00068)) 时爆仓
+
+        const price = new bigNumber(1).plus(multiple).multipliedBy(currentPrice);
+        return accurateDecimal(price, 2)
+      }
+    },
   },
   created() {
     this.createSSE();
@@ -386,11 +409,11 @@ export default defineComponent({
     },
     // 购买数量增加
     handlePlus() {
-      this.buyNum = Number(this.buyNum * 2).toFixed(2);
+      this.buyNum = accurateDecimal(this.buyNum * 2, 2);
     },
     // 购买数量减少
     handleMinus() {
-      this.buyNum = Number(this.buyNum / 2).toFixed(2);
+      this.buyNum = accurateDecimal(this.buyNum / 2, 2);
     },
     // 购买
     async handleBuy(type: string) {
@@ -422,7 +445,8 @@ export default defineComponent({
       })
 
       if (res.code == 200) {
-        if (res.data.current >= res.data.pages) {
+        const pages = Math.ceil(res.data.total / res.data.size);
+        if (res.data.page >= pages) {
           this.finished = true;
         }
 
@@ -437,7 +461,7 @@ export default defineComponent({
     async handleCloseOrder(event: orderInfo) {
       const res = await closeOrder({ id: event.id });
       if (res.code == 200) {
-
+        this.fetchOrderData(2, false);
         const { setMessageText } = useMessageStore();
         setMessageText("Bet placed");
       }
@@ -693,6 +717,68 @@ export default defineComponent({
   padding-top: 8px;
 }
 
+.buy_type_box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  background-color: #161823;
+  border-radius: 4px;
+  padding: 4px;
+
+  .buy_type_item+.buy_type_item {
+    margin-left: 8px;
+  }
+
+  .buy_type_item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: #fff;
+    padding: 4px;
+    border-radius: 4px;
+    z-index: 2;
+
+    .v-img {
+      flex: none;
+      margin-right: 8px;
+      filter: grayscale(50%);
+    }
+
+    .type_down {
+      transform: rotateX(180deg);
+    }
+
+    &.up_active {
+      color: #85F353;
+    }
+
+    &.down_active {
+      color: #FF4949;
+    }
+  }
+
+  .buy_type_slider {
+    position: absolute;
+    background-color: rgba(133, 243, 83, 0.4);
+    transition: all 0.3s;
+    border-radius: 4px;
+    left: 4px;
+    width: calc(50% - 8px);
+    height: calc(100% - 8px);
+    z-index: 1;
+
+    &.down {
+      background-color: #41272b;
+      left: calc(50% + 4px);
+      transition: all 0.3s;
+    }
+  }
+}
+
 .buy_numer_info {
   display: flex;
   align-items: center;
@@ -805,12 +891,19 @@ export default defineComponent({
   color: #fff;
 }
 
-.buy_btns {
+.buy_btn {
   display: flex;
-  padding-top: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  font-size: 16px;
+  color: #000;
+  background-color: #85f353;
+  border-radius: 4px;
+  margin-top: 8px;
 
-  .buy_item_btn+.buy_item_btn {
-    margin-left: 8px;
+  &.down {
+    background-color: #ff6969;
   }
 }
 
