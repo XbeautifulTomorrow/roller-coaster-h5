@@ -168,7 +168,7 @@ interface frensInfo {
   points: number | string | any, //用户积分
   registrationTime: string, //注册时间
   energyAmount: number | string | any, //能量数量
-  gmcAmount: number | string | any //GMC数量
+  rcpAmount: number | string | any //GMC数量
   isMember: boolean; // 是否是会员
   [x: string]: string | number | any;
 }

@@ -32,7 +32,7 @@
         <div class="exchange_balance_title">Portfolio</div>
         <div class="exchange_balance_val">
           <v-img :width="28" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
-          <span>{{ Number(userInfo.gmcAmount).toLocaleString() }}</span>
+          <span>{{ Number(userInfo.rcpAmount).toLocaleString() }}</span>
         </div>
       </div>
       <div class="exchange_project">

@@ -1,5 +1,5 @@
 import * as http from "@/services/apiService";
-const serverUrl = "/coaster-server-sse"
+const serverUrl = "/coaster-server-web"
 
 /**
  * 用户下单
@@ -11,7 +11,7 @@ const addOrder = (params: any) => http.post(serverUrl + "/carOrder/addOrder", pa
  * 订单列表
  * @param params
  */
-const getOrderData = (params: any) => http.post(serverUrl + "/carOrder/pageList", params);
+const getOrderData = (params: any) => http.get(serverUrl + "/carOrder/pageList", params);
 
 export {
   addOrder,

@@ -54,7 +54,7 @@ interface frensRankingInfo {
   userName: string | any, //用户名
   avatar: string | any, //头像
   totalNumber: number, //总邀请用户数
-  gmcAmount: number //GMC数量
+  rcpAmount: number //GMC数量
   [x: string]: string | number | any;
 }
 

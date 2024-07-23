@@ -5,7 +5,7 @@
         <div class="energy_box">
           <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
           <div class="energy_item">
-            <div class="energy_val">{{ Number(userInfo?.gmcAmount || 0).toLocaleString() }}</div>
+            <div class="energy_val">{{ Number(userInfo?.rcpAmount || 0).toLocaleString() }}</div>
             <div class="plus_btn">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
@@ -14,7 +14,7 @@
         <div class="energy_box">
           <v-icon color="#FFF100" :size="24" icon="mdi-lightning-bolt"></v-icon>
           <div class="energy_item">
-            <div class="energy_val">{{ userInfo.energyAmount }}</div>
+            <div class="energy_val">{{ userInfo.rctAmount }}</div>
             <div class="plus_btn">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
