@@ -5,7 +5,7 @@ const serverUrl = "/coaster-server-sse"
  * 用户下单
  * @param params
  */
-const addOrder = (params: any) => http.get(serverUrl + "/carOrder/addOrder", params);
+const addOrder = (params: any) => http.post(serverUrl + "/carOrder/addOrder", params);
 
 /**
  * 订单列表
