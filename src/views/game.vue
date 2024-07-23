@@ -227,8 +227,7 @@ export default defineComponent({
     createSSE() {
       if (window.EventSource) {
         // 根据环境的不同，变更url
-        const url =
-          config.ENV == "prod" ? "https://sse.bitzing.io/" : config.api;
+        const url = config.api;
 
         let headerParams: any = {
           "Content-Type": "text/event-tream",
