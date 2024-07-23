@@ -127,7 +127,7 @@
               </div>
             </div>
             <div class="data_item_operating">
-              <div class="operating_btn">CASH OUT</div>
+              <div class="operating_btn" @click="handleCloseOrder(item)">CASH OUT</div>
               <div class="config_btn">
                 <v-img :width="14" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
                 <v-img :width="12" class="up" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
@@ -148,7 +148,7 @@ import { defineComponent } from 'vue';
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
 import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
-import { addOrder, getOrderData } from "@/services/api/order.js";
+import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
 import { useMessageStore } from "@/store/message.js";
 
 interface orderInfo {
@@ -431,6 +431,15 @@ export default defineComponent({
         } else {
           this.orderData.push.apply(this.orderData, res.data.records);
         }
+      }
+    },
+    // 平仓
+    async handleCloseOrder(event: orderInfo) {
+      const res = await closeOrder({ id: event.id });
+      if (res.code == 200) {
+
+        const { setMessageText } = useMessageStore();
+        setMessageText("Bet placed");
       }
     },
     // 加载更多
