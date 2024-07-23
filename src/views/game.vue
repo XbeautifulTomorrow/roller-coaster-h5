@@ -84,7 +84,7 @@
           </div>
         </div>
       </div>
-      <div :class="['buy_btn', buyStatus == 'sell' && 'down']" @click="handleBuy('buy')">
+      <div :class="['buy_btn', buyStatus == 'sell' && 'down']" @click="handleBuy()">
         <span>PLACE BET</span>
       </div>
       <div class="other_box">
@@ -125,7 +125,7 @@
               </div>
               <div class="info_data">{{ `X ${item.multiplier}` }}</div>
               <div class="info_data">{{ item.price }}</div>
-              <div class="info_data">{{ item.exitPrice }}</div>
+              <div class="info_data">{{ item.ebustPrice }}</div>
               <div :class="['info_data', item.income >= 0 ? 'up' : 'drop']">
                 {{ `${Number(item.income) >= 0 ? '+' : '-'}` + unitConversion(item.income || 0) }}
               </div>
@@ -157,20 +157,21 @@ import { useMessageStore } from "@/store/message.js";
 import bigNumber from 'bignumber.js';
 
 interface orderInfo {
-  "id": number, // ID
-  "userName": string, // 用户昵称
-  "userId": number, // 用户ID
-  "amount": number, // 购买数量
-  "coinName": string, //币种:RCP/RCT,
-  "price": number, // 价格
-  "multiplier": number, // 倍数
-  "exitPrice": number, // 退出价格
-  "income": number, // 收益
-  "roi": string, // 盈亏
-  "createTime": string, // 创建时间
-  "updateTime": string, // 更新时间
-  "strikeOut": number,  // 退出状态
-  "side": string // 买入类型
+  id: number, // ID
+  userName: string, // 用户昵称
+  userId: number, // 用户ID
+  amount: number, // 购买数量
+  coinName: string, //币种:RCP/RCT,
+  price: number, // 价格
+  multiplier: number, // 倍数
+  exitPrice: number, // 退出价格
+  income: number, // 收益，前端计算
+  roi: string, // 盈亏
+  createTime: string, // 创建时间
+  updateTime: string, // 更新时间
+  strikeOut: number,  // 退出状态
+  side: string // 买入类型
+  ebustPrice: number // 爆仓价格，前端计算
   [x: string]: string | number | any;
 }
 
@@ -225,20 +226,7 @@ export default defineComponent({
     // 当前爆仓价格
     EbustPrice() {
       const { currentPrice, buyStatus, buyMultiplier } = this;
-      // 倍率
-      const multiple = new bigNumber(1).dividedBy(buyMultiplier).minus(0.00068);
-      if (buyStatus == "buy") {
-        // 多 开仓价1000， 倍数100，当前价格
-        // 当前价格<=1000*(1-(1 / 100 - 0.00068))  时 爆仓
-        const price = new bigNumber(1).minus(multiple).multipliedBy(currentPrice);
-        return accurateDecimal(price, 2)
-      } else {
-        // 空 开仓价1000， 倍数100，当前价格
-        //当前价格>=1000*(1+(1 / 100 - 0.00068)) 时爆仓
-
-        const price = new bigNumber(1).plus(multiple).multipliedBy(currentPrice);
-        return accurateDecimal(price, 2)
-      }
+      return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
     },
   },
   created() {
@@ -402,6 +390,10 @@ export default defineComponent({
     handleAll() {
       this.showType = false;
     },
+    // 设置购买类型
+    handlebuyType(event: any) {
+      this.buyType = event;
+    },
     // 更改折线图类型
     handleType(event: any) {
       this.sseType = event.val;
@@ -416,12 +408,12 @@ export default defineComponent({
       this.buyNum = accurateDecimal(this.buyNum / 2, 2);
     },
     // 购买
-    async handleBuy(type: string) {
+    async handleBuy() {
       const params = {
         coinName: "RCP",
         multiplier: this.buyMultiplier,
         amount: this.buyNum,
-        carOrderTypeEnum: type
+        carOrderTypeEnum: this.buyStatus
       };
       const res = await addOrder(params);
       if (res.code == 200) {
@@ -457,6 +449,11 @@ export default defineComponent({
         }
       }
     },
+    // 加载更多
+    nextQuery() {
+      this.page++;
+      this.fetchOrderData(2, false);
+    },
     // 平仓
     async handleCloseOrder(event: orderInfo) {
       const res = await closeOrder({ id: event.id });
@@ -466,14 +463,51 @@ export default defineComponent({
         setMessageText("Bet placed");
       }
     },
-    // 加载更多
-    nextQuery() {
-      this.page++;
-      this.fetchOrderData(2, false);
+    /**
+     * 计算爆仓价格。
+     * @param {number} price - 买入价格。
+     * @param {string} type - 类型，'buy':多/'sell':空
+     * @param {number} multiple - 杠杆倍数。
+     * @returns {string} - 爆仓价格，保留两位小数的字符串形式。
+     */
+    handleEbust(price: number, type: string, multiple: number) {
+      // 倍率
+      const multiples = new bigNumber(1).dividedBy(multiple).minus(0.00068);
+      if (type == "buy") {
+        // 多 开仓价1000， 倍数100，当前价格
+        // 当前价格<=1000*(1-(1 / 100 - 0.00068))  时 爆仓
+        const bustPrice = new bigNumber(1).minus(multiples).multipliedBy(price);
+        return accurateDecimal(bustPrice, 2)
+      } else {
+        // 空 开仓价1000， 倍数100，当前价格
+        //当前价格>=1000*(1+(1 / 100 - 0.00068)) 时爆仓
+
+        const bustPrice = new bigNumber(1).plus(multiples).multipliedBy(price);
+        return accurateDecimal(bustPrice, 2)
+      }
     },
-    // 设置购买类型
-    handlebuyType(event: any) {
-      this.buyType = event;
+    /**
+     * 动态计算收益
+     * @param {string} type - 类型，'buy':多/'sell':空
+     * @param {number} buyPrice - 买入价格。
+     * @param {number} sellPrice - 卖出价格。
+     * @param {number} buyNum - 买入数量。
+     * @param {number} multiple - 杠杆倍数。
+     * @returns {number} 返回计算后的利润，保留两位小数。
+     */
+    getProfit(type: string, buyPrice: number, sellPrice: number, buyNum: number, multiple: number) {
+
+      const diffNum = new bigNumber(sellPrice).minus(buyPrice); // 差值
+      const profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum); // 盈利
+      if (type == 'buy') {
+        // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
+        const typeNum = new bigNumber(0).plus(profit);
+        return accurateDecimal(typeNum, 2)
+      } else {
+        // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
+        const typeNum = new bigNumber(0).minus(profit);
+        return accurateDecimal(typeNum, 2)
+      }
     },
     // 设置图表数据
     setOptions(xAxis: any, series: any) {
@@ -578,6 +612,17 @@ export default defineComponent({
         this.eventSource.close();
         this.connectSSE();
       }
+    },
+    currentPrice(newV, oldV) {
+      for (let i = 0; i < this.orderData.length; i++) {
+        const element = this.orderData[i];
+        element.ebustPrice = this.handleEbust(element.price, element.side, element.multiplier);
+        element.income = this.getProfit(element.side, element.price, newV, element.amount, element.multiplier);
+
+        this.orderData[i] = element;
+      }
+
+      this.$forceUpdate();
     }
   }
 });
