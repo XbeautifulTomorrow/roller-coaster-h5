@@ -108,7 +108,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useCheckInStore } from '@/store/check_in.js';
+import { useGameStore } from '@/store/game.js';
 
 export default defineComponent({
   data() {
@@ -117,11 +117,11 @@ export default defineComponent({
   computed: {
     showRules: {
       get() {
-        const { showRules } = useCheckInStore();
+        const { showRules } = useGameStore();
         return showRules
       },
       set(val: boolean) {
-        const { setShowRules } = useCheckInStore();
+        const { setShowRules } = useGameStore();
         setShowRules(val)
       }
     },

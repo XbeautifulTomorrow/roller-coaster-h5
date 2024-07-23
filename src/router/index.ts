@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/store/user.js";
 import { validateToken, telegramLogin } from "@/services/api/user";
-import { useCheckInStore, } from '@/store/check_in.js';
 import { setLocalStore, setSessionStore, getSessionStore, removeSessionStore } from "@/utils";
 
 //1. 定义要使用到的路由组件  （一定要使用文件的全名，得包含文件后缀名）
@@ -82,14 +81,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (urlParam && urlParam != urlParams) {
     setSessionStore("urlParams", urlParam);
-    // 如果推送最新
-    if (urlParam.indexOf("next_") > -1) {
-      const paramArray = urlParam.split("_");
-      if (paramArray.length >= 2) {
-        const useCheckIn = useCheckInStore();
-        useCheckIn.setChallengeId(paramArray[1]);
-      }
-    } else if (urlParam.indexOf("frens") > -1) {
+    if (urlParam.indexOf("frens") > -1) {
       setSessionStore('nextPath', "/frens");
     } else if (urlParam.indexOf("3base") > -1) {
       setSessionStore('recommend', "3base");

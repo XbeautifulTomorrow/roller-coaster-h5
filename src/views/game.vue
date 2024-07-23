@@ -48,10 +48,22 @@
             <span>BUY</span>
             <div class="buy_input">
               <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
-              <v-text-field label="" v-model="buyNum" bg-color="rgba(0,0,0,0)" type="number" color="#fff" variant="solo"
-                hide-details="auto"></v-text-field>
+              <v-text-field label="" v-model="buyNum" bg-color="rgba(0,0,0,0)" type="number" color="#fff"
+                variant="plain" hide-details="auto"></v-text-field>
               <div class="multiples_btn" @click="handleMinus()">1/2</div>
               <div class="multiples_btn" @click="handlePlus()">x2</div>
+            </div>
+          </div>
+          <div class="stop_profit" v-if="buyType == 'AUTO'">
+            <span>TAKE PROFIT AT PRICE/PROFIT</span>
+            <div class="profit_input">
+              <v-text-field label="" v-model="stopProfit.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
+                variant="plain" hide-details="auto"></v-text-field>
+              <div class="profit_input_box up">
+                <span>+</span>
+                <v-text-field label="" v-model="stopProfit.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
+                  color="#fff" variant="plain" hide-details="auto"></v-text-field>
+              </div>
             </div>
           </div>
           <div class="buy_multiples">
@@ -60,11 +72,23 @@
               <div class="buy_input">
                 <span class="multiples">x</span>
                 <v-text-field label="" v-model="buyMultiplier" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-                  variant="solo" hide-details="auto"></v-text-field>
+                  variant="plain" hide-details="auto"></v-text-field>
               </div>
               <div class="bust_price">
                 <div>Bust Price:</div>
                 <div class="bust_val">{{ EbustPrice }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="stop_loss" v-if="buyType == 'AUTO'">
+            <span>CLOSE BET AT PRICE/LOSS</span>
+            <div class="profit_input">
+              <v-text-field label="" v-model="stopLoss.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
+                variant="plain" hide-details="auto"></v-text-field>
+              <div class="profit_input_box down">
+                <span>-</span>
+                <v-text-field label="" v-model="stopLoss.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
+                  color="#fff" variant="plain" hide-details="auto"></v-text-field>
               </div>
             </div>
           </div>
@@ -80,13 +104,14 @@
           </div>
           <div class="end">
             <span style="color: #f60e0e;font-weight: bold;">Wild</span>
-            <span> · x1</span>
+            <span> · x1000</span>
           </div>
         </div>
       </div>
-      <div :class="['buy_btn', buyStatus == 'sell' && 'down']" @click="handleBuy()">
-        <span>PLACE BET</span>
-      </div>
+      <v-btn :class="['buy_btn', buyStatus == 'sell' && 'down']" @click="handleBuy()" width="100%" height="32"
+        rounded="lg" size="small" :disabled="!isBuy">
+        <span class="finished">PLACE ORDER</span>
+      </v-btn>
       <div class="other_box">
         <div class="other_item">
           <v-img :width="16" cover src="@/assets/images/svg/game/description.svg"></v-img>
@@ -100,47 +125,68 @@
     </div>
     <div class="order_panel">
       <div class="order_type">
-        <div class="order_type_item active">Active Bets</div>
-        <div class="order_type_item">Closed Bets</div>
-        <div class="order_type_item">Public Bets</div>
-      </div>
-      <div class="order_list">
-        <div class="order_title">
-          <div class="title_item">BET</div>
-          <div class="title_item">WAGER</div>
-          <div class="title_item">X</div>
-          <div class="title_item">ENTRY PRICE</div>
-          <div class="title_item">EBUST PRICE</div>
-          <div class="title_item">P&L</div>
+        <div :class="['order_type_item', orderType == 0 ? 'active' : '']" @click="handleOrderStatus(0)">
+          Active Bets
         </div>
-        <div class="order_data">
-          <div class="order_data_item" v-for="(item, index) in orderData" :key="index">
-            <div class="data_item_info">
-              <div class="info_data">
-                <v-img :width="16" cover :src="item.side == 'sell' ? drop : up"></v-img>
-              </div>
-              <div class="info_data">
+        <div :class="['order_type_item', orderType == 1 ? 'active' : '']" @click="handleOrderStatus(1)">
+          Closed Bets
+        </div>
+        <div :class="['order_type_item', orderType == 2 ? 'active' : '']" @click="handleOrderStatus(2)">
+          Public Bets
+        </div>
+      </div>
+      <div class="order_data_list">
+        <div class="order_data_item" v-for="(item, index) in orderData" :key="index">
+          <div class="order_types">
+            <v-img :width="24" cover v-if="item.side == 'sell'" :src="drop"></v-img>
+            <v-img :width="24" cover v-else :src="up"></v-img>
+          </div>
+          <div class="order_data">
+            <div class="order_data_info">
+              <div class="title">AMOUNT</div>
+              <div class="val amount">
                 <span>{{ unitConversion(item.amount) }}</span>
                 <v-img :width="14" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
               </div>
-              <div class="info_data">{{ `X ${item.multiplier}` }}</div>
-              <div class="info_data">{{ item.price }}</div>
-              <div class="info_data">{{ item.ebustPrice }}</div>
-              <div :class="['info_data', item.income >= 0 ? 'up' : 'drop']">
-                {{ `${Number(item.income) >= 0 ? '+' : '-'}` + unitConversion(item.income || 0) }}
+            </div>
+            <div class="order_data_info">
+              <div class="title">X</div>
+              <div class="val">{{ `x${Number(item.multiplier).toLocaleString()}` }}</div>
+            </div>
+            <div class="order_data_info">
+              <div class="title">ENTRY PRICE</div>
+              <div class="val">{{ Number(item.price).toLocaleString() }}</div>
+            </div>
+            <div class="order_data_info">
+              <div class="title">BUST PRICE</div>
+              <div class="val">{{ Number(item.ebustPrice).toLocaleString() }}</div>
+            </div>
+            <div class="order_data_info" v-if="orderType == 1">
+              <div class="title">EXIT PRICE</div>
+              <div class="val">{{ Number(item.exitPrice).toLocaleString() }}</div>
+            </div>
+            <div class="order_data_info">
+              <div class="title">P&L</div>
+              <div :class="['val', item.income >= 0 ? 'up' : 'drop']">
+                {{ `${Number(item.income) >= 0 ? '+' : ''}` + unitConversion(item.income || 0) }}
               </div>
             </div>
-            <div class="data_item_operating">
-              <div class="operating_btn" @click="handleCloseOrder(item)">CASH OUT</div>
-              <div class="config_btn">
-                <v-img :width="14" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
-                <v-img :width="12" class="up" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
+            <div class="order_data_info" v-if="orderType == 0">
+              <div class="title">ROI</div>
+              <div :class="['val', item.roi >= 0 ? 'up' : 'drop']">
+                {{ `${Number(item.roi) >= 0 ? '+' : ''}${item.roi}%` }}
               </div>
             </div>
+            <div class="operating_btn" @click="handleCloseOrder(item)">CASH OUT</div>
+          </div>
+          <div class="order_btn" @click="handleConfig(item)">
+            <v-img :width="20" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
+            <v-img :width="16" class="up" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
           </div>
         </div>
       </div>
     </div>
+    <stopAmount @onStop="fetchOrderData"></stopAmount>
   </div>
 </template>
 
@@ -149,12 +195,15 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import LineChart from "@/components/charts/LineChart.vue";
 import config from "@/services/env";
 import { defineComponent } from 'vue';
+import { useUserStore } from "@/store/user.js";
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
 import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
-import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
-import { useMessageStore } from "@/store/message.js";
+import { addOrder, getOrderData, closeOrder, setOrder } from "@/services/api/order.js";
 import bigNumber from 'bignumber.js';
+import stopAmount from "@/components/stopAmount/index.vue";
+import { useGameStore } from "@/store/game";
+// import { useMessageStore } from "@/store/message.js";
 
 interface orderInfo {
   id: number, // ID
@@ -166,7 +215,7 @@ interface orderInfo {
   multiplier: number, // 倍数
   exitPrice: number, // 退出价格
   income: number, // 收益，前端计算
-  roi: string, // 盈亏
+  roi: number, // 盈亏
   createTime: string, // 创建时间
   updateTime: string, // 更新时间
   strikeOut: number,  // 退出状态
@@ -174,6 +223,15 @@ interface orderInfo {
   ebustPrice: number // 爆仓价格，前端计算
   [x: string]: string | number | any;
 }
+
+// interface candlestick {
+//   bucket: string, // 开盘时间
+//   lastTs: string, // 最后更新时间
+//   open: string, // 开盘
+//   high: string, // 最高值
+//   low: string, // 最低值
+//   close: string // 收盘
+// }
 
 export default defineComponent({
   data() {
@@ -207,14 +265,26 @@ export default defineComponent({
       buyStatus: "buy", // 买/多 buy  卖/空 sell
       buyNum: 1000 as number | any, // 购买数量
       buyMultiplier: 1 as number | any, // 倍数
+      stopProfit: {
+        isPrice: true, // 是否价格
+        price: null as number | any, // 价格
+        profit: null as number | any, // 收益
+      }, // 止盈
+      stopLoss: {
+        isPrice: true, // 是否价格
+        price: null as number | any, // 价格
+        profit: null as number | any, // 收益
+      }, // 止损
       orderData: [] as Array<orderInfo>,
       finished: false,
+      orderType: 0 as number, // 0:进行中 1:已结束 2:其他玩家
       page: 1,
       size: 10
     };
   },
   components: {
-    LineChart
+    LineChart,
+    stopAmount
   },
   computed: {
     // 长连接类型
@@ -227,6 +297,30 @@ export default defineComponent({
     EbustPrice() {
       const { currentPrice, buyStatus, buyMultiplier } = this;
       return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
+    },
+    // 判断是否可购买
+    isBuy() {
+      const { buyType, buyNum, buyMultiplier, stopProfit, stopLoss } = this;
+      let isBuy = true;
+      if (!buyNum) {
+        isBuy = false;
+      };
+
+      if (!buyMultiplier) {
+        isBuy = false;
+      };
+
+      if (buyType == "AUTO") {
+        if (!stopProfit.price || !stopLoss.price) {
+          isBuy = false;
+        };
+
+        if (!stopProfit.profit || !stopLoss.profit) {
+          isBuy = false;
+        };
+      };
+
+      return isBuy
     },
   },
   created() {
@@ -254,7 +348,7 @@ export default defineComponent({
           `${url}coaster-server-sse/sse/createConnect` + `?time=${this.sseType}`,
           {
             // 设置重连时间
-            heartbeatTimeout: 5000,
+            heartbeatTimeout: 30000,
             // 添加token
             headers: headerParams,
           }
@@ -270,93 +364,65 @@ export default defineComponent({
       this.eventSource.onopen = (event: any) => {
         // 公共数据
         this.eventSource.addEventListener("COMMON_DATA", (e: any) => {
+
           try {
             const chart = JSON.parse(e.data);
             if (this.chartData.length <= 0) {
               this.chartData = chart;
               this.chartData.reverse();
-              this.currentPrice = this.chartData[this.chartData.length - 1].price;
-            } else {
-              this.chartData.push(...chart);
-              let last = null as any
-              if (chart.length > 0) {
-                last = chart[0];
-              }
-              if (Number(last.price) > Number(this.currentPrice)) {
-                this.isDrop = false;
+              if (this.sseType == "ms500") {
+                this.currentPrice = this.chartData[this.chartData.length - 1].price;
               } else {
-                this.isDrop = true;
+                this.currentPrice = this.chartData[this.chartData.length - 1].open;
               }
 
-              this.currentPrice = last.price;
-              this.chartData.shift();
+            } else {
+              if (this.sseType == "ms500") {
+                this.chartData.push(...chart);
+                this.chartData.shift();
+
+                let last = null as any
+
+                if (chart.length > 0) {
+                  last = chart[0];
+                }
+
+                if (Number(last.price) > Number(this.currentPrice)) {
+                  this.isDrop = false;
+                } else {
+                  this.isDrop = true;
+                }
+
+                this.currentPrice = last.price;
+              } else {
+                const lastData = this.chartData[this.chartData.length - 1];
+                if (lastData.bucket == chart.bucket) {
+                  this.chartData[this.chartData.length - 1] = chart;
+                } else {
+                  this.chartData.push(chart);
+                  this.chartData.shift();
+                }
+
+                if (Number(chart.open) > Number(this.currentPrice)) {
+                  this.isDrop = false;
+                } else {
+                  this.isDrop = true;
+                }
+
+                this.currentPrice = chart.open;
+              }
+
             }
           } catch (error) {
+
+          }
+          if (this.sseType == "ms500") {
+            this.setLineData();
+          } else {
+            this.setCandlestickData();
           }
 
-          let series = [];
-          series.push({
-            type: "line",
-            data: this.chartData.map(function (item) {
-              return item.price;
-            }),
-            smooth: true,
-            sampling: 'lttb',
-            symbol: "none",
-            showSymbol: false,
-            showLegendSymbol: false,
-            animation: true,
-            animationDurationUpdate: 300, // 数据更新的动画时长
-            animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
-            animationDelayUpdate: 0, // 数据更新的动画延迟时间
-            areaStyle: {
-              color: {
-                type: "linear",
-                x: 0,
-                y: 0,
-                x2: 0,
-                y2: 1,
-                colorStops: [
-                  {
-                    offset: 0,
-                    color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
-                  },
-                ],
-                global: false, // 缺省为 false
-              },
-            },
-            markLine: {
-              animation: false,
-              symbol: 'none', // 标记线两端的标记类型
-              lineStyle: {
-                color: this.isDrop ? '#ff4949' : '#72f238',
-              },
-              data: [
-                {
-                  name: this.chartData[this.chartData.length - 1].price,
-                  yAxis: this.chartData[this.chartData.length - 1].price
-                }
-              ],
-              label: {
-                height: 20,
-                lineHeight: 1,
-                formatter: this.chartData[this.chartData.length - 1].price,
-                backgroundColor: this.isDrop ? '#ff4949' : '#72f238',
-                borderRadius: 2,
-                padding: [0, 4, 0, 4]
-              }
-            }
-          });
 
-          let xAxis = this.chartData.map((item) => {
-            return item.localDateTime;
-          });
-
-          this.setOptions(xAxis, series);
         });
 
 
@@ -415,16 +481,52 @@ export default defineComponent({
         amount: this.buyNum,
         carOrderTypeEnum: this.buyStatus
       };
+
       const res = await addOrder(params);
       if (res.code == 200) {
+        this.fetchOrderData();
+        // 更新余额
+        const user = useUserStore();
+        user.fetchUserInfo();
 
-        const { setMessageText } = useMessageStore();
-        setMessageText("Bet placed");
+        if (this.buyType == "AUTO") {
+          this.handleStopOder(res.data);
+        }
+      }
+    },
+    async handleStopOder(event: orderInfo) {
+      const { stopProfit, stopLoss } = this;
+      const res = await setOrder({
+        id: event.id,
+        profit: stopProfit.price,
+        loss: stopLoss.price
+      })
+      if (res.code == 200) {
+        this.fetchOrderData();
+
+        this.stopProfit = {
+          isPrice: true, // 是否价格
+          price: null, // 价格
+          profit: null, // 收益
+        }; // 止盈
+        this.stopLoss = {
+          isPrice: true, // 是否价格
+          price: null, // 价格
+          profit: null, // 收益
+        } // 止损
+      }
+    },
+    handleOrderStatus(event: any) {
+      this.orderType = event;
+      if (event != 2) {
+        this.fetchOrderData();
+      } else {
+        this.orderData = [];
       }
     },
     // 获取订单列表
     async fetchOrderData(type = 1, isSearch = true) {
-      if (this.finished) return;
+
       let _page = this.page;
       if (isSearch) {
         this.finished = false;
@@ -433,7 +535,8 @@ export default defineComponent({
       }
       const res = await getOrderData({
         pageIndex: _page,
-        pageSize: this.size
+        pageSize: this.size,
+        status: this.orderType
       })
 
       if (res.code == 200) {
@@ -447,6 +550,15 @@ export default defineComponent({
         } else {
           this.orderData.push.apply(this.orderData, res.data.records);
         }
+
+        // 计算爆仓价格
+        for (let i = 0; i < this.orderData.length; i++) {
+          const element = this.orderData[i];
+          element.ebustPrice = this.handleEbust(element.price, element.side, element.multiplier);
+          this.orderData[i] = element;
+        }
+
+        this.$forceUpdate();
       }
     },
     // 加载更多
@@ -458,10 +570,17 @@ export default defineComponent({
     async handleCloseOrder(event: orderInfo) {
       const res = await closeOrder({ id: event.id });
       if (res.code == 200) {
-        this.fetchOrderData(2, false);
-        const { setMessageText } = useMessageStore();
-        setMessageText("Bet placed");
+        this.fetchOrderData();
+        // 更新余额
+        const user = useUserStore();
+        user.fetchUserInfo();
       }
+    },
+    // 设置止盈止损
+    handleConfig(event: orderInfo) {
+      const { setShowStop, setBuyInfo } = useGameStore();
+      setBuyInfo(event);
+      setShowStop(true);
     },
     /**
      * 计算爆仓价格。
@@ -508,6 +627,168 @@ export default defineComponent({
         const typeNum = new bigNumber(0).minus(profit);
         return accurateDecimal(typeNum, 2)
       }
+    },
+    // 计算止盈止损价格
+    handleStopPrice(num: any, type: string) {
+      if (type == "profit") {
+        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier);
+
+        this.stopProfit.profit = profit > 0 ? profit : null;
+      } else {
+        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier);
+        const loss = profit < 0 ? Math.abs(profit) : null;
+
+        if (loss) {
+          this.stopLoss.profit = Number(loss) > this.buyNum ? null : loss;
+        } else {
+          this.stopLoss.profit = null;
+        }
+      }
+    },
+    // 计算盈亏比例
+    handleProfitRatio(amount: number, income: number) {
+      if (amount == 0 || isNaN(amount) || isNaN(income)) {
+        return 0;
+      }
+
+      const ratio = new bigNumber(income).dividedBy(amount).multipliedBy(100);
+      return accurateDecimal(ratio, 2);
+    },
+    // 折线配置
+    setLineData() {
+      let series = [];
+      series.push({
+        type: "line",
+        data: this.chartData.map(function (item) {
+          return item.price;
+        }),
+        smooth: true,
+        sampling: 'lttb',
+        symbol: "none",
+        showSymbol: false,
+        showLegendSymbol: false,
+        animation: true,
+        animationDurationUpdate: 500, // 数据更新的动画时长
+        animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
+        animationDelayUpdate: 0, // 数据更新的动画延迟时间
+        areaStyle: {
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              {
+                offset: 0,
+                color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
+              },
+              {
+                offset: 1,
+                color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
+              },
+            ],
+            global: false, // 缺省为 false
+          },
+        },
+        markLine: {
+          animation: false,
+          symbol: 'none', // 标记线两端的标记类型
+          lineStyle: {
+            color: this.isDrop ? '#ff4949' : '#72f238',
+          },
+          data: [
+            {
+              name: this.chartData[this.chartData.length - 1].price,
+              yAxis: this.chartData[this.chartData.length - 1].price
+            }
+          ],
+          label: {
+            height: 20,
+            lineHeight: 1,
+            formatter: this.chartData[this.chartData.length - 1].price,
+            backgroundColor: this.isDrop ? '#ff4949' : '#72f238',
+            borderRadius: 2,
+            padding: [0, 4, 0, 4]
+          }
+        }
+      });
+
+      let xAxis = this.chartData.map((item) => {
+        return item.localDateTime;
+      });
+
+      this.setOptions(xAxis, series);
+    },
+    // K线配置
+    setCandlestickData() {
+      let series = [];
+      series.push({
+        type: "candlestick",
+        data: this.chartData.map(function (item) {
+          return [item.open, item.close, item.high, item.low];
+        }),
+        smooth: true,
+        sampling: 'lttb',
+        symbol: "none",
+        showSymbol: false,
+        showLegendSymbol: false,
+        animation: true,
+        animationDurationUpdate: 500, // 数据更新的动画时长
+        animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
+        animationDelayUpdate: 0, // 数据更新的动画延迟时间
+        itemStyle: {
+          color: "#C63E41",
+          color0: "#5CBC34",
+        },
+        areaStyle: {
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              {
+                offset: 0,
+                color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
+              },
+              {
+                offset: 1,
+                color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
+              },
+            ],
+            global: false, // 缺省为 false
+          },
+        },
+        markLine: {
+          animation: false,
+          symbol: 'none', // 标记线两端的标记类型
+          lineStyle: {
+            color: this.isDrop ? '#ff4949' : '#72f238',
+          },
+          data: [
+            {
+              name: this.chartData[this.chartData.length - 1].open,
+              yAxis: this.chartData[this.chartData.length - 1].open
+            }
+          ],
+          label: {
+            height: 20,
+            lineHeight: 1,
+            formatter: this.chartData[this.chartData.length - 1].open,
+            backgroundColor: this.isDrop ? '#ff4949' : '#72f238',
+            borderRadius: 2,
+            padding: [0, 4, 0, 4]
+          }
+        }
+      });
+
+      let xAxis = this.chartData.map((item) => {
+        return item.bucket;
+      });
+
+      this.setOptions(xAxis, series);
     },
     // 设置图表数据
     setOptions(xAxis: any, series: any) {
@@ -609,20 +890,90 @@ export default defineComponent({
   watch: {
     sseType(newV, oldV) {
       if (newV != oldV) {
-        this.eventSource.close();
-        this.connectSSE();
+        if (this.eventSource) {
+          this.eventSource.close();
+          this.eventSource = null;
+        }
+
+        this.chartData = [];
+        this.createSSE();
       }
     },
     currentPrice(newV, oldV) {
-      for (let i = 0; i < this.orderData.length; i++) {
-        const element = this.orderData[i];
-        element.ebustPrice = this.handleEbust(element.price, element.side, element.multiplier);
-        element.income = this.getProfit(element.side, element.price, newV, element.amount, element.multiplier);
-
-        this.orderData[i] = element;
+      if (this.orderType == 0) {
+        for (let i = 0; i < this.orderData.length; i++) {
+          const element = this.orderData[i];
+          element.income = this.getProfit(element.side, element.price, newV, element.amount, element.multiplier);
+          element.roi = this.handleProfitRatio(element.amount, element.income);
+          this.orderData[i] = element;
+        }
       }
 
+      if (this.buyType == "AUTO") {
+        if (this.stopProfit.isPrice) {
+          // 价格为准止盈
+          if (!this.stopProfit.price) return;
+          this.handleStopPrice(this.stopProfit.price, "profit");
+        }
+
+        if (this.stopLoss.isPrice) {
+          // 价格为准止损
+          if (!this.stopLoss.price) return;
+          this.handleStopPrice(this.stopLoss.price, "loss");
+        }
+      };
+
       this.$forceUpdate();
+    },
+    buyStatus(newV, oldV) {
+      if (this.buyType != "AUTO") return;
+      if (this.stopProfit.isPrice) {
+        // 价格为准止盈
+        if (!this.stopProfit.price) return;
+        this.handleStopPrice(this.stopProfit.price, "profit");
+      }
+
+      if (this.stopLoss.isPrice) {
+        // 价格为准止损
+        if (!this.stopLoss.price) return;
+        this.handleStopPrice(this.stopLoss.price, "loss");
+      }
+    },
+    buyNum(newV, oldV) {
+      if (this.buyType != "AUTO") return;
+      if (this.stopProfit.isPrice) {
+        // 价格为准止盈
+        if (!this.stopProfit.price) return;
+        this.handleStopPrice(this.stopProfit.price, "profit");
+      }
+
+      if (this.stopLoss.isPrice) {
+        // 价格为准止损
+        if (!this.stopLoss.price) return;
+        this.handleStopPrice(this.stopLoss.price, "loss");
+      }
+    },
+    buyMultiplier(newV, oldV) {
+      if (this.buyType != "AUTO") return;
+      if (this.stopProfit.isPrice) {
+        // 价格为准止盈
+        if (!this.stopProfit.price) return;
+        this.handleStopPrice(this.stopProfit.price, "profit");
+      }
+
+      if (this.stopLoss.isPrice) {
+        // 价格为准止损
+        if (!this.stopLoss.price) return;
+        this.handleStopPrice(this.stopLoss.price, "loss");
+      }
+    },
+    "stopProfit.price"(newV: any) {
+      if (!this.stopProfit.isPrice) return;
+      this.handleStopPrice(newV, "profit");
+    },
+    "stopLoss.price"(newV, oldV) {
+      if (!this.stopLoss.isPrice) return
+      this.handleStopPrice(newV, "loss");
     }
   }
 });
@@ -828,23 +1179,22 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  padding-top: 14px;
 
   &>div {
     flex: 1;
-  }
-
-  &>div+div {
-    margin-left: 8px;
+    min-width: 40%;
+    max-width: calc(50% - 4px);
+    padding-bottom: 14px;
   }
 }
 
 .buy_price,
 .buy_multiples {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   color: #B0B5C5;
-
-
 
   .buy_input {
     background-color: #161823;
@@ -853,7 +1203,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: 4px;
-
 
     .v-img {
       flex: none;
@@ -870,7 +1219,7 @@ export default defineComponent({
       border-radius: 4px;
       font-weight: 700;
       font-style: normal;
-      font-size: 14px;
+      font-size: 16px;
       color: #B0B5C5;
       padding: 2px 4px;
       line-height: 1;
@@ -916,8 +1265,76 @@ export default defineComponent({
   }
 }
 
+.stop_profit,
+.stop_loss {
+  font-size: 12px;
+  font-weight: bold;
+  color: #B0B5C5;
+
+  .profit_input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &>div {
+      max-width: calc(50% - 2px);
+    }
+
+    :deep(.v-field__input) {
+      padding: 4px;
+      min-height: 0;
+      color: #fff;
+      background-color: #161823;
+      border-radius: 6px;
+    }
+
+    .profit_input_box {
+      background-color: #161823;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+
+      span {
+        padding-right: 4px;
+      }
+
+      :deep(.v-field__input) {
+        padding: 0;
+        min-height: 0;
+        background-color: transparent;
+      }
+
+      &.up {
+        color: #66FF07;
+
+        :deep(.v-field__input) {
+          color: #66FF07;
+        }
+
+        &:hover {
+          box-shadow: 0px 0px 4px #66FF07;
+        }
+      }
+
+      &.down {
+        color: #FF0000;
+
+        :deep(.v-field__input) {
+          color: #FF0000;
+        }
+
+        &:hover {
+          box-shadow: 0px 0px 4px #FF0000;
+        }
+      }
+    }
+  }
+
+
+}
+
 .multiples_slider_box {
-  padding-top: 8px;
   overflow: hidden;
 
   :deep(.v-slider-track__background) {
@@ -1011,7 +1428,7 @@ export default defineComponent({
   align-items: center;
   justify-content: space-between;
   background-color: #242531;
-  border-radius: 4px;
+  border-radius: 4px 4px 0 0;
   overflow: hidden;
 
   .order_type_item {
@@ -1030,111 +1447,55 @@ export default defineComponent({
   }
 }
 
-.order_list {
-  padding-top: 8px;
-  overflow-x: scroll;
-}
-
-.order_title {
-  width: 430px;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  color: #B0B5C5;
-
-  .title_item {
-    flex: 1;
-    white-space: nowrap;
-    text-align: center;
-  }
-
-  .title_item:nth-child(1) {
-    min-width: 30px;
-  }
-
-  .title_item:nth-child(2) {
-    min-width: 80px;
-  }
-
-  .title_item:nth-child(3) {
-    min-width: 60px;
-  }
-
-  .title_item:nth-child(4) {
-    min-width: 100px;
-  }
-
-  .title_item:nth-child(5) {
-    min-width: 100px;
-  }
-
-  .title_item:nth-child(6) {
-    min-width: 60px;
-  }
-}
-
-.order_data {
-  width: 430px;
+.order_data_list {
 
   .order_data_item:nth-child(2n-1) {
-    background-color: #2d303e;
+    background-color: #323444;
   }
 }
 
 .order_data_item {
-  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
 
-  .data_item_info {
+  .order_types {
+    margin-right: 8px;
+  }
+
+  .order_data {
+    flex: 1;
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
 
-    .info_data {
-      flex: 1;
-      white-space: nowrap;
+  .order_data_info {
+    min-width: 30%;
+    padding: 4px 0;
+    flex: 1;
+
+    .title {
+      font-size: 12px;
+      color: #B0B5C5;
+    }
+
+    .val {
       color: #fff;
       font-weight: bold;
       font-size: 12px;
-      text-align: center;
       line-height: 1;
-    }
 
-    .info_data:nth-child(1) {
-      min-width: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      &.amount {
+        display: flex;
+        align-items: center;
 
-      .v-img {
-        flex: none;
+        .v-img {
+          flex: none;
+          margin-left: 4px;
+        }
       }
-    }
-
-    .info_data:nth-child(2) {
-      min-width: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .v-img {
-        flex: none;
-        margin-left: 4px;
-      }
-    }
-
-    .info_data:nth-child(3) {
-      min-width: 60px;
-    }
-
-    .info_data:nth-child(4) {
-      min-width: 100px;
-    }
-
-    .info_data:nth-child(5) {
-      min-width: 100px;
-    }
-
-    .info_data:nth-child(6) {
-      min-width: 60px;
 
       &.drop {
         color: #ff4949;
@@ -1146,45 +1507,42 @@ export default defineComponent({
     }
   }
 
-  .data_item_operating {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 4px;
+  .operating_btn {
+    flex: 1;
+    background-color: rgba(255, 232, 26, 1);
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0px 4px 4px 0px rgba(242, 9, 9, 0.15) inset;
+    font-weight: 700;
+    font-size: 14px;
+    color: #000000;
+    padding: 6px 0;
+    line-height: 1;
+    text-align: center;
+  }
 
-    .operating_btn {
-      width: 90%;
-      background-color: rgba(122, 255, 0, 0.1843137254901961);
-      border-radius: 4px;
-      padding: 4px;
-      color: #10A200;
-      font-size: 12px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: 4px;
+  .order_btn {
+    width: 28px;
+    height: 28px;
+    position: relative;
+    margin-left: 8px;
+
+    .drop {
+      position: absolute;
+      bottom: 0;
+      left: 0;
     }
 
-    .config_btn {
-      width: 22px;
-      height: 22px;
-      position: relative;
-      margin-right: 4px;
-
-      .drop {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-      }
-
-      .up {
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
+    .up {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   }
+}
+
+.finished {
+  text-transform: none;
+  letter-spacing: 0;
 }
 </style>

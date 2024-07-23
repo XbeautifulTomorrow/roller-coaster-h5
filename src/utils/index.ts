@@ -417,6 +417,7 @@ export const accurateDecimal = (number: any, format: any, zeroFill: boolean = fa
     }
     return str;
   }
+
   return number;
 };
 

@@ -33,7 +33,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useUserStore } from "@/store/user.js";
-import { useCheckInStore } from "@/store/check_in.js";
 import { getUserInfo } from "@/services/api/user";
 
 export default defineComponent({
@@ -62,8 +61,6 @@ export default defineComponent({
   methods: {
     getUserInfo: getUserInfo,
     toMain() {
-      const checkInStore = useCheckInStore();
-      checkInStore.setChallengeId(null);
       this.$router.push('/activity');
     },
     toFrens() {
