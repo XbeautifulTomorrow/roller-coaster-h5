@@ -236,7 +236,7 @@ interface orderInfo {
 export default defineComponent({
   data() {
     return {
-      sseType: "ms500",
+      sseType: "s30",
       eventSource: null as any,
       currentPrice: 1000 as number | any,
       isDrop: false,
@@ -421,10 +421,7 @@ export default defineComponent({
           } else {
             this.setCandlestickData();
           }
-
-
         });
-
 
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
           this.fetchOrderData();

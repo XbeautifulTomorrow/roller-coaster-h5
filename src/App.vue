@@ -191,3 +191,16 @@ html {
   z-index: 3000 !important;
 }
 </style>
+<style>
+/* 针对Chrome, Edge等浏览器 */
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 针对Firefox浏览器 */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+</style>
