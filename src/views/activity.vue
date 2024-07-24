@@ -1,6 +1,6 @@
 <template>
   <div class="activity_wrapper">
-    <div class="activity_item new_bie" @click="startGame(1)">
+    <div class="activity_item new_bie" @click="startGame('BASIC')">
       <v-img class="game_img" :width="200" cover src="@/assets/images/activity/new_bie.png"></v-img>
       <div class="item_name">BASIC</div>
       <div class="game_info">
@@ -14,7 +14,7 @@
         </div>
       </div>
     </div>
-    <div class="activity_item advanced" @click="startGame(2)">
+    <div class="activity_item advanced" @click="startGame('ADVANCED')">
       <v-img class="game_img" :width="250" cover src="@/assets/images/activity/advanced.png"></v-img>
       <div class="item_name">ADVANCED</div>
       <div class="game_info">
@@ -28,7 +28,7 @@
         </div>
       </div>
     </div>
-    <div class="activity_item legendary" @click="startGame(3)">
+    <div class="activity_item legendary" @click="startGame('LEGENDARY')">
       <v-img class="game_img" :width="220" cover src="@/assets/images/activity/legendary.png"></v-img>
       <div class="item_name">LEGENDARY</div>
       <div class="game_info">
@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-
+import { useGameStore } from "@/store/game";
 
 export default defineComponent({
   data() {
@@ -56,6 +56,8 @@ export default defineComponent({
   methods: {
     startGame(event: any) {
       console.log(event)
+      const { setGameLevel } = useGameStore();
+      setGameLevel(event);
       // 开始游戏
       this.$router.push('/game');
     }

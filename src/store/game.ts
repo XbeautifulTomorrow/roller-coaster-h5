@@ -19,9 +19,11 @@ interface orderInfo {
   [x: string]: string | number | any;
 }
 
+type Level = "BASIC" | "ADVANCED" | "LEGENDARY"
+
 export const useGameStore = defineStore("game", {
   state: () => ({
-    challengeId: null, // 当前挑战Id
+    gameLevel: "" as Level, // 当前挑战Id
     showRules: false, // 显示规则
     showStop: false, // 显示止盈止损设置
     buyInfo: null as orderInfo | any // 买入信息
@@ -29,12 +31,12 @@ export const useGameStore = defineStore("game", {
   persist: {
     enabled: true,
     strategies: [
-      { key: "challengeId", storage: sessionStorage, paths: ["challengeId"] },
+      { key: "gameLevel", storage: sessionStorage, paths: ["gameLevel"] },
     ],
   },
   actions: {
-    setChallengeId(data: any) {
-      this.challengeId = data;
+    setGameLevel(data: any) {
+      this.gameLevel = data;
     },
     setShowRules(data: any) {
       this.showRules = data;

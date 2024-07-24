@@ -179,7 +179,7 @@
             </div>
             <div class="operating_btn" v-if="orderType == 0" @click="handleCloseOrder(item)">CASH OUT</div>
           </div>
-          <div class="order_btn" @click="handleConfig(item)">
+          <div class="order_btn" @click="handleConfig(item)" v-if="orderType == 0">
             <v-img :width="20" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
             <v-img :width="16" class="up" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
           </div>
@@ -264,7 +264,7 @@ export default defineComponent({
       buyType: "MANUAL",
       buyStatus: "buy", // 买/多 buy  卖/空 sell
       buyNum: 1000 as number | any, // 购买数量
-      buyMultiplier: 1 as number | any, // 倍数
+      buyMultiplier: 1000 as number | any, // 倍数
       stopProfit: {
         isPrice: true, // 是否价格
         price: null as number | any, // 价格
@@ -297,6 +297,11 @@ export default defineComponent({
     EbustPrice() {
       const { currentPrice, buyStatus, buyMultiplier } = this;
       return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
+    },
+    // 当前房间
+    gameLevel() {
+      const { gameLevel } = useGameStore();
+      return gameLevel;
     },
     // 判断是否可购买
     isBuy() {
@@ -345,7 +350,7 @@ export default defineComponent({
 
         // 初始化创建SSE
         this.eventSource = new EventSourcePolyfill(
-          `${url}coaster-server-sse/sse/createConnect` + `?time=${this.sseType}`,
+          `${url}coaster-server-sse/sse/createConnect` + `?time=${this.sseType}&numberSessionsEnum=${this.gameLevel}`,
           {
             // 设置重连时间
             heartbeatTimeout: 30000,
@@ -476,7 +481,8 @@ export default defineComponent({
         coinName: "RCP",
         multiplier: this.buyMultiplier,
         amount: this.buyNum,
-        carOrderTypeEnum: this.buyStatus
+        carOrderTypeEnum: this.buyStatus,
+        numberSessionsEnum: this.gameLevel
       };
 
       const res = await addOrder(params);
@@ -516,10 +522,10 @@ export default defineComponent({
     },
     handleOrderStatus(event: any) {
       this.orderType = event;
+      this.orderData = [];
+
       if (event != 2) {
         this.fetchOrderData();
-      } else {
-        this.orderData = [];
       }
     },
     // 获取订单列表
