@@ -236,7 +236,7 @@ interface orderInfo {
 export default defineComponent({
   data() {
     return {
-      sseType: "s30",
+      sseType: "ms500",
       eventSource: null as any,
       currentPrice: 1000 as number | any,
       isDrop: false,
@@ -470,7 +470,7 @@ export default defineComponent({
     handleMinus() {
       this.buyNum = accurateDecimal(this.buyNum / 2, 2);
     },
-    // 购买
+    // 买入
     async handleBuy() {
       const params = {
         coinName: "RCP",
@@ -491,12 +491,13 @@ export default defineComponent({
         }
       }
     },
+    // 设置止盈止损
     async handleStopOder(event: orderInfo) {
       const { stopProfit, stopLoss } = this;
       const res = await setOrder({
         id: event.id,
-        profit: stopProfit.price,
-        loss: stopLoss.price
+        profit: stopProfit.profit,
+        loss: stopLoss.profit
       })
       if (res.code == 200) {
         this.fetchOrderData();
@@ -664,10 +665,10 @@ export default defineComponent({
         symbol: "none",
         showSymbol: false,
         showLegendSymbol: false,
-        animation: true,
         animationDurationUpdate: 500, // 数据更新的动画时长
         animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
         animationDelayUpdate: 0, // 数据更新的动画延迟时间
+        universalTransition: true,
         areaStyle: {
           color: {
             type: "linear",
@@ -730,10 +731,10 @@ export default defineComponent({
         symbol: "none",
         showSymbol: false,
         showLegendSymbol: false,
-        animation: true,
         animationDurationUpdate: 500, // 数据更新的动画时长
         animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
         animationDelayUpdate: 0, // 数据更新的动画延迟时间
+        universalTransition: true,
         itemStyle: {
           color: "#C63E41",
           color0: "#5CBC34",

@@ -2,7 +2,7 @@
   <div class="activity_wrapper">
     <div class="activity_item new_bie" @click="startGame(1)">
       <v-img class="game_img" :width="200" cover src="@/assets/images/activity/new_bie.png"></v-img>
-      <div class="item_name">NEWBIE</div>
+      <div class="item_name">BASIC</div>
       <div class="game_info">
         <div class="info_left">
           <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>

@@ -149,8 +149,8 @@ export default defineComponent({
       const { buyInfo: { id }, stopProfit, stopLoss } = this;
       const res = await setOrder({
         id: id,
-        profit: stopProfit.price,
-        loss: stopLoss.price
+        profit: stopProfit.profit,
+        loss: stopLoss.profit
       })
       if (res.code == 200) {
         this.$emit("onStop");
