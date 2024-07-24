@@ -177,7 +177,7 @@
                 {{ `${Number(item.roi) >= 0 ? '+' : ''}${item.roi}%` }}
               </div>
             </div>
-            <div class="operating_btn" @click="handleCloseOrder(item)">CASH OUT</div>
+            <div class="operating_btn" v-if="orderType == 0" @click="handleCloseOrder(item)">CASH OUT</div>
           </div>
           <div class="order_btn" @click="handleConfig(item)">
             <v-img :width="20" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
