@@ -616,15 +616,21 @@ export default defineComponent({
      * @param {number} sellPrice - 卖出价格。
      * @param {number} buyNum - 买入数量。
      * @param {number} multiple - 杠杆倍数。
+     * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的利润，保留两位小数。
      */
-    getProfit(type: string, buyPrice: number, sellPrice: number, buyNum: number, multiple: number) {
+    getProfit(type: string, buyPrice: number, sellPrice: number, buyNum: number, multiple: number, isFee: boolean) {
 
       const diffNum = new bigNumber(sellPrice).minus(buyPrice); // 差值
-      const profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum).multipliedBy(0.95); // 盈利
+      let profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum); // 盈利
+
+      if (isFee) {
+        profit = profit.multipliedBy(0.95); // 有服务费
+      }
+
       if (type == 'buy') {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
-        const typeNum = new bigNumber(0).plus(profit);
+        const typeNum = new bigNumber(0).plus(profit).multipliedBy(0.95);
         return accurateDecimal(typeNum, 2)
       } else {
         // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
@@ -635,21 +641,27 @@ export default defineComponent({
     /**
      * 根据收益计算卖出价格
      * @param {number} profit - 预期收益
+     * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的卖出价格。
      */
-    getSellPrice(profit: number) {
+    getSellPrice(profit: number, isFee: boolean) {
       const { currentPrice, buyNum, buyMultiplier } = this;
-      const sellPrice = new bigNumber(profit).dividedBy(buyMultiplier).dividedBy(buyNum).multipliedBy(currentPrice).plus(currentPrice);
+      if (isFee) {
+        profit = Number(new bigNumber(profit).multipliedBy(1.05));
+      }
+      // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
+      const multiplierNum = new bigNumber(buyMultiplier).multipliedBy(buyNum);
+      const sellPrice = new bigNumber(profit).dividedBy(multiplierNum).multipliedBy(currentPrice).plus(currentPrice);
       return accurateDecimal(sellPrice, 2);
     },
     // 计算止盈止损价格
     handleStopProfit(num: any, type: string) {
       if (type == "profit") {
-        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier);
+        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier, true);
 
         this.stopProfit.profit = profit > 0 ? profit : null;
       } else {
-        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier);
+        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier, false);
         const loss = profit < 0 ? Math.abs(profit) : null;
 
         if (loss) {
@@ -917,7 +929,7 @@ export default defineComponent({
       if (this.orderType == 0) {
         for (let i = 0; i < this.orderData.length; i++) {
           const element = this.orderData[i];
-          element.income = this.getProfit(element.side, element.price, newV, element.amount, element.multiplier);
+          element.income = this.getProfit(element.side, element.price, newV, element.amount, element.multiplier, true);
           element.roi = this.handleProfitRatio(element.amount, element.income);
           this.orderData[i] = element;
         }
@@ -933,7 +945,7 @@ export default defineComponent({
           };
         } else {
           if (this.stopProfit.profit) {
-            this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+            this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
           };
         }
 
@@ -944,7 +956,7 @@ export default defineComponent({
           };
         } else {
           if (this.stopLoss.profit) {
-            this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+            this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
           };
         }
       };
@@ -960,7 +972,7 @@ export default defineComponent({
         };
       } else {
         if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
         };
       }
 
@@ -971,7 +983,7 @@ export default defineComponent({
         };
       } else {
         if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
         };
       }
     },
@@ -984,7 +996,7 @@ export default defineComponent({
         };
       } else {
         if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
         };
       }
 
@@ -995,7 +1007,7 @@ export default defineComponent({
         };
       } else {
         if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
         };
       }
     },
@@ -1008,7 +1020,7 @@ export default defineComponent({
         };
       } else {
         if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
         };
       }
 
@@ -1019,7 +1031,7 @@ export default defineComponent({
         };
       } else {
         if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
         };
       }
     },
@@ -1029,7 +1041,7 @@ export default defineComponent({
     },
     "stopProfit.profit"(newV: any) {
       if (this.stopProfit.isPrice) return;
-      this.stopProfit.price = this.getSellPrice(newV);
+      this.stopProfit.price = this.getSellPrice(newV, true);
     },
     "stopLoss.price"(newV, oldV) {
       if (!this.stopLoss.isPrice) return
@@ -1039,7 +1051,7 @@ export default defineComponent({
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice) return;
       if (newV > 0 && newV <= this.buyNum) {
-        this.stopLoss.price = this.getSellPrice(-newV);
+        this.stopLoss.price = this.getSellPrice(-newV, true);
       } else {
         this.stopLoss.price = null;
       }

@@ -108,11 +108,11 @@ export default defineComponent({
     handleStopProfit(num: any, type: string) {
       const { amount } = this.buyInfo;
       if (type == "profit") {
-        const profit = this.getProfit(num);
+        const profit = this.getProfit(num, true);
 
         this.stopProfit.profit = profit > 0 ? profit : null;
       } else {
-        const profit = this.getProfit(num);
+        const profit = this.getProfit(num, false);
         const loss = profit < 0 ? Math.abs(profit) : null;
 
         if (loss) {
@@ -125,12 +125,17 @@ export default defineComponent({
     /**
      * 根据卖出价格计算收益
      * @param {number} sellPrice - 卖出价格。
+     * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的利润，保留两位小数。
      */
-    getProfit(sellPrice: number) {
+    getProfit(sellPrice: number, isFee: boolean) {
       const { side, price, amount, multiplier } = this.buyInfo;
       const diffNum = new bigNumber(sellPrice).minus(price); // 差值
-      const profit = diffNum.dividedBy(price).multipliedBy(multiplier).multipliedBy(amount).multipliedBy(0.95); // 盈利
+      let profit = diffNum.dividedBy(price).multipliedBy(multiplier).multipliedBy(amount); // 盈利
+
+      if (isFee) {
+        profit = profit.multipliedBy(0.95); // 有服务费
+      }
 
       if (side == 'buy') {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
@@ -145,11 +150,18 @@ export default defineComponent({
     /**
      * 根据收益计算卖出价格
      * @param {number} profit - 预期收益
+     * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的卖出价格。
      */
-    getSellPrice(profit: number) {
+    getSellPrice(profit: number, isFee: boolean) {
       const { price, amount, multiplier } = this.buyInfo;
-      const sellPrice = new bigNumber(profit).dividedBy(multiplier).dividedBy(amount).multipliedBy(price).plus(price);
+      if (isFee) {
+        profit = Number(new bigNumber(profit).multipliedBy(1.05));
+      }
+
+      // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
+      const multiplierNum = new bigNumber(multiplier).multipliedBy(amount);
+      const sellPrice = new bigNumber(profit).dividedBy(multiplierNum).multipliedBy(price).plus(price);
       return accurateDecimal(sellPrice, 2);
     },
     async handleSubmit() {
@@ -172,7 +184,7 @@ export default defineComponent({
     },
     "stopProfit.profit"(newV: any) {
       if (this.stopProfit.isPrice) return;
-      this.stopProfit.price = this.getSellPrice(newV);
+      this.stopProfit.price = this.getSellPrice(newV, true);
     },
     "stopLoss.price"(newV, oldV) {
       if (!this.stopLoss.isPrice) return
@@ -181,9 +193,8 @@ export default defineComponent({
 
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice) return;
-      const price = this.getSellPrice(newV);
       if (newV > 0 && newV <= this.buyInfo.amount) {
-        this.stopLoss.price = price;
+        this.stopLoss.price = this.getSellPrice(-newV, false);
       } else {
         this.stopLoss.price = null;
       }
