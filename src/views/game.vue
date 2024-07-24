@@ -58,11 +58,11 @@
             <span>TAKE PROFIT AT PRICE/PROFIT</span>
             <div class="profit_input">
               <v-text-field label="" v-model="stopProfit.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-                variant="plain" hide-details="auto"></v-text-field>
+                variant="plain" hide-details="auto" @focus="stopProfit.isPrice = true"></v-text-field>
               <div class="profit_input_box up">
                 <span>+</span>
                 <v-text-field label="" v-model="stopProfit.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
-                  color="#fff" variant="plain" hide-details="auto"></v-text-field>
+                  color="#fff" variant="plain" hide-details="auto" @focus="stopProfit.isPrice = false"></v-text-field>
               </div>
             </div>
           </div>
@@ -84,11 +84,11 @@
             <span>CLOSE BET AT PRICE/LOSS</span>
             <div class="profit_input">
               <v-text-field label="" v-model="stopLoss.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-                variant="plain" hide-details="auto"></v-text-field>
+                variant="plain" hide-details="auto" @focus="stopLoss.isPrice = true"></v-text-field>
               <div class="profit_input_box down">
                 <span>-</span>
                 <v-text-field label="" v-model="stopLoss.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
-                  color="#fff" variant="plain" hide-details="auto"></v-text-field>
+                  color="#fff" variant="plain" hide-details="auto" @focus="stopLoss.isPrice = false"></v-text-field>
               </div>
             </div>
           </div>
@@ -174,7 +174,7 @@
             <div class="order_data_info" v-if="orderType == 0">
               <div class="title">ROI</div>
               <div :class="['val', item.roi >= 0 ? 'up' : 'drop']">
-                {{ `${Number(item.roi) >= 0 ? '+' : ''}${item.roi}%` }}
+                {{ `${Number(item.roi) >= 0 ? '+' : ''}${item.roi || 0}%` }}
               </div>
             </div>
             <div class="operating_btn" v-if="orderType == 0" @click="handleCloseOrder(item)">CASH OUT</div>
@@ -621,7 +621,7 @@ export default defineComponent({
     getProfit(type: string, buyPrice: number, sellPrice: number, buyNum: number, multiple: number) {
 
       const diffNum = new bigNumber(sellPrice).minus(buyPrice); // 差值
-      const profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum); // 盈利
+      const profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum).multipliedBy(0.95); // 盈利
       if (type == 'buy') {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
         const typeNum = new bigNumber(0).plus(profit);
@@ -632,8 +632,18 @@ export default defineComponent({
         return accurateDecimal(typeNum, 2)
       }
     },
+    /**
+     * 根据收益计算卖出价格
+     * @param {number} profit - 预期收益
+     * @returns {number} 返回计算后的卖出价格。
+     */
+    getSellPrice(profit: number) {
+      const { currentPrice, buyNum, buyMultiplier } = this;
+      const sellPrice = new bigNumber(profit).dividedBy(buyMultiplier).dividedBy(buyNum).multipliedBy(currentPrice).plus(currentPrice);
+      return accurateDecimal(sellPrice, 2);
+    },
     // 计算止盈止损价格
-    handleStopPrice(num: any, type: string) {
+    handleStopProfit(num: any, type: string) {
       if (type == "profit") {
         const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier);
 
@@ -914,16 +924,28 @@ export default defineComponent({
       }
 
       if (this.buyType == "AUTO") {
+        if (!this.buyMultiplier || !this.buyNum) return;
+
         if (this.stopProfit.isPrice) {
           // 价格为准止盈
-          if (!this.stopProfit.price) return;
-          this.handleStopPrice(this.stopProfit.price, "profit");
+          if (this.stopProfit.price) {
+            this.handleStopProfit(this.stopProfit.price, "profit");
+          };
+        } else {
+          if (this.stopProfit.profit) {
+            this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+          };
         }
 
         if (this.stopLoss.isPrice) {
           // 价格为准止损
-          if (!this.stopLoss.price) return;
-          this.handleStopPrice(this.stopLoss.price, "loss");
+          if (this.stopLoss.price) {
+            this.handleStopProfit(this.stopLoss.price, "loss");
+          };
+        } else {
+          if (this.stopLoss.profit) {
+            this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+          };
         }
       };
 
@@ -933,52 +955,95 @@ export default defineComponent({
       if (this.buyType != "AUTO") return;
       if (this.stopProfit.isPrice) {
         // 价格为准止盈
-        if (!this.stopProfit.price) return;
-        this.handleStopPrice(this.stopProfit.price, "profit");
+        if (this.stopProfit.price) {
+          this.handleStopProfit(this.stopProfit.price, "profit");
+        };
+      } else {
+        if (this.stopProfit.profit) {
+          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+        };
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
-        if (!this.stopLoss.price) return;
-        this.handleStopPrice(this.stopLoss.price, "loss");
+        if (this.stopLoss.price) {
+          this.handleStopProfit(this.stopLoss.price, "loss");
+        };
+      } else {
+        if (this.stopLoss.profit) {
+          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+        };
       }
     },
     buyNum(newV, oldV) {
       if (this.buyType != "AUTO") return;
       if (this.stopProfit.isPrice) {
         // 价格为准止盈
-        if (!this.stopProfit.price) return;
-        this.handleStopPrice(this.stopProfit.price, "profit");
+        if (this.stopProfit.price) {
+          this.handleStopProfit(this.stopProfit.price, "profit");
+        };
+      } else {
+        if (this.stopProfit.profit) {
+          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+        };
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
-        if (!this.stopLoss.price) return;
-        this.handleStopPrice(this.stopLoss.price, "loss");
+        if (this.stopLoss.price) {
+          this.handleStopProfit(this.stopLoss.price, "loss");
+        };
+      } else {
+        if (this.stopLoss.profit) {
+          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+        };
       }
     },
     buyMultiplier(newV, oldV) {
       if (this.buyType != "AUTO") return;
       if (this.stopProfit.isPrice) {
         // 价格为准止盈
-        if (!this.stopProfit.price) return;
-        this.handleStopPrice(this.stopProfit.price, "profit");
+        if (this.stopProfit.price) {
+          this.handleStopProfit(this.stopProfit.price, "profit");
+        };
+      } else {
+        if (this.stopProfit.profit) {
+          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit);
+        };
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
-        if (!this.stopLoss.price) return;
-        this.handleStopPrice(this.stopLoss.price, "loss");
+        if (this.stopLoss.price) {
+          this.handleStopProfit(this.stopLoss.price, "loss");
+        };
+      } else {
+        if (this.stopLoss.profit) {
+          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit);
+        };
       }
     },
     "stopProfit.price"(newV: any) {
       if (!this.stopProfit.isPrice) return;
-      this.handleStopPrice(newV, "profit");
+      this.handleStopProfit(newV, "profit");
+    },
+    "stopProfit.profit"(newV: any) {
+      if (this.stopProfit.isPrice) return;
+      this.stopProfit.price = this.getSellPrice(newV);
     },
     "stopLoss.price"(newV, oldV) {
       if (!this.stopLoss.isPrice) return
-      this.handleStopPrice(newV, "loss");
-    }
+      this.handleStopProfit(newV, "loss");
+    },
+
+    "stopLoss.profit"(newV: any) {
+      if (this.stopLoss.isPrice) return;
+      if (newV > 0 && newV <= this.buyNum) {
+        this.stopLoss.price = this.getSellPrice(-newV);
+      } else {
+        this.stopLoss.price = null;
+      }
+    },
   }
 });
 </script>

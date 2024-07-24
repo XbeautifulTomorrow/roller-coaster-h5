@@ -6,11 +6,11 @@
           <span>TAKE PROFIT AT PRICE/PROFIT</span>
           <div class="profit_input">
             <v-text-field label="" v-model="stopProfit.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-              variant="plain" hide-details="auto"></v-text-field>
+              variant="plain" hide-details="auto" @focus="stopProfit.isPrice = true"></v-text-field>
             <div class="profit_input_box up">
               <span>+</span>
               <v-text-field label="" v-model="stopProfit.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
-                color="#fff" variant="plain" hide-details="auto"></v-text-field>
+                color="#fff" variant="plain" hide-details="auto" @focus="stopProfit.isPrice = false"></v-text-field>
             </div>
           </div>
         </div>
@@ -18,11 +18,11 @@
           <span>CLOSE BET AT PRICE/LOSS</span>
           <div class="profit_input">
             <v-text-field label="" v-model="stopLoss.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-              variant="plain" hide-details="auto"></v-text-field>
+              variant="plain" hide-details="auto" @focus="stopLoss.isPrice = true"></v-text-field>
             <div class="profit_input_box down">
               <span>-</span>
               <v-text-field label="" v-model="stopLoss.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
-                color="#fff" variant="plain" hide-details="auto"></v-text-field>
+                color="#fff" variant="plain" hide-details="auto" @focus="stopLoss.isPrice = false"></v-text-field>
             </div>
           </div>
         </div>
@@ -104,15 +104,15 @@ export default defineComponent({
     handleReady() {
       this.showStop = false;
     },
-    // 计算止盈止损价格
-    handleStopPrice(num: any, type: string) {
-      const { side, price, amount, multiplier } = this.buyInfo;
+    // 计算止盈止损收益
+    handleStopProfit(num: any, type: string) {
+      const { amount } = this.buyInfo;
       if (type == "profit") {
-        const profit = this.getProfit(side, price, num, amount, multiplier);
+        const profit = this.getProfit(num);
 
         this.stopProfit.profit = profit > 0 ? profit : null;
       } else {
-        const profit = this.getProfit(side, price, num, amount, multiplier);
+        const profit = this.getProfit(num);
         const loss = profit < 0 ? Math.abs(profit) : null;
 
         if (loss) {
@@ -123,19 +123,16 @@ export default defineComponent({
       }
     },
     /**
-     * 动态计算收益
-     * @param {string} type - 类型，'buy':多/'sell':空
-     * @param {number} buyPrice - 买入价格。
+     * 根据卖出价格计算收益
      * @param {number} sellPrice - 卖出价格。
-     * @param {number} buyNum - 买入数量。
-     * @param {number} multiple - 杠杆倍数。
      * @returns {number} 返回计算后的利润，保留两位小数。
      */
-    getProfit(type: string, buyPrice: number, sellPrice: number, buyNum: number, multiple: number) {
+    getProfit(sellPrice: number) {
+      const { side, price, amount, multiplier } = this.buyInfo;
+      const diffNum = new bigNumber(sellPrice).minus(price); // 差值
+      const profit = diffNum.dividedBy(price).multipliedBy(multiplier).multipliedBy(amount).multipliedBy(0.95); // 盈利
 
-      const diffNum = new bigNumber(sellPrice).minus(buyPrice); // 差值
-      const profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum); // 盈利
-      if (type == 'buy') {
+      if (side == 'buy') {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
         const typeNum = new bigNumber(0).plus(profit);
         return accurateDecimal(typeNum, 2)
@@ -144,6 +141,16 @@ export default defineComponent({
         const typeNum = new bigNumber(0).minus(profit);
         return accurateDecimal(typeNum, 2)
       }
+    },
+    /**
+     * 根据收益计算卖出价格
+     * @param {number} profit - 预期收益
+     * @returns {number} 返回计算后的卖出价格。
+     */
+    getSellPrice(profit: number) {
+      const { price, amount, multiplier } = this.buyInfo;
+      const sellPrice = new bigNumber(profit).dividedBy(multiplier).dividedBy(amount).multipliedBy(price).plus(price);
+      return accurateDecimal(sellPrice, 2);
     },
     async handleSubmit() {
       const { buyInfo: { id }, stopProfit, stopLoss } = this;
@@ -161,12 +168,26 @@ export default defineComponent({
   watch: {
     "stopProfit.price"(newV: any) {
       if (!this.stopProfit.isPrice) return;
-      this.handleStopPrice(newV, "profit");
+      this.handleStopProfit(newV, "profit");
+    },
+    "stopProfit.profit"(newV: any) {
+      if (this.stopProfit.isPrice) return;
+      this.stopProfit.price = this.getSellPrice(newV);
     },
     "stopLoss.price"(newV, oldV) {
       if (!this.stopLoss.isPrice) return
-      this.handleStopPrice(newV, "loss");
-    }
+      this.handleStopProfit(newV, "loss");
+    },
+
+    "stopLoss.profit"(newV: any) {
+      if (this.stopLoss.isPrice) return;
+      const price = this.getSellPrice(newV);
+      if (newV > 0 && newV <= this.buyInfo.amount) {
+        this.stopLoss.price = price;
+      } else {
+        this.stopLoss.price = null;
+      }
+    },
   }
 })
 </script>
