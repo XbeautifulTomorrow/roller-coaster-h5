@@ -1,43 +1,86 @@
 <template>
   <div class="activity_wrapper">
     <div class="activity_item new_bie" @click="startGame('BASIC')">
-      <v-img class="game_img" :width="200" cover src="@/assets/images/activity/new_bie.png"></v-img>
+      <v-img
+        class="game_img"
+        :width="200"
+        cover
+        src="@/assets/images/activity/new_bie.png"
+      ></v-img>
       <div class="item_name">BASIC</div>
       <div class="game_info">
         <div class="info_left">
-          <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/svg/check_in/gm_coin.svg"
+          ></v-img>
           <span>{{ `${1} - ${Number(10000).toLocaleString()}` }}</span>
         </div>
         <div class="info_right">
-          <v-img :width="16" cover src="@/assets/images/svg/activity/user.svg"></v-img>
+          <v-img
+            :width="16"
+            cover
+            src="@/assets/images/svg/activity/user.svg"
+          ></v-img>
           <span>11111</span>
         </div>
       </div>
     </div>
     <div class="activity_item advanced" @click="startGame('ADVANCED')">
-      <v-img class="game_img" :width="250" cover src="@/assets/images/activity/advanced.png"></v-img>
+      <v-img
+        class="game_img"
+        :width="250"
+        cover
+        src="@/assets/images/activity/advanced.png"
+      ></v-img>
       <div class="item_name">ADVANCED</div>
       <div class="game_info">
         <div class="info_left">
-          <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
-          <span>{{ `${Number(10000).toLocaleString()} - ${Number(100000000).toLocaleString()}` }}</span>
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/svg/check_in/gm_coin.svg"
+          ></v-img>
+          <span>{{
+            `${Number(10000).toLocaleString()} - ${Number(
+              100000000
+            ).toLocaleString()}`
+          }}</span>
         </div>
         <div class="info_right">
-          <v-img :width="16" cover src="@/assets/images/svg/activity/user.svg"></v-img>
+          <v-img
+            :width="16"
+            cover
+            src="@/assets/images/svg/activity/user.svg"
+          ></v-img>
           <span>11111</span>
         </div>
       </div>
     </div>
     <div class="activity_item legendary" @click="startGame('LEGENDARY')">
-      <v-img class="game_img" :width="220" cover src="@/assets/images/activity/legendary.png"></v-img>
+      <v-img
+        class="game_img"
+        :width="220"
+        cover
+        src="@/assets/images/activity/legendary.png"
+      ></v-img>
       <div class="item_name">LEGENDARY</div>
       <div class="game_info">
         <div class="info_left">
-          <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/svg/check_in/gm_coin.svg"
+          ></v-img>
           <span>{{ `${1} - ${Number(1000000).toLocaleString()}` }}</span>
         </div>
         <div class="info_right">
-          <v-img :width="16" cover src="@/assets/images/svg/activity/user.svg"></v-img>
+          <v-img
+            :width="16"
+            cover
+            src="@/assets/images/svg/activity/user.svg"
+          ></v-img>
           <span>11111</span>
         </div>
       </div>
@@ -46,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game";
 
 export default defineComponent({
@@ -55,13 +98,13 @@ export default defineComponent({
   },
   methods: {
     startGame(event: any) {
-      console.log(event)
+      console.log(event);
       const { setGameLevel } = useGameStore();
       setGameLevel(event);
       // 开始游戏
-      this.$router.push('/game');
-    }
-  }
+      this.$router.push("/game");
+    },
+  },
 });
 </script>
 <style lang="scss" scoped>
@@ -71,7 +114,7 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
 
-  .activity_item+.activity_item {
+  .activity_item + .activity_item {
     margin-top: 40px;
   }
 }
@@ -87,9 +130,12 @@ export default defineComponent({
   font-weight: bold;
   line-height: 1;
 
-
   &.new_bie {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(102, 176, 83, 1) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(102, 176, 83, 1) 100%
+    );
 
     .game_img {
       width: 200px;
@@ -114,7 +160,11 @@ export default defineComponent({
   }
 
   &.advanced {
-    background: linear-gradient(234deg, rgba(254, 199, 80, 1) 3%, rgba(253, 112, 19, 1) 95%);
+    background: linear-gradient(
+      234deg,
+      rgba(254, 199, 80, 1) 3%,
+      rgba(253, 112, 19, 1) 95%
+    );
     border: none;
     border-radius: 20px;
 
@@ -141,7 +191,11 @@ export default defineComponent({
   }
 
   &.legendary {
-    background: linear-gradient(180deg, rgba(193, 132, 255, 1) 0%, rgba(136, 50, 213, 1) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(193, 132, 255, 1) 0%,
+      rgba(136, 50, 213, 1) 100%
+    );
     border: none;
     border-radius: 20px;
 

@@ -1,16 +1,14 @@
 <template>
-  <div class="mine_wrapper">
-  </div>
+  <div class="mine_wrapper"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
-    return {
-    };
-  }
+    return {};
+  },
 });
 </script>
 <style lang="scss" scoped></style>

@@ -8,137 +8,82 @@
           <span>{{ Number(currentPrice).toLocaleString() }}</span>
         </div>
         <div class="close_time">
-          <v-img :width="14" cover src="@/assets/images/svg/game/remind.svg"></v-img>
+          <v-img
+            :width="14"
+            cover
+            src="@/assets/images/svg/game/remind.svg"
+          ></v-img>
           <span>{{ `ROUND ENDS IN:10:10:10` }}</span>
         </div>
       </div>
-      <div class="chart_type" @click.stop="showType = !showType;">
+      <div class="chart_type" @click.stop="showType = !showType">
         <span>{{ currentType }}</span>
         <v-icon icon="mdi-chevron-down" size="14"></v-icon>
       </div>
       <div class="chart_type_items" v-show="showType">
-        <div :class="['type_item', sseType == item.val && 'active']" v-for="(item, index) in typeDrop" :key="index"
-          @click.stop="handleType(item)">
+        <div
+          :class="['type_item', sseType == item.val && 'active']"
+          v-for="(item, index) in typeDrop"
+          :key="index"
+          @click.stop="handleType(item)"
+        >
           {{ item.text }}
         </div>
       </div>
     </div>
     <LineChart :chartData="lineChartData"></LineChart>
-    <div class="buying_panel">
-      <div class="buy_types">
-        <div :class="['buy_type_item', buyType == 'MANUAL' && 'active']" @click="handlebuyType('MANUAL')">MANUAL</div>
-        <div :class="['buy_type_item', buyType == 'AUTO' && 'active']" @click="handlebuyType('AUTO')">AUTO</div>
+    <div class="other_box">
+      <div class="other_item">
+        <v-img
+          :width="16"
+          cover
+          src="@/assets/images/svg/game/description.svg"
+        ></v-img>
+        <span>How It Works</span>
       </div>
-      <div class="manual_box">
-        <div class="buy_type_box">
-          <div :class="['buy_type_slider', buyStatus == 'sell' && 'down']"></div>
-          <div :class="['buy_type_item', buyStatus == 'buy' && 'up_active']" @click="buyStatus = 'buy'">
-            <v-img :width="16" v-if="buyStatus == 'buy'" cover :src="up"></v-img>
-            <v-img :width="16" v-else cover src="@/assets/images/svg/game/type_white.svg"></v-img>
-            <span>UP</span>
-          </div>
-          <div :class="['buy_type_item', buyStatus == 'sell' && 'down_active']" @click="buyStatus = 'sell'">
-            <v-img :width="16" v-if="buyStatus == 'sell'" cover :src="drop"></v-img>
-            <v-img :width="16" class="type_down" v-else cover src="@/assets/images/svg/game/type_white.svg"></v-img>
-            <span>DOWN</span>
-          </div>
-        </div>
-        <div class="buy_numer_info">
-          <div class="buy_price">
-            <span>BUY</span>
-            <div class="buy_input">
-              <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
-              <v-text-field label="" v-model="buyNum" bg-color="rgba(0,0,0,0)" type="number" color="#fff"
-                variant="plain" hide-details="auto"></v-text-field>
-              <div class="multiples_btn" @click="handleMinus()">1/2</div>
-              <div class="multiples_btn" @click="handlePlus()">x2</div>
-            </div>
-          </div>
-          <div class="stop_profit" v-if="buyType == 'AUTO'">
-            <span>TAKE PROFIT AT PRICE/PROFIT</span>
-            <div class="profit_input">
-              <v-text-field label="" v-model="stopProfit.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-                variant="plain" hide-details="auto" @focus="stopProfit.isPrice = true"></v-text-field>
-              <div class="profit_input_box up">
-                <span>+</span>
-                <v-text-field label="" v-model="stopProfit.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
-                  color="#fff" variant="plain" hide-details="auto" @focus="stopProfit.isPrice = false"></v-text-field>
-              </div>
-            </div>
-          </div>
-          <div class="buy_multiples">
-            <span>PAYOUT MULTIPLIER</span>
-            <div class="multiples_box">
-              <div class="buy_input">
-                <span class="multiples">x</span>
-                <v-text-field label="" v-model="buyMultiplier" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-                  variant="plain" hide-details="auto"></v-text-field>
-              </div>
-              <div class="bust_price">
-                <div>Bust Price:</div>
-                <div class="bust_val">{{ EbustPrice }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="stop_loss" v-if="buyType == 'AUTO'">
-            <span>CLOSE BET AT PRICE/LOSS</span>
-            <div class="profit_input">
-              <v-text-field label="" v-model="stopLoss.price" type="number" bg-color="rgba(0,0,0,0)" color="#fff"
-                variant="plain" hide-details="auto" @focus="stopLoss.isPrice = true"></v-text-field>
-              <div class="profit_input_box down">
-                <span>-</span>
-                <v-text-field label="" v-model="stopLoss.profit" type="number" bg-color="rgba(0,0,0,0)" base-color=""
-                  color="#fff" variant="plain" hide-details="auto" @focus="stopLoss.isPrice = false"></v-text-field>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="multiples_slider_box">
-        <v-slider v-model="buyMultiplier" :min="1" :max="1000" :step="0.01" hide-details="auto" thumb-size="14"
-          track-fill-color="rgba(0,0,0,0)" thumb-color="#fff" track-size="12"></v-slider>
-        <div class="multiples_point">
-          <div class="start">
-            <span>x1 · </span>
-            <span style="color: #0eff00;font-weight: bold;">Safe</span>
-          </div>
-          <div class="end">
-            <span style="color: #f60e0e;font-weight: bold;">Wild</span>
-            <span> · x1000</span>
-          </div>
-        </div>
-      </div>
-      <v-btn :class="['buy_btn', buyStatus == 'sell' && 'down']" @click="handleBuy()" width="100%" height="32"
-        rounded="lg" size="small" :disabled="!isBuy">
-        <span class="finished">PLACE ORDER</span>
-      </v-btn>
-      <div class="other_box">
-        <div class="other_item">
-          <v-img :width="16" cover src="@/assets/images/svg/game/description.svg"></v-img>
-          <span>How It Works</span>
-        </div>
-        <div class="other_item">
-          <v-img :width="16" cover src="@/assets/images/svg/game/calculator.svg"></v-img>
-          <span>ROI Calculator</span>
-        </div>
+      <div class="other_item">
+        <v-img
+          :width="16"
+          cover
+          src="@/assets/images/svg/game/calculator.svg"
+        ></v-img>
+        <span>ROI Calculator</span>
       </div>
     </div>
     <div class="order_panel">
       <div class="order_type">
-        <div :class="['order_type_item', orderType == 0 ? 'active' : '']" @click="handleOrderStatus(0)">
+        <div
+          :class="['order_type_item', orderType == 0 ? 'active' : '']"
+          @click="handleOrderStatus(0)"
+        >
           Active Bets
         </div>
-        <div :class="['order_type_item', orderType == 1 ? 'active' : '']" @click="handleOrderStatus(1)">
+        <div
+          :class="['order_type_item', orderType == 1 ? 'active' : '']"
+          @click="handleOrderStatus(1)"
+        >
           Closed Bets
         </div>
-        <div :class="['order_type_item', orderType == 2 ? 'active' : '']" @click="handleOrderStatus(2)">
+        <div
+          :class="['order_type_item', orderType == 2 ? 'active' : '']"
+          @click="handleOrderStatus(2)"
+        >
           Public Bets
         </div>
       </div>
       <div class="order_data_list">
-        <div class="order_data_item" v-for="(item, index) in orderData" :key="index">
+        <div
+          class="order_data_item"
+          v-for="(item, index) in orderData"
+          :key="index"
+        >
           <div class="order_types">
-            <v-img :width="24" cover v-if="item.side == 'sell'" :src="drop"></v-img>
+            <v-img
+              :width="24"
+              cover
+              v-if="item.side == 'sell'"
+              :src="drop"
+            ></v-img>
             <v-img :width="24" cover v-else :src="up"></v-img>
           </div>
           <div class="order_data">
@@ -146,12 +91,18 @@
               <div class="title">AMOUNT</div>
               <div class="val amount">
                 <span>{{ unitConversion(item.amount) }}</span>
-                <v-img :width="14" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
+                <v-img
+                  :width="14"
+                  cover
+                  src="@/assets/images/svg/check_in/gm_coin.svg"
+                ></v-img>
               </div>
             </div>
             <div class="order_data_info">
               <div class="title">X</div>
-              <div class="val">{{ `x${Number(item.multiplier).toLocaleString()}` }}</div>
+              <div class="val">
+                {{ `x${Number(item.multiplier).toLocaleString()}` }}
+              </div>
             </div>
             <div class="order_data_info">
               <div class="title">ENTRY PRICE</div>
@@ -159,33 +110,395 @@
             </div>
             <div class="order_data_info">
               <div class="title">BUST PRICE</div>
-              <div class="val">{{ Number(item.ebustPrice).toLocaleString() }}</div>
+              <div class="val">
+                {{ Number(item.ebustPrice).toLocaleString() }}
+              </div>
             </div>
             <div class="order_data_info" v-if="orderType == 1">
               <div class="title">EXIT PRICE</div>
-              <div class="val">{{ Number(item.exitPrice).toLocaleString() }}</div>
+              <div class="val">
+                {{ Number(item.exitPrice).toLocaleString() }}
+              </div>
             </div>
             <div class="order_data_info">
               <div class="title">P&L</div>
               <div :class="['val', item.income >= 0 ? 'up' : 'drop']">
-                {{ `${Number(item.income) >= 0 ? '+' : ''}` + unitConversion(item.income || 0) }}
+                {{
+                  `${Number(item.income) >= 0 ? "+" : ""}` +
+                  unitConversion(item.income || 0)
+                }}
               </div>
             </div>
             <div class="order_data_info" v-if="orderType == 0">
               <div class="title">ROI</div>
               <div :class="['val', item.roi >= 0 ? 'up' : 'drop']">
-                {{ `${Number(item.roi) >= 0 ? '+' : ''}${item.roi || 0}%` }}
+                {{ `${Number(item.roi) >= 0 ? "+" : ""}${item.roi || 0}%` }}
               </div>
             </div>
-            <div class="operating_btn" v-if="orderType == 0" @click="handleCloseOrder(item)">CASH OUT</div>
+            <div
+              class="operating_btn"
+              v-if="orderType == 0"
+              @click="handleCloseOrder(item)"
+            >
+              MARKET CLOSE
+            </div>
           </div>
-          <div class="order_btn" @click="handleConfig(item)" v-if="orderType == 0">
-            <v-img :width="20" class="drop" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
-            <v-img :width="16" class="up" cover src="@/assets/images/svg/game/config_white.svg"></v-img>
+          <div
+            class="order_btn"
+            @click="handleConfig(item)"
+            v-if="orderType == 0"
+          >
+            <v-img
+              :width="20"
+              class="drop"
+              cover
+              src="@/assets/images/svg/game/config_white.svg"
+            ></v-img>
+            <v-img
+              :width="16"
+              class="up"
+              cover
+              src="@/assets/images/svg/game/config_white.svg"
+            ></v-img>
           </div>
         </div>
       </div>
     </div>
+    <div class="buying_panel fixed">
+      <div class="buy_types">
+        <div :class="['buy_type_slider', buyType == 'AUTO' && 'auto']"></div>
+        <div
+          :class="['buy_type_item', buyType == 'MANUAL' && 'active']"
+          @click="handlebuyType('MANUAL')"
+        >
+          MANUAL
+        </div>
+        <div
+          :class="['buy_type_item', buyType == 'AUTO' && 'active']"
+          @click="handlebuyType('AUTO')"
+        >
+          AUTO
+        </div>
+      </div>
+      <div class="manual_box fixed">
+        <div class="buy_numer_info fixed">
+          <div class="buy_price fixed">
+            <div class="buy_input fixed">
+              <v-img
+                :width="24"
+                cover
+                src="@/assets/images/svg/check_in/gm_coin.svg"
+              ></v-img>
+              <v-text-field
+                label=""
+                v-model="buyNum"
+                bg-color="rgba(0,0,0,0)"
+                type="number"
+                color="#fff"
+                variant="plain"
+                hide-details="auto"
+              ></v-text-field>
+              <div class="multiples_btn fixed" @click="handleMinus()">1/2</div>
+              <div class="multiples_btn fixed" @click="handlePlus()">x2</div>
+            </div>
+          </div>
+          <div class="buy_type_box">
+            <div
+              :class="[
+                'buy_type_slider',
+                'fixed',
+                buyStatus == 'sell' && 'down',
+              ]"
+            ></div>
+            <div
+              :class="[
+                'buy_type_item',
+                'fixed',
+                buyStatus == 'buy' && 'up_active',
+              ]"
+              @click="buyStatus = 'buy'"
+            >
+              <v-img
+                :width="10"
+                v-if="buyStatus == 'buy'"
+                cover
+                :src="up"
+              ></v-img>
+              <v-img
+                :width="10"
+                v-else
+                cover
+                src="@/assets/images/svg/game/type_white.svg"
+              ></v-img>
+              <span>UP</span>
+            </div>
+            <div
+              :class="[
+                'buy_type_item',
+                'fixed',
+                buyStatus == 'sell' && 'down_active',
+              ]"
+              @click="buyStatus = 'sell'"
+            >
+              <v-img
+                :width="10"
+                v-if="buyStatus == 'sell'"
+                cover
+                :src="drop"
+              ></v-img>
+              <v-img
+                :width="10"
+                class="type_down"
+                v-else
+                cover
+                src="@/assets/images/svg/game/type_white.svg"
+              ></v-img>
+              <span>DOWN</span>
+            </div>
+          </div>
+          <div class="buy_multiples fixed">
+            <span>PAYOUT MULTIPLIER</span>
+            <div class="multiples_box">
+              <div class="buy_input fixed">
+                <span class="multiples">x</span>
+                <v-text-field
+                  label=""
+                  v-model="buyMultiplier"
+                  type="number"
+                  bg-color="rgba(0,0,0,0)"
+                  color="#fff"
+                  variant="plain"
+                  hide-details="auto"
+                ></v-text-field>
+              </div>
+              <div class="bust_price">
+                <div>Bust Price:</div>
+                <div class="bust_val">{{ EbustPrice }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="btn_box">
+            <v-btn
+              :class="['buy_btn', buyStatus == 'sell' && 'down']"
+              @click="handleBuy()"
+              width="100%"
+              height="40"
+              rounded="lg"
+              size="small"
+              :disabled="!isBuy"
+            >
+              <span class="finished">PLACE ORDER</span>
+            </v-btn>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Auto弹窗-->
+    <v-dialog
+      v-model="showAuto"
+      class="dialog_panel"
+      width="auto"
+      transition="dialog-bottom-transition"
+    >
+      <div class="dialog_box">
+        <div class="dialog_title">AUTO ORDER</div>
+        <div class="close_btn">
+          <v-img
+            :width="16"
+            cover
+            src="@/assets/images/svg/game/close.svg"
+          ></v-img>
+        </div>
+        <div class="buying_panel">
+          <div class="manual_box">
+            <div class="buy_type_panel">
+              <div class="buy_type_title">WILL THE PRICE GO UP OR DOWN?</div>
+              <div class="buy_type_box">
+                <div
+                  :class="['buy_type_slider', buyStatus == 'sell' && 'down']"
+                ></div>
+                <div
+                  :class="['buy_type_item', buyStatus == 'buy' && 'up_active']"
+                  @click="buyStatus = 'buy'"
+                >
+                  <v-img
+                    :width="16"
+                    v-if="buyStatus == 'buy'"
+                    cover
+                    :src="up"
+                  ></v-img>
+                  <v-img
+                    :width="16"
+                    v-else
+                    cover
+                    src="@/assets/images/svg/game/type_white.svg"
+                  ></v-img>
+                  <span>UP</span>
+                </div>
+                <div
+                  :class="[
+                    'buy_type_item',
+                    buyStatus == 'sell' && 'down_active',
+                  ]"
+                  @click="buyStatus = 'sell'"
+                >
+                  <v-img
+                    :width="16"
+                    v-if="buyStatus == 'sell'"
+                    cover
+                    :src="drop"
+                  ></v-img>
+                  <v-img
+                    :width="16"
+                    class="type_down"
+                    v-else
+                    cover
+                    src="@/assets/images/svg/game/type_white.svg"
+                  ></v-img>
+                  <span>DOWN</span>
+                </div>
+              </div>
+            </div>
+            <div class="buy_numer_info">
+              <div class="buy_price">
+                <div>BUY</div>
+                <div class="buy_input">
+                  <v-img
+                    :width="24"
+                    cover
+                    src="@/assets/images/svg/check_in/gm_coin.svg"
+                  ></v-img>
+                  <v-text-field
+                    label=""
+                    v-model="buyNum"
+                    bg-color="rgba(0,0,0,0)"
+                    type="number"
+                    color="#fff"
+                    variant="plain"
+                    hide-details="auto"
+                  ></v-text-field>
+                  <div class="multiples_btn" @click="handleMinus()">1/2</div>
+                  <div class="multiples_btn" @click="handlePlus()">x2</div>
+                </div>
+              </div>
+              <div class="buy_multiples">
+                <span>PAYOUT MULTIPLIER</span>
+                <div class="multiples_box">
+                  <div class="buy_input">
+                    <span class="multiples">x</span>
+                    <v-text-field
+                      label=""
+                      v-model="buyMultiplier"
+                      type="number"
+                      bg-color="rgba(0,0,0,0)"
+                      color="#fff"
+                      variant="plain"
+                      hide-details="auto"
+                    ></v-text-field>
+                  </div>
+                  <div class="bust_price">
+                    <div>Bust Price:</div>
+                    <div class="bust_val">{{ EbustPrice }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="multiples_slider_box">
+            <v-slider
+              v-model="buyMultiplier"
+              :min="1"
+              :max="1000"
+              :step="0.01"
+              hide-details="auto"
+              thumb-size="14"
+              track-fill-color="rgba(0,0,0,0)"
+              thumb-color="#fff"
+              track-size="12"
+            ></v-slider>
+            <div class="multiples_point">
+              <div class="start">
+                <span>x1 · </span>
+                <span style="color: #0eff00; font-weight: bold">Safe</span>
+              </div>
+              <div class="end">
+                <span style="color: #f60e0e; font-weight: bold">Wild</span>
+                <span> · x1000</span>
+              </div>
+            </div>
+          </div>
+          <div class="stop_profit">
+            <div>TAKE PROFIT AT PRICE/PROFIT</div>
+            <div class="profit_input">
+              <v-text-field
+                label=""
+                v-model="stopProfit.price"
+                type="number"
+                bg-color="rgba(0,0,0,0)"
+                color="#fff"
+                variant="plain"
+                hide-details="auto"
+                @focus="stopProfit.isPrice = true"
+              ></v-text-field>
+              <div class="profit_input_box up">
+                <span>+</span>
+                <v-text-field
+                  label=""
+                  v-model="stopProfit.profit"
+                  type="number"
+                  bg-color="rgba(0,0,0,0)"
+                  base-color=""
+                  color="#fff"
+                  variant="plain"
+                  hide-details="auto"
+                  @focus="stopProfit.isPrice = false"
+                ></v-text-field>
+              </div>
+            </div>
+          </div>
+          <div class="stop_loss">
+            <div>CLOSE BET AT PRICE/LOSS</div>
+            <div class="profit_input">
+              <v-text-field
+                label=""
+                v-model="stopLoss.price"
+                type="number"
+                bg-color="rgba(0,0,0,0)"
+                color="#fff"
+                variant="plain"
+                hide-details="auto"
+                @focus="stopLoss.isPrice = true"
+              ></v-text-field>
+              <div class="profit_input_box down">
+                <span>-</span>
+                <v-text-field
+                  label=""
+                  v-model="stopLoss.profit"
+                  type="number"
+                  bg-color="rgba(0,0,0,0)"
+                  base-color=""
+                  color="#fff"
+                  variant="plain"
+                  hide-details="auto"
+                  @focus="stopLoss.isPrice = false"
+                ></v-text-field>
+              </div>
+            </div>
+          </div>
+          <v-btn
+            :class="['buy_btn', buyStatus == 'sell' && 'down']"
+            @click="handleBuy()"
+            width="100%"
+            height="32"
+            rounded="lg"
+            size="small"
+            :disabled="!isBuy"
+          >
+            <span class="finished">PLACE ORDER</span>
+          </v-btn>
+        </div>
+      </div>
+    </v-dialog>
     <stopAmount @onStop="fetchOrderData"></stopAmount>
   </div>
 </template>
@@ -194,33 +507,38 @@
 import { EventSourcePolyfill } from "event-source-polyfill";
 import LineChart from "@/components/charts/LineChart.vue";
 import config from "@/services/env";
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
 import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
-import { addOrder, getOrderData, closeOrder, setOrder } from "@/services/api/order.js";
-import bigNumber from 'bignumber.js';
+import {
+  addOrder,
+  getOrderData,
+  closeOrder,
+  setOrder,
+} from "@/services/api/order.js";
+import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
 import { useGameStore } from "@/store/game";
 // import { useMessageStore } from "@/store/message.js";
 
 interface orderInfo {
-  id: number, // ID
-  userName: string, // 用户昵称
-  userId: number, // 用户ID
-  amount: number, // 购买数量
-  coinName: string, //币种:RCP/RCT,
-  price: number, // 价格
-  multiplier: number, // 倍数
-  exitPrice: number, // 退出价格
-  income: number, // 收益，前端计算
-  roi: number, // 盈亏
-  createTime: string, // 创建时间
-  updateTime: string, // 更新时间
-  strikeOut: number,  // 退出状态
-  side: string // 买入类型
-  ebustPrice: number // 爆仓价格，前端计算
+  id: number; // ID
+  userName: string; // 用户昵称
+  userId: number; // 用户ID
+  amount: number; // 购买数量
+  coinName: string; //币种:RCP/RCT,
+  price: number; // 价格
+  multiplier: number; // 倍数
+  exitPrice: number; // 退出价格
+  income: number; // 收益，前端计算
+  roi: number; // 盈亏
+  createTime: string; // 创建时间
+  updateTime: string; // 更新时间
+  strikeOut: number; // 退出状态
+  side: string; // 买入类型
+  ebustPrice: number; // 爆仓价格，前端计算
   [x: string]: string | number | any;
 }
 
@@ -279,12 +597,13 @@ export default defineComponent({
       finished: false,
       orderType: 0 as number, // 0:进行中 1:已结束 2:其他玩家
       page: 1,
-      size: 10
+      size: 10,
+      showAuto: false,
     };
   },
   components: {
     LineChart,
-    stopAmount
+    stopAmount,
   },
   computed: {
     // 长连接类型
@@ -309,23 +628,23 @@ export default defineComponent({
       let isBuy = true;
       if (!buyNum) {
         isBuy = false;
-      };
+      }
 
       if (!buyMultiplier) {
         isBuy = false;
-      };
+      }
 
       if (buyType == "AUTO") {
         if (!stopProfit.price || !stopLoss.price) {
           isBuy = false;
-        };
+        }
 
         if (!stopProfit.profit || !stopLoss.profit) {
           isBuy = false;
-        };
-      };
+        }
+      }
 
-      return isBuy
+      return isBuy;
     },
   },
   created() {
@@ -345,12 +664,13 @@ export default defineComponent({
 
         // 加载TOKEN
         if (localStorage.getItem("certificate")) {
-          headerParams["certificate"] = localStorage.getItem("certificate")
+          headerParams["certificate"] = localStorage.getItem("certificate");
         }
 
         // 初始化创建SSE
         this.eventSource = new EventSourcePolyfill(
-          `${url}coaster-server-sse/sse/createConnect` + `?time=${this.sseType}&numberSessionsEnum=${this.gameLevel}`,
+          `${url}coaster-server-sse/sse/createConnect` +
+            `?time=${this.sseType}&numberSessionsEnum=${this.gameLevel}`,
           {
             // 设置重连时间
             heartbeatTimeout: 30000,
@@ -369,24 +689,24 @@ export default defineComponent({
       this.eventSource.onopen = (event: any) => {
         // 公共数据
         this.eventSource.addEventListener("COMMON_DATA", (e: any) => {
-
           try {
             const chart = JSON.parse(e.data);
             if (this.chartData.length <= 0) {
               this.chartData = chart;
               this.chartData.reverse();
               if (this.sseType == "ms500") {
-                this.currentPrice = this.chartData[this.chartData.length - 1].price;
+                this.currentPrice =
+                  this.chartData[this.chartData.length - 1].price;
               } else {
-                this.currentPrice = this.chartData[this.chartData.length - 1].open;
+                this.currentPrice =
+                  this.chartData[this.chartData.length - 1].open;
               }
-
             } else {
               if (this.sseType == "ms500") {
                 this.chartData.push(...chart);
                 this.chartData.shift();
 
-                let last = null as any
+                let last = null as any;
 
                 if (chart.length > 0) {
                   last = chart[0];
@@ -416,11 +736,8 @@ export default defineComponent({
 
                 this.currentPrice = chart.open;
               }
-
             }
-          } catch (error) {
-
-          }
+          } catch (error) {}
           if (this.sseType == "ms500") {
             this.setLineData();
           } else {
@@ -430,7 +747,7 @@ export default defineComponent({
 
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
           this.fetchOrderData();
-        })
+        });
       };
 
       this.eventSource.onerror = (event: any) => {
@@ -461,6 +778,10 @@ export default defineComponent({
     // 设置购买类型
     handlebuyType(event: any) {
       this.buyType = event;
+
+      if (event == "AUTO") {
+        this.showAuto = true;
+      }
     },
     // 更改折线图类型
     handleType(event: any) {
@@ -482,7 +803,7 @@ export default defineComponent({
         multiplier: this.buyMultiplier,
         amount: this.buyNum,
         carOrderTypeEnum: this.buyStatus,
-        numberSessionsEnum: this.gameLevel
+        numberSessionsEnum: this.gameLevel,
       };
 
       const res = await addOrder(params);
@@ -503,8 +824,8 @@ export default defineComponent({
       const res = await setOrder({
         id: event.id,
         profit: stopProfit.profit,
-        loss: stopLoss.profit
-      })
+        loss: stopLoss.profit,
+      });
       if (res.code == 200) {
         this.fetchOrderData();
 
@@ -517,7 +838,7 @@ export default defineComponent({
           isPrice: true, // 是否价格
           price: null, // 价格
           profit: null, // 收益
-        } // 止损
+        }; // 止损
       }
     },
     handleOrderStatus(event: any) {
@@ -530,7 +851,6 @@ export default defineComponent({
     },
     // 获取订单列表
     async fetchOrderData(type = 1, isSearch = true) {
-
       let _page = this.page;
       if (isSearch) {
         this.finished = false;
@@ -540,8 +860,8 @@ export default defineComponent({
       const res = await getOrderData({
         pageIndex: _page,
         pageSize: this.size,
-        status: this.orderType
-      })
+        status: this.orderType,
+      });
 
       if (res.code == 200) {
         const pages = Math.ceil(res.data.total / res.data.size);
@@ -558,7 +878,11 @@ export default defineComponent({
         // 计算爆仓价格
         for (let i = 0; i < this.orderData.length; i++) {
           const element = this.orderData[i];
-          element.ebustPrice = this.handleEbust(element.price, element.side, element.multiplier);
+          element.ebustPrice = this.handleEbust(
+            element.price,
+            element.side,
+            element.multiplier
+          );
           this.orderData[i] = element;
         }
 
@@ -600,13 +924,13 @@ export default defineComponent({
         // 多 开仓价1000， 倍数100，当前价格
         // 当前价格<=1000*(1-(1 / 100 - 0.00068))  时 爆仓
         const bustPrice = new bigNumber(1).minus(multiples).multipliedBy(price);
-        return accurateDecimal(bustPrice, 2)
+        return accurateDecimal(bustPrice, 2);
       } else {
         // 空 开仓价1000， 倍数100，当前价格
         //当前价格>=1000*(1+(1 / 100 - 0.00068)) 时爆仓
 
         const bustPrice = new bigNumber(1).plus(multiples).multipliedBy(price);
-        return accurateDecimal(bustPrice, 2)
+        return accurateDecimal(bustPrice, 2);
       }
     },
     /**
@@ -619,23 +943,32 @@ export default defineComponent({
      * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的利润，保留两位小数。
      */
-    getProfit(type: string, buyPrice: number, sellPrice: number, buyNum: number, multiple: number, isFee: boolean) {
-
+    getProfit(
+      type: string,
+      buyPrice: number,
+      sellPrice: number,
+      buyNum: number,
+      multiple: number,
+      isFee: boolean
+    ) {
       const diffNum = new bigNumber(sellPrice).minus(buyPrice); // 差值
-      let profit = diffNum.dividedBy(buyPrice).multipliedBy(multiple).multipliedBy(buyNum); // 盈利
+      let profit = diffNum
+        .dividedBy(buyPrice)
+        .multipliedBy(multiple)
+        .multipliedBy(buyNum); // 盈利
 
       if (isFee) {
         profit = profit.multipliedBy(0.95); // 有服务费
       }
 
-      if (type == 'buy') {
+      if (type == "buy") {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
         const typeNum = new bigNumber(0).plus(profit).multipliedBy(0.95);
-        return accurateDecimal(typeNum, 2)
+        return accurateDecimal(typeNum, 2);
       } else {
         // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
         const typeNum = new bigNumber(0).minus(profit);
-        return accurateDecimal(typeNum, 2)
+        return accurateDecimal(typeNum, 2);
       }
     },
     /**
@@ -651,17 +984,34 @@ export default defineComponent({
       }
       // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
       const multiplierNum = new bigNumber(buyMultiplier).multipliedBy(buyNum);
-      const sellPrice = new bigNumber(profit).dividedBy(multiplierNum).multipliedBy(currentPrice).plus(currentPrice);
+      const sellPrice = new bigNumber(profit)
+        .dividedBy(multiplierNum)
+        .multipliedBy(currentPrice)
+        .plus(currentPrice);
       return accurateDecimal(sellPrice, 2);
     },
     // 计算止盈止损价格
     handleStopProfit(num: any, type: string) {
       if (type == "profit") {
-        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier, true);
+        const profit = this.getProfit(
+          this.buyStatus,
+          this.currentPrice,
+          num,
+          this.buyNum,
+          this.buyMultiplier,
+          true
+        );
 
         this.stopProfit.profit = profit > 0 ? profit : null;
       } else {
-        const profit = this.getProfit(this.buyStatus, this.currentPrice, num, this.buyNum, this.buyMultiplier, false);
+        const profit = this.getProfit(
+          this.buyStatus,
+          this.currentPrice,
+          num,
+          this.buyNum,
+          this.buyMultiplier,
+          false
+        );
         const loss = profit < 0 ? Math.abs(profit) : null;
 
         if (loss) {
@@ -689,12 +1039,12 @@ export default defineComponent({
           return item.price;
         }),
         smooth: true,
-        sampling: 'lttb',
+        sampling: "lttb",
         symbol: "none",
         showSymbol: false,
         showLegendSymbol: false,
         animationDurationUpdate: 500, // 数据更新的动画时长
-        animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
+        animationEasingUpdate: "cubicInOut", // 数据更新的缓动效果
         animationDelayUpdate: 0, // 数据更新的动画延迟时间
         universalTransition: true,
         areaStyle: {
@@ -719,25 +1069,25 @@ export default defineComponent({
         },
         markLine: {
           animation: false,
-          symbol: 'none', // 标记线两端的标记类型
+          symbol: "none", // 标记线两端的标记类型
           lineStyle: {
-            color: this.isDrop ? '#ff4949' : '#72f238',
+            color: this.isDrop ? "#ff4949" : "#72f238",
           },
           data: [
             {
               name: this.chartData[this.chartData.length - 1].price,
-              yAxis: this.chartData[this.chartData.length - 1].price
-            }
+              yAxis: this.chartData[this.chartData.length - 1].price,
+            },
           ],
           label: {
             height: 20,
             lineHeight: 1,
             formatter: this.chartData[this.chartData.length - 1].price,
-            backgroundColor: this.isDrop ? '#ff4949' : '#72f238',
+            backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
             borderRadius: 2,
-            padding: [0, 4, 0, 4]
-          }
-        }
+            padding: [0, 4, 0, 4],
+          },
+        },
       });
 
       let xAxis = this.chartData.map((item) => {
@@ -755,12 +1105,12 @@ export default defineComponent({
           return [item.open, item.close, item.high, item.low];
         }),
         smooth: true,
-        sampling: 'lttb',
+        sampling: "lttb",
         symbol: "none",
         showSymbol: false,
         showLegendSymbol: false,
         animationDurationUpdate: 500, // 数据更新的动画时长
-        animationEasingUpdate: 'cubicInOut', // 数据更新的缓动效果
+        animationEasingUpdate: "cubicInOut", // 数据更新的缓动效果
         animationDelayUpdate: 0, // 数据更新的动画延迟时间
         universalTransition: true,
         itemStyle: {
@@ -789,25 +1139,25 @@ export default defineComponent({
         },
         markLine: {
           animation: false,
-          symbol: 'none', // 标记线两端的标记类型
+          symbol: "none", // 标记线两端的标记类型
           lineStyle: {
-            color: this.isDrop ? '#ff4949' : '#72f238',
+            color: this.isDrop ? "#ff4949" : "#72f238",
           },
           data: [
             {
               name: this.chartData[this.chartData.length - 1].open,
-              yAxis: this.chartData[this.chartData.length - 1].open
-            }
+              yAxis: this.chartData[this.chartData.length - 1].open,
+            },
           ],
           label: {
             height: 20,
             lineHeight: 1,
             formatter: this.chartData[this.chartData.length - 1].open,
-            backgroundColor: this.isDrop ? '#ff4949' : '#72f238',
+            backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
             borderRadius: 2,
-            padding: [0, 4, 0, 4]
-          }
-        }
+            padding: [0, 4, 0, 4],
+          },
+        },
       });
 
       let xAxis = this.chartData.map((item) => {
@@ -818,7 +1168,6 @@ export default defineComponent({
     },
     // 设置图表数据
     setOptions(xAxis: any, series: any) {
-
       this.lineChartData = {
         color: ["#FFB018"],
         xAxis: {
@@ -827,7 +1176,7 @@ export default defineComponent({
           boundaryGap: false,
           axisTick: {
             show: true,
-            inside: true
+            inside: true,
           },
           axisLine: {
             lineStyle: {
@@ -839,7 +1188,7 @@ export default defineComponent({
             formatter: function (value: string, index: any) {
               const date = new Date(value);
               return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-            }
+            },
           },
           axisPointer: {
             show: true,
@@ -848,9 +1197,9 @@ export default defineComponent({
               formatter: function (params: any) {
                 return timeForStr(params.value, "MM/dd HH:mm:ss");
               },
-              backgroundColor: "#303545"
+              backgroundColor: "#303545",
             },
-          }
+          },
         },
         grid: {
           left: 10,
@@ -868,7 +1217,7 @@ export default defineComponent({
             return accurateDecimal(value.max + 20, 2);
           },
           axisTick: {
-            show: false
+            show: false,
           },
           axisLine: {
             show: false,
@@ -877,13 +1226,13 @@ export default defineComponent({
             },
           },
           axisLabel: {
-            color: "#c4bfbd"
+            color: "#c4bfbd",
           },
           axisPointer: {
             show: true,
             color: "#393E51",
             label: {
-              backgroundColor: "#303545"
+              backgroundColor: "#303545",
             },
           },
           splitLine: {
@@ -893,11 +1242,11 @@ export default defineComponent({
         },
         dataZoom: [
           {
-            type: 'inside',
-            filterMode: 'filter',
+            type: "inside",
+            filterMode: "filter",
             start: 98,
-            end: 100
-          }
+            end: 100,
+          },
         ],
         series: series,
       };
@@ -905,7 +1254,7 @@ export default defineComponent({
   },
   mounted() {
     const _this = this;
-    window.addEventListener('scroll', function () {
+    window.addEventListener("scroll", function () {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
         if (!_this.finished) {
           _this.nextQuery();
@@ -929,7 +1278,14 @@ export default defineComponent({
       if (this.orderType == 0) {
         for (let i = 0; i < this.orderData.length; i++) {
           const element = this.orderData[i];
-          element.income = this.getProfit(element.side, element.price, newV, element.amount, element.multiplier, true);
+          element.income = this.getProfit(
+            element.side,
+            element.price,
+            newV,
+            element.amount,
+            element.multiplier,
+            true
+          );
           element.roi = this.handleProfitRatio(element.amount, element.income);
           this.orderData[i] = element;
         }
@@ -942,24 +1298,30 @@ export default defineComponent({
           // 价格为准止盈
           if (this.stopProfit.price) {
             this.handleStopProfit(this.stopProfit.price, "profit");
-          };
+          }
         } else {
           if (this.stopProfit.profit) {
-            this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
-          };
+            this.stopProfit.price = this.getSellPrice(
+              this.stopProfit.profit,
+              true
+            );
+          }
         }
 
         if (this.stopLoss.isPrice) {
           // 价格为准止损
           if (this.stopLoss.price) {
             this.handleStopProfit(this.stopLoss.price, "loss");
-          };
+          }
         } else {
           if (this.stopLoss.profit) {
-            this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
-          };
+            this.stopLoss.price = this.getSellPrice(
+              -this.stopLoss.profit,
+              false
+            );
+          }
         }
-      };
+      }
 
       this.$forceUpdate();
     },
@@ -969,22 +1331,25 @@ export default defineComponent({
         // 价格为准止盈
         if (this.stopProfit.price) {
           this.handleStopProfit(this.stopProfit.price, "profit");
-        };
+        }
       } else {
         if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
-        };
+          this.stopProfit.price = this.getSellPrice(
+            this.stopProfit.profit,
+            true
+          );
+        }
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
         if (this.stopLoss.price) {
           this.handleStopProfit(this.stopLoss.price, "loss");
-        };
+        }
       } else {
         if (this.stopLoss.profit) {
           this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
-        };
+        }
       }
     },
     buyNum(newV, oldV) {
@@ -993,22 +1358,25 @@ export default defineComponent({
         // 价格为准止盈
         if (this.stopProfit.price) {
           this.handleStopProfit(this.stopProfit.price, "profit");
-        };
+        }
       } else {
         if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
-        };
+          this.stopProfit.price = this.getSellPrice(
+            this.stopProfit.profit,
+            true
+          );
+        }
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
         if (this.stopLoss.price) {
           this.handleStopProfit(this.stopLoss.price, "loss");
-        };
+        }
       } else {
         if (this.stopLoss.profit) {
           this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
-        };
+        }
       }
     },
     buyMultiplier(newV, oldV) {
@@ -1017,22 +1385,25 @@ export default defineComponent({
         // 价格为准止盈
         if (this.stopProfit.price) {
           this.handleStopProfit(this.stopProfit.price, "profit");
-        };
+        }
       } else {
         if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(this.stopProfit.profit, true);
-        };
+          this.stopProfit.price = this.getSellPrice(
+            this.stopProfit.profit,
+            true
+          );
+        }
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
         if (this.stopLoss.price) {
           this.handleStopProfit(this.stopLoss.price, "loss");
-        };
+        }
       } else {
         if (this.stopLoss.profit) {
           this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
-        };
+        }
       }
     },
     "stopProfit.price"(newV: any) {
@@ -1044,7 +1415,7 @@ export default defineComponent({
       this.stopProfit.price = this.getSellPrice(newV, true);
     },
     "stopLoss.price"(newV, oldV) {
-      if (!this.stopLoss.isPrice) return
+      if (!this.stopLoss.isPrice) return;
       this.handleStopProfit(newV, "loss");
     },
 
@@ -1056,7 +1427,12 @@ export default defineComponent({
         this.stopLoss.price = null;
       }
     },
-  }
+    showAuto(newV) {
+      if (!newV) {
+        this.buyType = "MANUAL";
+      }
+    },
+  },
 });
 </script>
 <style lang="scss" scoped>
@@ -1103,12 +1479,12 @@ export default defineComponent({
 
 .close_time {
   padding: 0 8px;
-  font-family: 'Arial Negreta', 'Arial Normal', 'Arial', sans-serif;
+  font-family: "Arial Negreta", "Arial Normal", "Arial", sans-serif;
   font-weight: 700;
   font-style: normal;
   font-size: 12px;
   line-height: 1;
-  color: #B0B5C5;
+  color: #b0b5c5;
   display: flex;
   align-items: center;
 
@@ -1159,41 +1535,80 @@ export default defineComponent({
 }
 
 .buying_panel {
-  padding-top: 8px;
+  margin: 16px;
+
+  &.fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 56px;
+    margin: 0;
+  }
 }
 
 .buy_types {
+  width: 200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  .buy_type_item+.buy_type_item {
-    margin-left: 8px;
-  }
+  position: relative;
+  background-color: #161823;
+  border-radius: 4px 4px 0 0;
+  padding: 4px;
+  box-sizing: border-box;
 
   .buy_type_item {
-    background-color: #323444;
     border-radius: 6px;
-    color: #EA980A;
+    color: #ea980a;
     text-align: center;
     font-size: 14px;
     color: #fff;
     line-height: 1;
-    padding: 4px 16px;
+    padding: 6px 8px;
     box-sizing: border-box;
     flex: 1;
+    z-index: 2;
 
     &.active {
-      text-shadow: 1px 1px 10px rgba(255, 222, 5, 0.6);
-      color: #EA980A;
+      color: #ea980a;
+    }
+  }
+
+  .buy_type_slider {
+    position: absolute;
+    background-color: #353744;
+    transition: all 0.3s;
+    border-radius: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+    z-index: 1;
+
+    &.auto {
+      left: 50%;
+      transition: all 0.3s;
     }
   }
 }
 
 .manual_box {
-  padding-top: 8px;
+  &.fixed {
+    padding: 8px;
+    background-color: #2e303e;
+    padding-bottom: 8px;
+  }
 }
 
+.buy_type_panel {
+  font-size: 14px;
+  color: #b0b5c5;
+  font-weight: bold;
+
+  .buy_type_title {
+    margin-bottom: 4px;
+  }
+}
 .buy_type_box {
   display: flex;
   align-items: center;
@@ -1202,10 +1617,6 @@ export default defineComponent({
   background-color: #161823;
   border-radius: 4px;
   padding: 4px;
-
-  .buy_type_item+.buy_type_item {
-    margin-left: 8px;
-  }
 
   .buy_type_item {
     flex: 1;
@@ -1219,6 +1630,16 @@ export default defineComponent({
     border-radius: 4px;
     z-index: 2;
 
+    &.fixed {
+      min-width: calc(50% - 2px);
+      font-size: 12px;
+      padding: 2px;
+
+      .v-img {
+        margin-right: 4px;
+      }
+    }
+
     .v-img {
       flex: none;
       margin-right: 8px;
@@ -1230,11 +1651,11 @@ export default defineComponent({
     }
 
     &.up_active {
-      color: #85F353;
+      color: #85f353;
     }
 
     &.down_active {
-      color: #FF4949;
+      color: #ff4949;
     }
   }
 
@@ -1244,13 +1665,13 @@ export default defineComponent({
     transition: all 0.3s;
     border-radius: 4px;
     left: 4px;
-    width: calc(50% - 8px);
+    width: calc(50% - 4px);
     height: calc(100% - 8px);
     z-index: 1;
 
     &.down {
       background-color: #41272b;
-      left: calc(50% + 4px);
+      left: 50%;
       transition: all 0.3s;
     }
   }
@@ -1260,22 +1681,42 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-direction: column;
   flex-wrap: wrap;
-  padding-top: 14px;
 
-  &>div {
+  & > div {
     flex: 1;
-    min-width: 40%;
-    max-width: calc(50% - 4px);
-    padding-bottom: 14px;
+    width: 100%;
+    margin-bottom: 14px;
+  }
+
+  &.fixed {
+    flex-direction: row;
+  }
+
+  &.fixed > div {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    margin-bottom: 4px;
+
+    &.buy_price,
+    &.buy_multiples {
+      min-width: 60%;
+      margin-right: 8px;
+    }
   }
 }
 
 .buy_price,
 .buy_multiples {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
-  color: #B0B5C5;
+  color: #b0b5c5;
+
+  & > div + div {
+    margin-top: 4px;
+  }
 
   .buy_input {
     background-color: #161823;
@@ -1285,13 +1726,24 @@ export default defineComponent({
     align-items: center;
     padding: 4px;
 
+    & > div + div {
+      margin-left: 4px;
+    }
+
     .v-img {
       flex: none;
+    }
+
+    &.fixed {
+      :deep(.v-field__input) {
+        line-height: 1;
+      }
     }
 
     :deep(.v-field__input) {
       padding: 0;
       min-height: 0;
+      line-height: 2;
       color: #fff;
     }
 
@@ -1301,24 +1753,25 @@ export default defineComponent({
       font-weight: 700;
       font-style: normal;
       font-size: 16px;
-      color: #B0B5C5;
-      padding: 2px 4px;
+      color: #b0b5c5;
+      padding: 6px 8px;
       line-height: 1;
-    }
+      width: 50px;
+      text-align: center;
 
-    .multiples_btn+.multiples_btn {
-      margin-left: 4px;
+      &.fixed {
+        padding: 4px;
+        width: 40px;
+      }
     }
 
     .multiples {
       font-weight: 700;
       font-style: normal;
       font-size: 14px;
-      color: #B0B5C5;
+      color: #b0b5c5;
       padding: 0 8px;
     }
-
-
   }
 
   .multiples_box {
@@ -1326,11 +1779,11 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
 
-    &>div:nth-child(1) {
+    & > div:nth-child(1) {
       flex: 1;
     }
 
-    &>div+div {
+    & > div + div {
       margin-left: 8px;
     }
   }
@@ -1348,22 +1801,28 @@ export default defineComponent({
 
 .stop_profit,
 .stop_loss {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
-  color: #B0B5C5;
+  color: #b0b5c5;
+  padding-bottom: 14px;
+
+  & > div + div {
+    margin-top: 4px;
+  }
 
   .profit_input {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    &>div {
+    & > div {
       max-width: calc(50% - 2px);
     }
 
     :deep(.v-field__input) {
-      padding: 4px;
+      padding: 4px 8px;
       min-height: 0;
+      line-height: 2;
       color: #fff;
       background-color: #161823;
       border-radius: 6px;
@@ -1374,10 +1833,12 @@ export default defineComponent({
       border-radius: 6px;
       display: flex;
       align-items: center;
-      padding: 4px;
+      padding: 4px 8px;
 
       span {
+        font-size: 20px;
         padding-right: 4px;
+        font-weight: bold;
       }
 
       :deep(.v-field__input) {
@@ -1387,36 +1848,34 @@ export default defineComponent({
       }
 
       &.up {
-        color: #66FF07;
+        color: #66ff07;
 
         :deep(.v-field__input) {
-          color: #66FF07;
+          color: #66ff07;
         }
 
         &:hover {
-          box-shadow: 0px 0px 4px #66FF07;
+          box-shadow: 0px 0px 4px #66ff07;
         }
       }
 
       &.down {
-        color: #FF0000;
+        color: #ff0000;
 
         :deep(.v-field__input) {
-          color: #FF0000;
+          color: #ff0000;
         }
 
         &:hover {
-          box-shadow: 0px 0px 4px #FF0000;
+          box-shadow: 0px 0px 4px #ff0000;
         }
       }
     }
   }
-
-
 }
 
 .multiples_slider_box {
-  overflow: hidden;
+  padding-bottom: 14px;
 
   :deep(.v-slider-track__background) {
     background: linear-gradient(90deg, #0eff00 0%, #e68007 46%, #f60e0e 100%);
@@ -1442,7 +1901,7 @@ export default defineComponent({
   font-size: 16px;
   color: #000;
   background-color: #85f353;
-  border-radius: 4px;
+  border-radius: 4px !important;
   margin-top: 8px;
 
   &.down {
@@ -1468,12 +1927,12 @@ export default defineComponent({
 
   &.up {
     background-color: #223425;
-    color: #66FF07;
+    color: #66ff07;
   }
 
   &.drop {
     background-color: rgba(234, 69, 31, 0.2);
-    color: #E60B0B;
+    color: #e60b0b;
   }
 }
 
@@ -1485,7 +1944,7 @@ export default defineComponent({
   .other_item {
     font-weight: bold;
     font-size: 14px;
-    color: #B0B5C5;
+    color: #b0b5c5;
     display: flex;
     align-items: center;
 
@@ -1495,7 +1954,7 @@ export default defineComponent({
     }
   }
 
-  .other_item+.other_item {
+  .other_item + .other_item {
     margin-left: 8px;
   }
 }
@@ -1518,18 +1977,17 @@ export default defineComponent({
     line-height: 1;
     font-weight: 700;
     font-size: 14px;
-    color: #B0B5C5;
+    color: #b0b5c5;
     padding: 6px 0;
 
     &.active {
       background-color: #323444;
-      color: #EA980A;
+      color: #ea980a;
     }
   }
 }
 
 .order_data_list {
-
   .order_data_item:nth-child(2n-1) {
     background-color: #323444;
   }
@@ -1559,7 +2017,7 @@ export default defineComponent({
 
     .title {
       font-size: 12px;
-      color: #B0B5C5;
+      color: #b0b5c5;
     }
 
     .val {
@@ -1625,5 +2083,41 @@ export default defineComponent({
 .finished {
   text-transform: none;
   letter-spacing: 0;
+}
+
+.dialog_panel {
+  :deep(.v-overlay__content) {
+    margin: 0 !important;
+    max-width: max-content !important;
+    bottom: 0;
+  }
+}
+
+.dialog_box {
+  width: 100%;
+  background-color: #1f212e;
+  border-radius: 4px 4px 0 0;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.2;
+
+  .dialog_title {
+    color: #fdefd6;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 16px 0 0;
+    color: #b0b5c5;
+  }
+
+  .close_btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: #b0b5c5;
+  }
 }
 </style>

@@ -1,11 +1,25 @@
 <template>
   <div>
-    <v-app-bar elevation="2" style="padding: 0 8px;" app fixed dark color="#1f212e" density="compact">
+    <v-app-bar
+      elevation="2"
+      style="padding: 0 8px"
+      app
+      fixed
+      dark
+      color="#1f212e"
+      density="compact"
+    >
       <template v-slot:prepend>
         <div class="energy_box">
-          <v-img :width="24" cover src="@/assets/images/svg/check_in/gm_coin.svg"></v-img>
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/svg/check_in/gm_coin.svg"
+          ></v-img>
           <div class="energy_item">
-            <div class="energy_val">{{ Number(userInfo?.rcpAmount || 0).toLocaleString() }}</div>
+            <div class="energy_val">
+              {{ Number(userInfo?.rcpAmount || 0).toLocaleString() }}
+            </div>
             <div class="plus_btn">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
@@ -22,16 +36,26 @@
         </div>
       </template>
       <template v-slot:append>
-
-        <v-avatar v-if="userInfo.avatar" size="32" :image="userInfo.avatar"></v-avatar>
-        <img v-else width="32" height="32" :avatar="userInfo.userName || 'avatar'" color="#3D3D3D" class="avatar">
+        <v-avatar
+          v-if="userInfo.avatar"
+          size="32"
+          :image="userInfo.avatar"
+        ></v-avatar>
+        <img
+          v-else
+          width="32"
+          height="32"
+          :avatar="userInfo.userName || 'avatar'"
+          color="#3D3D3D"
+          class="avatar"
+        />
       </template>
     </v-app-bar>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getUserInfo } from "@/services/api/user";
 
@@ -61,7 +85,7 @@ export default defineComponent({
   methods: {
     getUserInfo: getUserInfo,
     toMain() {
-      this.$router.push('/activity');
+      this.$router.push("/activity");
     },
     toFrens() {
       // this.$router.push('/frens');
@@ -84,7 +108,7 @@ export default defineComponent({
     "$route.path"() {
       const userStore = useUserStore();
       userStore.fetchUserInfo();
-    }
+    },
   },
 });
 </script>
@@ -120,7 +144,7 @@ export default defineComponent({
 }
 
 .avatar {
-  border: 4px solid #FFAD2E;
+  border: 4px solid #ffad2e;
   border-radius: 50%;
 }
 </style>

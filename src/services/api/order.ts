@@ -1,5 +1,5 @@
 import * as http from "@/services/apiService";
-const serverUrl = "/coaster-server-web"
+const serverUrl = "/coaster-server-web";
 
 /**
  * 用户下单
