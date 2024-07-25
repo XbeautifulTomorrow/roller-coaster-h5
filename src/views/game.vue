@@ -302,7 +302,7 @@
     >
       <div class="dialog_box">
         <div class="dialog_title">AUTO ORDER</div>
-        <div class="close_btn">
+        <div class="close_btn" @click="handleReady()">
           <v-img
             :width="16"
             cover
@@ -774,6 +774,10 @@ export default defineComponent({
     // 全局关闭下拉
     handleAll() {
       this.showType = false;
+    },
+    // 关闭弹窗
+    handleReady() {
+      this.showAuto = false;
     },
     // 设置购买类型
     handlebuyType(event: any) {
