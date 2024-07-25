@@ -1441,7 +1441,7 @@ export default defineComponent({
 </script>
 <style lang="scss" scoped>
 .check_in_wrapper {
-  padding: 8px 8px 16px;
+  padding: 8px 8px 150px;
 }
 
 .toolbar_panel {
