@@ -209,10 +209,10 @@
                 label=""
                 v-model="buyNum"
                 bg-color="rgba(0,0,0,0)"
-                type="number"
                 color="#fff"
                 variant="plain"
                 hide-details="auto"
+                @input="handleInput"
               ></v-text-field>
               <div class="multiples_btn fixed" @click="handleMinus()">1/2</div>
               <div class="multiples_btn fixed" @click="handlePlus()">x2</div>
@@ -388,10 +388,10 @@
                     label=""
                     v-model="buyNum"
                     bg-color="rgba(0,0,0,0)"
-                    type="number"
                     color="#fff"
                     variant="plain"
                     hide-details="auto"
+                    @input="handleInput"
                   ></v-text-field>
                   <div class="multiples_btn" @click="handleMinus()">1/2</div>
                   <div class="multiples_btn" @click="handlePlus()">x2</div>
@@ -808,13 +808,29 @@ export default defineComponent({
       this.sseType = event.val;
       this.showType = false;
     },
+    handleInput(val: any) {
+      // 去除非数字字符
+      let value = this.buyNum.replace(/[^\d.]/g, "");
+      // 分割整数和小数部分
+      // let parts = value.split(".");
+      // 处理整数部分添加逗号
+      // parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      // 拼接整数和小数部分
+      // if (parts[1]) {
+      //   value = parts.join(".");
+      // } else {
+      //   value = parts[0];
+      // }
+      // 更新输入框的值
+      this.buyNum = value;
+    },
     // 购买数量增加
     handlePlus() {
-      this.buyNum = accurateDecimal(this.buyNum * 2, 2);
+      this.buyNum = accurateDecimal(this.buyNum * 2, 0);
     },
     // 购买数量减少
     handleMinus() {
-      this.buyNum = accurateDecimal(this.buyNum / 2, 2);
+      this.buyNum = accurateDecimal(this.buyNum / 2, 0);
     },
     // 买入
     async handleBuy() {

@@ -25,7 +25,7 @@ type Level = "BASIC" | "ADVANCED" | "LEGENDARY"
 
 export const useGameStore = defineStore("game", {
   state: () => ({
-    gameLevel: "" as Level, // 当前挑战Id
+    gameLevel: "" as Level, // 当前房间等级
     showRules: false, // 显示规则
     showStop: false, // 显示止盈止损设置
     buyInfo: null as orderInfo | any // 买入信息
