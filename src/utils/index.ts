@@ -682,20 +682,22 @@ export const unitConversion = (val: number) => {
   let eh = ph * 1000;
   let texts = 0 as number | string | any;
   val = Number(val || 0);
-  if (val < kh) {
+  const absVal = Math.abs(val); // 可能是负数，取绝对值比对
+
+  if (absVal < kh) {
     texts = val;
-  } else if (val >= kh && val < mh) {
-    texts = accurateDecimal(val / kh, 2) + "K";
-  } else if (val >= mh && val < gh) {
-    texts = accurateDecimal(val / mh, 2) + "M";
-  } else if (val >= gh && val < th) {
-    texts = accurateDecimal(val / gh, 2) + "B";
-  } else if (val >= th && val < ph) {
-    texts = accurateDecimal(val / th, 2) + "T";
-  } else if (val >= ph && val < eh) {
-    texts = accurateDecimal(val / ph, 2) + "P";
-  } else if (val >= eh) {
-    texts = accurateDecimal(val / eh, 2) + "E";
+  } else if (absVal >= kh && absVal < mh) {
+    texts = accurateDecimal(val / kh, 2, true) + "K";
+  } else if (absVal >= mh && absVal < gh) {
+    texts = accurateDecimal(val / mh, 2, true) + "M";
+  } else if (absVal >= gh && absVal < th) {
+    texts = accurateDecimal(val / gh, 2, true) + "B";
+  } else if (absVal >= th && absVal < ph) {
+    texts = accurateDecimal(val / th, 2, true) + "T";
+  } else if (absVal >= ph && absVal < eh) {
+    texts = accurateDecimal(val / ph, 2, true) + "P";
+  } else if (absVal >= eh) {
+    texts = accurateDecimal(val / eh, 2, true) + "E";
   }
 
   return texts;

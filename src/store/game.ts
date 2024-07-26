@@ -16,6 +16,8 @@ interface orderInfo {
   strikeOut: number,  // 退出状态
   side: string // 买入类型
   ebustPrice: number // 爆仓价格，前端计算
+  profit: number; // 止盈
+  loss: number; // 止损
   [x: string]: string | number | any;
 }
 

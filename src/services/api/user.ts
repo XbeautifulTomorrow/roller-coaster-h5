@@ -5,7 +5,7 @@ const serverUrl = "/coaster-server-web";
  * Telegram登录。
  * @param params
  */
-const validateToken = (params: any) => http.get(serverUrl + "/tg-user/validate", params);
+const validateToken = (params: any) => http.get(serverUrl + "/tg-user/validate", params, { showLoading: false });
 /**
  * Telegram登录。
  * @param params
@@ -16,7 +16,7 @@ const telegramLogin = (params: any) => http.post(serverUrl + "/tg-user/login", p
  * 获取用户信息
  * @param params
  */
-const getUserInfo = (params: any) => http.get(serverUrl + "/user/userInfo", params);
+const getUserInfo = (params: any) => http.get(serverUrl + "/user/userInfo", params, { showLoading: false });
 
 /**
  * 获取等级列表

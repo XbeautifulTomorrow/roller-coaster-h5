@@ -11,13 +11,13 @@ const addOrder = (params: any) => http.post(serverUrl + "/carOrder/addOrder", pa
  * 订单列表
  * @param params
  */
-const getOrderData = (params: any) => http.get(serverUrl + "/carOrder/pageList", params);
+const getOrderData = (params: any) => http.get(serverUrl + "/carOrder/pageList", params, { showLoading: false });
 
 /**
  * 设置止盈止损
  * @param params
  */
-const setOrder = (params: any) => http.post(serverUrl + "/carOrder/setOrder", params, { showLoading: false });
+const setOrder = (params: any) => http.post(serverUrl + "/carOrder/setOrder", params);
 
 /**
  * 平仓

@@ -86,12 +86,12 @@ export default defineComponent({
   data() {
     return {
       stopProfit: {
-        isPrice: true, // 是否价格
+        isPrice: false, // 是否价格
         price: null as number | any, // 价格
         profit: null as number | any, // 收益
       }, // 止盈
       stopLoss: {
-        isPrice: true, // 是否价格
+        isPrice: false, // 是否价格
         price: null as number | any, // 价格
         profit: null as number | any, // 收益
       }, // 止损
@@ -130,6 +130,11 @@ export default defineComponent({
     },
   },
   created() {
+    if (this.buyInfo?.profit) {
+      this.stopProfit.profit = this.buyInfo.profit;
+      this.stopLoss.profit = this.buyInfo.loss;
+    }
+
     this.stopProfit = {
       isPrice: true, // 是否价格
       price: null, // 价格
@@ -224,7 +229,9 @@ export default defineComponent({
       });
       if (res.code == 200) {
         this.$emit("onStop");
+        const { setBuyInfo } = useGameStore();
         this.handleReady();
+        setBuyInfo(null);
       }
     },
   },

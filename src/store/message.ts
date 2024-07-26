@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 export const useMessageStore = defineStore("message", {
   state: () => ({
     showMessage: false, // 全局提示显示
-    showLoading: true, // 全局loading显示
+    showLoading: false, // 全局loading显示
     messageText: "",
   }),
   actions: {

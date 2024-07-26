@@ -151,12 +151,28 @@
             <v-img
               :width="20"
               class="drop"
+              v-if="item.profit"
+              cover
+              src="@/assets/images/svg/game/config_red.svg"
+            ></v-img>
+            <v-img
+              :width="20"
+              class="drop"
+              v-else
               cover
               src="@/assets/images/svg/game/config_white.svg"
             ></v-img>
             <v-img
               :width="16"
               class="up"
+              v-if="item.loss"
+              cover
+              src="@/assets/images/svg/game/config_green.svg"
+            ></v-img>
+            <v-img
+              :width="16"
+              class="up"
+              v-else
               cover
               src="@/assets/images/svg/game/config_white.svg"
             ></v-img>
@@ -512,12 +528,7 @@ import { useUserStore } from "@/store/user.js";
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
 import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
-import {
-  addOrder,
-  getOrderData,
-  closeOrder,
-  setOrder,
-} from "@/services/api/order.js";
+import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
 import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
 import { useGameStore } from "@/store/game";
@@ -539,6 +550,8 @@ interface orderInfo {
   strikeOut: number; // 退出状态
   side: string; // 买入类型
   ebustPrice: number; // 爆仓价格，前端计算
+  profit: number; // 止盈
+  loss: number; // 止损
   [x: string]: string | number | any;
 }
 
@@ -615,6 +628,7 @@ export default defineComponent({
     // 当前爆仓价格
     EbustPrice() {
       const { currentPrice, buyStatus, buyMultiplier } = this;
+      if (!currentPrice || !buyStatus || !buyMultiplier) return "-";
       return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
     },
     // 当前房间
@@ -678,15 +692,6 @@ export default defineComponent({
             headers: headerParams,
           }
         );
-
-        this.connectSSE();
-      } else {
-        console.log("Your browser does not support SSE~");
-      }
-    },
-    connectSSE() {
-      // 连接
-      this.eventSource.onopen = (event: any) => {
         // 公共数据
         this.eventSource.addEventListener("COMMON_DATA", (e: any) => {
           try {
@@ -748,6 +753,17 @@ export default defineComponent({
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
           this.fetchOrderData();
         });
+
+        // 设置连接操作
+        this.connectSSE();
+      } else {
+        console.log("Your browser does not support SSE~");
+      }
+    },
+    connectSSE() {
+      // 连接
+      this.eventSource.onopen = (event: any) => {
+        console.log("SSE connection succeeded");
       };
 
       this.eventSource.onerror = (event: any) => {
@@ -802,7 +818,7 @@ export default defineComponent({
     },
     // 买入
     async handleBuy() {
-      const params = {
+      let params: any = {
         coinName: "RCP",
         multiplier: this.buyMultiplier,
         amount: this.buyNum,
@@ -810,29 +826,20 @@ export default defineComponent({
         numberSessionsEnum: this.gameLevel,
       };
 
+      if (this.buyType == "AUTO") {
+        params.profit = this.stopProfit.profit;
+        params.loss = this.stopLoss.profit;
+      }
+
       const res = await addOrder(params);
       if (res.code == 200) {
         this.fetchOrderData();
         // 更新余额
         const user = useUserStore();
+
         user.fetchUserInfo();
 
-        if (this.buyType == "AUTO") {
-          this.handleStopOder(res.data);
-        }
-      }
-    },
-    // 设置止盈止损
-    async handleStopOder(event: orderInfo) {
-      const { stopProfit, stopLoss } = this;
-      const res = await setOrder({
-        id: event.id,
-        profit: stopProfit.profit,
-        loss: stopLoss.profit,
-      });
-      if (res.code == 200) {
-        this.fetchOrderData();
-
+        this.showAuto = false;
         this.stopProfit = {
           isPrice: true, // 是否价格
           price: null, // 价格
