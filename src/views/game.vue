@@ -33,7 +33,16 @@
     </div>
     <div class="chart_box">
       <div class="chart_mask"></div>
-      <LineChart :chartData="chartData" :isDrop="isDrop"></LineChart>
+      <LineChart
+        v-if="sseType == 'ms500'"
+        :chartData="chartData"
+        :isDrop="isDrop"
+      ></LineChart>
+      <CandlestickChart
+        v-else
+        :chartData="chartData"
+        :isDrop="isDrop"
+      ></CandlestickChart>
     </div>
     <div class="other_box">
       <div class="other_item">
@@ -525,12 +534,13 @@
 <script lang="ts">
 import { EventSourcePolyfill } from "event-source-polyfill";
 import LineChart from "@/components/charts/LineChart.vue";
+import CandlestickChart from "@/components/charts/CandlestickChart.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import up from "@/assets/images/svg/game/up.svg";
 import drop from "@/assets/images/svg/game/drop.svg";
-import { accurateDecimal, unitConversion, timeForStr } from "@/utils";
+import { accurateDecimal, unitConversion } from "@/utils";
 import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
 import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
@@ -568,7 +578,6 @@ export default defineComponent({
       up,
       drop,
       chartData: [] as Array<any>,
-      lineChartData: {} as any,
       showType: false,
       typeDrop: [
         { text: "Tick", val: "ms500" },
@@ -610,6 +619,7 @@ export default defineComponent({
   },
   components: {
     LineChart,
+    CandlestickChart,
     stopAmount,
   },
   computed: {
@@ -783,8 +793,6 @@ export default defineComponent({
 
         this.currentPrice = last.price;
       }
-
-      this.setLineData();
     },
     // 处理SSE数据 K线
     handleSSECandlestick(event: Array<any> | Object | any) {
@@ -809,8 +817,6 @@ export default defineComponent({
 
         this.currentPrice = event.open;
       }
-
-      this.setCandlestickData();
     },
     // 全局关闭下拉
     handleAll() {
@@ -1081,227 +1087,6 @@ export default defineComponent({
 
       const ratio = new bigNumber(income).dividedBy(amount).multipliedBy(100);
       return accurateDecimal(ratio, 2);
-    },
-    // 折线配置
-    setLineData() {
-      let series = [];
-      series.push({
-        type: "line",
-        data: this.chartData.map(function (item: any) {
-          return item.price;
-        }),
-        smooth: true,
-        sampling: "lttb",
-        symbol: "none",
-        showSymbol: false,
-        showLegendSymbol: false,
-        animationDurationUpdate: 500, // 数据更新的动画时长
-        animationEasingUpdate: "cubicInOut", // 数据更新的缓动效果
-        animationDelayUpdate: 0, // 数据更新的动画延迟时间
-        universalTransition: true,
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              {
-                offset: 0,
-                color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
-              },
-              {
-                offset: 1,
-                color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
-              },
-            ],
-            global: false, // 缺省为 false
-          },
-        },
-        markLine: {
-          animation: false,
-          symbol: "none", // 标记线两端的标记类型
-          lineStyle: {
-            color: this.isDrop ? "#ff4949" : "#72f238",
-          },
-          data: [
-            {
-              name: this.chartData[this.chartData.length - 1].price,
-              yAxis: this.chartData[this.chartData.length - 1].price,
-            },
-          ],
-          label: {
-            height: 20,
-            lineHeight: 1,
-            formatter: this.chartData[this.chartData.length - 1].price,
-            backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
-            borderRadius: 2,
-            padding: [0, 4, 0, 4],
-          },
-        },
-      });
-
-      let xAxis = this.chartData.map((item: any) => {
-        return item.localDateTime;
-      });
-
-      this.setOptions(xAxis, series);
-    },
-    // K线配置
-    setCandlestickData() {
-      let series = [];
-      series.push({
-        type: "candlestick",
-        data: this.chartData.map(function (item: any) {
-          return [item.open, item.close, item.high, item.low];
-        }),
-        smooth: true,
-        sampling: "lttb",
-        symbol: "none",
-        showSymbol: false,
-        showLegendSymbol: false,
-        animationDurationUpdate: 500, // 数据更新的动画时长
-        animationEasingUpdate: "cubicInOut", // 数据更新的缓动效果
-        animationDelayUpdate: 0, // 数据更新的动画延迟时间
-        universalTransition: true,
-        itemStyle: {
-          color: "#C63E41",
-          color0: "#5CBC34",
-        },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              {
-                offset: 0,
-                color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
-              },
-              {
-                offset: 1,
-                color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
-              },
-            ],
-            global: false, // 缺省为 false
-          },
-        },
-        markLine: {
-          animation: false,
-          symbol: "none", // 标记线两端的标记类型
-          lineStyle: {
-            color: this.isDrop ? "#ff4949" : "#72f238",
-          },
-          data: [
-            {
-              name: this.chartData[this.chartData.length - 1].open,
-              yAxis: this.chartData[this.chartData.length - 1].open,
-            },
-          ],
-          label: {
-            height: 20,
-            lineHeight: 1,
-            formatter: this.chartData[this.chartData.length - 1].open,
-            backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
-            borderRadius: 2,
-            padding: [0, 4, 0, 4],
-          },
-        },
-      });
-
-      let xAxis = this.chartData.map((item: any) => {
-        return item.bucket;
-      });
-
-      this.setOptions(xAxis, series);
-    },
-    // 设置图表数据
-    setOptions(xAxis: any, series: any) {
-      this.lineChartData = {
-        color: ["#FFB018"],
-        xAxis: {
-          type: "category",
-          data: xAxis,
-          boundaryGap: false,
-          axisTick: {
-            show: true,
-            inside: true,
-          },
-          axisLine: {
-            lineStyle: {
-              color: "#D4E2F1",
-            },
-          },
-          axisLabel: {
-            color: "#c4bfbd",
-            formatter: function (value: string, index: any) {
-              const date = new Date(value);
-              return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-            },
-          },
-          axisPointer: {
-            show: true,
-            color: "#393E51",
-            label: {
-              formatter: function (params: any) {
-                return timeForStr(params.value, "MM/dd HH:mm:ss");
-              },
-              backgroundColor: "#303545",
-            },
-          },
-        },
-        grid: {
-          left: 10,
-          right: 10,
-          bottom: 10,
-          top: 10,
-          containLabel: true,
-        },
-        yAxis: {
-          position: "right",
-          min: function (value: any) {
-            return accurateDecimal(value.min, 2);
-          },
-          max: function (value: any) {
-            return accurateDecimal(value.max, 2);
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLine: {
-            show: false,
-            lineStyle: {
-              color: "#D4E2F1",
-            },
-          },
-          axisLabel: {
-            color: "#c4bfbd",
-          },
-          axisPointer: {
-            show: true,
-            color: "#393E51",
-            label: {
-              backgroundColor: "#303545",
-            },
-          },
-          splitLine: {
-            lineStyle: { color: "rgba(255,255,255,0.1)" },
-          }, //网格线配置
-          splitArea: { show: false }, //去掉网格颜色
-        },
-        dataZoom: [
-          {
-            type: "inside",
-            filterMode: "filter",
-            start: 98,
-            end: 100,
-          },
-        ],
-        series: series,
-      };
     },
   },
   mounted() {

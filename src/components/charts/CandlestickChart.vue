@@ -63,7 +63,7 @@ export default {
     markNum() {
       const { chartData } = this;
       if (chartData.length > 0) {
-        return chartData[chartData.length - 1].price;
+        return chartData[chartData.length - 1].open;
       }
 
       return 0;
@@ -97,7 +97,9 @@ export default {
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el);
+      this.chart = echarts.init(this.$el, "macarons", {
+        renderer: "svg",
+      });
     },
     /**
      * 初始化图表配置
@@ -110,21 +112,23 @@ export default {
 
       let series = [];
       series.push({
-        type: "line",
+        type: "candlestick",
         data: this.chartData.map(function (item: any) {
-          return item.price;
+          return [item.open, item.close, item.high, item.low];
         }),
         smooth: true,
+        sampling: "lttb",
         symbol: "none",
         showSymbol: false,
-        sampling: "lttb",
         showLegendSymbol: false,
-        animationDuration: 100,
-        animationEasing: "quadraticInOut",
-        animationDurationUpdate: 500,
-        animationEasingUpdate: "quadraticInOut",
+        animationDurationUpdate: 500, // 数据更新的动画时长
+        animationEasingUpdate: "cubicInOut", // 数据更新的缓动效果
         animationDelayUpdate: 0, // 数据更新的动画延迟时间
         universalTransition: true,
+        itemStyle: {
+          color: "#C63E41",
+          color0: "#5CBC34",
+        },
         areaStyle: {
           color: {
             type: "linear",
@@ -135,7 +139,7 @@ export default {
             colorStops: [
               {
                 offset: 0,
-                color: "rgba(255, 176, 24, 0.1)", // 0% 处的颜色
+                color: "rgba(255, 176, 24, 0.2)", // 0% 处的颜色
               },
               {
                 offset: 1,
@@ -153,14 +157,14 @@ export default {
           },
           data: [
             {
-              name: this.markNum,
-              yAxis: this.markNum,
+              name: this.chartData[this.chartData.length - 1].open,
+              yAxis: this.chartData[this.chartData.length - 1].open,
             },
           ],
           label: {
             height: 20,
             lineHeight: 1,
-            formatter: this.markNum,
+            formatter: this.chartData[this.chartData.length - 1].open,
             backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
             borderRadius: 2,
             padding: [0, 4, 0, 4],
@@ -169,7 +173,7 @@ export default {
       });
 
       let xAxis = this.chartData.map((item: any) => {
-        return item.localDateTime;
+        return item.bucket;
       });
 
       const lineChart = {
@@ -274,7 +278,7 @@ export default {
         series: [
           {
             data: this.chartData.map(function (item: any) {
-              return item.price;
+              return [item.open, item.close, item.high, item.low];
             }),
             markLine: {
               animation: false,
@@ -284,14 +288,14 @@ export default {
               },
               data: [
                 {
-                  name: this.markNum,
-                  yAxis: this.markNum,
+                  name: this.chartData[this.chartData.length - 1].open,
+                  yAxis: this.chartData[this.chartData.length - 1].open,
                 },
               ],
               label: {
                 height: 20,
                 lineHeight: 1,
-                formatter: this.markNum,
+                formatter: this.chartData[this.chartData.length - 1].open,
                 backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
                 borderRadius: 2,
                 padding: [0, 4, 0, 4],
@@ -301,7 +305,7 @@ export default {
         ],
         xAxis: {
           data: this.chartData.map((item: any) => {
-            return item.localDateTime;
+            return item.bucket;
           }),
         },
       });
