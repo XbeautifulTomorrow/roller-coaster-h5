@@ -129,23 +129,6 @@ export default defineComponent({
       return isBuy;
     },
   },
-  created() {
-    if (this.buyInfo?.profit) {
-      this.stopProfit.profit = this.buyInfo.profit;
-      this.stopLoss.profit = this.buyInfo.loss;
-    }
-
-    this.stopProfit = {
-      isPrice: true, // 是否价格
-      price: null, // 价格
-      profit: null, // 收益
-    }; // 止盈
-    this.stopLoss = {
-      isPrice: true, // 是否价格
-      price: null, // 价格
-      profit: null, // 收益
-    }; // 止损
-  },
   methods: {
     handleReady() {
       this.showStop = false;
@@ -236,20 +219,49 @@ export default defineComponent({
     },
   },
   watch: {
+    buyInfo(newV) {
+      if (!newV) {
+        this.stopProfit = {
+          isPrice: true, // 是否价格
+          price: null, // 价格
+          profit: null, // 收益
+        };
+
+        this.stopLoss = {
+          isPrice: true, // 是否价格
+          price: null, // 价格
+          profit: null, // 收益
+        };
+
+        return;
+      }
+
+      this.stopProfit = {
+        isPrice: false, // 是否价格
+        price: null, // 价格
+        profit: newV.profit, // 收益
+      }; // 止盈
+
+      this.stopLoss = {
+        isPrice: false, // 是否价格
+        price: null, // 价格
+        profit: newV.loss, // 收益
+      }; // 止损
+    },
     "stopProfit.price"(newV: any) {
-      if (!this.stopProfit.isPrice) return;
+      if (!this.stopProfit.isPrice || !this.buyInfo) return;
       this.handleStopProfit(newV, "profit");
     },
     "stopProfit.profit"(newV: any) {
-      if (this.stopProfit.isPrice) return;
+      if (this.stopProfit.isPrice || !this.buyInfo) return;
       this.stopProfit.price = this.getSellPrice(newV, true);
     },
     "stopLoss.price"(newV: any) {
-      if (!this.stopLoss.isPrice) return;
+      if (!this.stopLoss.isPrice || !this.buyInfo) return;
       this.handleStopProfit(newV, "loss");
     },
     "stopLoss.profit"(newV: any) {
-      if (this.stopLoss.isPrice) return;
+      if (this.stopLoss.isPrice || !this.buyInfo) return;
       if (newV > 0 && newV <= this.buyInfo.amount) {
         this.stopLoss.price = this.getSellPrice(-newV, false);
       } else {

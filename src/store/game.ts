@@ -21,10 +21,20 @@ interface orderInfo {
   [x: string]: string | number | any;
 }
 
+// interface candlestick {
+//   bucket: string, // 开盘时间
+//   lastTs: string, // 最后更新时间
+//   open: string, // 开盘
+//   high: string, // 最高值
+//   low: string, // 最低值
+//   close: string // 收盘
+// }
+
 type Level = "BASIC" | "ADVANCED" | "LEGENDARY"
 
 export const useGameStore = defineStore("game", {
   state: () => ({
+    isInit: false, // 是否初始化
     gameLevel: "" as Level, // 当前房间等级
     showRules: false, // 显示规则
     showStop: false, // 显示止盈止损设置
@@ -37,6 +47,9 @@ export const useGameStore = defineStore("game", {
     ],
   },
   actions: {
+    setIsInit(data: any) {
+      this.isInit = data;
+    },
     setGameLevel(data: any) {
       this.gameLevel = data;
     },

@@ -31,7 +31,10 @@
         </div>
       </div>
     </div>
-    <LineChart :chartData="lineChartData"></LineChart>
+    <div class="chart_box">
+      <div class="chart_mask"></div>
+      <LineChart :chartData="chartData" :isDrop="isDrop"></LineChart>
+    </div>
     <div class="other_box">
       <div class="other_item">
         <v-img
@@ -555,15 +558,6 @@ interface orderInfo {
   [x: string]: string | number | any;
 }
 
-// interface candlestick {
-//   bucket: string, // 开盘时间
-//   lastTs: string, // 最后更新时间
-//   open: string, // 开盘
-//   high: string, // 最高值
-//   low: string, // 最低值
-//   close: string // 收盘
-// }
-
 export default defineComponent({
   data() {
     return {
@@ -619,6 +613,17 @@ export default defineComponent({
     stopAmount,
   },
   computed: {
+    // 是否初始化
+    isInit: {
+      get() {
+        const { isInit } = useGameStore();
+        return isInit;
+      },
+      set(val: any) {
+        const { setIsInit } = useGameStore();
+        setIsInit(val);
+      },
+    },
     // 长连接类型
     currentType() {
       const { typeDrop } = this;
@@ -687,66 +692,26 @@ export default defineComponent({
             `?time=${this.sseType}&numberSessionsEnum=${this.gameLevel}`,
           {
             // 设置重连时间
-            heartbeatTimeout: 30000,
+            heartbeatTimeout: 10000,
             // 添加token
             headers: headerParams,
           }
         );
+
         // 公共数据
         this.eventSource.addEventListener("COMMON_DATA", (e: any) => {
           try {
             const chart = JSON.parse(e.data);
-            if (this.chartData.length <= 0) {
-              this.chartData = chart;
-              this.chartData.reverse();
-              if (this.sseType == "ms500") {
-                this.currentPrice =
-                  this.chartData[this.chartData.length - 1].price;
-              } else {
-                this.currentPrice =
-                  this.chartData[this.chartData.length - 1].open;
-              }
+            if (this.sseType == "ms500") {
+              // 折线数据
+              this.handleSSELine(chart);
             } else {
-              if (this.sseType == "ms500") {
-                this.chartData.push(...chart);
-                this.chartData.shift();
-
-                let last = null as any;
-
-                if (chart.length > 0) {
-                  last = chart[0];
-                }
-
-                if (Number(last.price) > Number(this.currentPrice)) {
-                  this.isDrop = false;
-                } else {
-                  this.isDrop = true;
-                }
-
-                this.currentPrice = last.price;
-              } else {
-                const lastData = this.chartData[this.chartData.length - 1];
-                if (lastData.bucket == chart.bucket) {
-                  this.chartData[this.chartData.length - 1] = chart;
-                } else {
-                  this.chartData.push(chart);
-                  this.chartData.shift();
-                }
-
-                if (Number(chart.open) > Number(this.currentPrice)) {
-                  this.isDrop = false;
-                } else {
-                  this.isDrop = true;
-                }
-
-                this.currentPrice = chart.open;
-              }
+              // K线数据
+              this.handleSSECandlestick(chart);
             }
-          } catch (error) {}
-          if (this.sseType == "ms500") {
-            this.setLineData();
-          } else {
-            this.setCandlestickData();
+          } catch (error) {
+            console.log(e);
+            console.log(error);
           }
         });
 
@@ -760,6 +725,7 @@ export default defineComponent({
         console.log("Your browser does not support SSE~");
       }
     },
+    // 打开SEE连接
     connectSSE() {
       // 连接
       this.eventSource.onopen = (event: any) => {
@@ -782,10 +748,69 @@ export default defineComponent({
           console.log("SSE reconnect");
           //重新设置token
           this.eventSource.headers = headerParams;
+          this.eventSource.close();
+          this.eventSource = null;
+          this.createSSE();
         } else {
           console.log("error", event);
         }
       };
+    },
+    // 处理SSE数据 折线
+    handleSSELine(event: Array<any> | Object | any) {
+      if (!(event.length > 0)) return; // 没有数据
+
+      if (event.length > 10) {
+        this.chartData = event;
+        this.chartData.reverse(); // 数据改为正序
+        this.currentPrice = this.chartData[this.chartData.length - 1].price;
+        this.isInit = false;
+      } else {
+        this.chartData.push(...event);
+        this.chartData.shift();
+
+        let last = null as any;
+
+        if (event.length > 0) {
+          last = event[0];
+        }
+
+        if (Number(last.price) > Number(this.currentPrice)) {
+          this.isDrop = false;
+        } else {
+          this.isDrop = true;
+        }
+
+        this.currentPrice = last.price;
+      }
+
+      this.setLineData();
+    },
+    // 处理SSE数据 K线
+    handleSSECandlestick(event: Array<any> | Object | any) {
+      if (event.length > 10) {
+        this.chartData = event;
+        this.chartData.reverse(); // 数据改为正序
+        this.currentPrice = this.chartData[this.chartData.length - 1].open;
+        this.isInit = false;
+      } else {
+        const lastData = this.chartData[this.chartData.length - 1];
+        if (lastData.bucket == event.bucket) {
+          this.chartData[this.chartData.length - 1] = event;
+        } else {
+          this.chartData.push(event);
+        }
+
+        if (Number(event.open) > Number(this.currentPrice)) {
+          this.isDrop = false;
+        } else {
+          this.isDrop = true;
+        }
+
+        this.currentPrice = event.open;
+      }
+
+      this.setCandlestickData();
     },
     // 全局关闭下拉
     handleAll() {
@@ -1062,7 +1087,7 @@ export default defineComponent({
       let series = [];
       series.push({
         type: "line",
-        data: this.chartData.map(function (item) {
+        data: this.chartData.map(function (item: any) {
           return item.price;
         }),
         smooth: true,
@@ -1117,7 +1142,7 @@ export default defineComponent({
         },
       });
 
-      let xAxis = this.chartData.map((item) => {
+      let xAxis = this.chartData.map((item: any) => {
         return item.localDateTime;
       });
 
@@ -1128,7 +1153,7 @@ export default defineComponent({
       let series = [];
       series.push({
         type: "candlestick",
-        data: this.chartData.map(function (item) {
+        data: this.chartData.map(function (item: any) {
           return [item.open, item.close, item.high, item.low];
         }),
         smooth: true,
@@ -1187,7 +1212,7 @@ export default defineComponent({
         },
       });
 
-      let xAxis = this.chartData.map((item) => {
+      let xAxis = this.chartData.map((item: any) => {
         return item.bucket;
       });
 
@@ -1231,17 +1256,17 @@ export default defineComponent({
         grid: {
           left: 10,
           right: 10,
-          bottom: 20,
-          top: 30,
+          bottom: 10,
+          top: 10,
           containLabel: true,
         },
         yAxis: {
           position: "right",
           min: function (value: any) {
-            return accurateDecimal(value.min - 20, 2);
+            return accurateDecimal(value.min, 2);
           },
           max: function (value: any) {
-            return accurateDecimal(value.max + 20, 2);
+            return accurateDecimal(value.max, 2);
           },
           axisTick: {
             show: false,
@@ -1460,18 +1485,22 @@ export default defineComponent({
       }
     },
   },
+  beforeUnmount() {
+    this.eventSource.close();
+    this.eventSource = null;
+  },
 });
 </script>
 <style lang="scss" scoped>
 .check_in_wrapper {
-  padding: 8px 8px 150px;
+  padding: 8px 0 150px;
 }
 
 .toolbar_panel {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 8px 8px;
   position: relative;
 
   .game_info {
@@ -1538,7 +1567,7 @@ export default defineComponent({
   position: absolute;
   right: 0;
   top: 44px;
-  background: rgba(203, 215, 255, 0.03);
+  background: #242735;
   width: 60px;
   border-radius: 4px;
   z-index: 10;
@@ -1557,8 +1586,18 @@ export default defineComponent({
 }
 
 .chart_box {
-  width: 100%;
-  height: 100%;
+  position: relative;
+
+  .chart_mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100%;
+    width: 10px;
+    background: #1f212e;
+    z-index: 200;
+  }
 }
 
 .buying_panel {
@@ -1966,7 +2005,7 @@ export default defineComponent({
 .other_box {
   display: flex;
   align-items: center;
-  padding-top: 8px;
+  padding: 8px 8px 0;
 
   .other_item {
     font-weight: bold;
@@ -1987,7 +2026,7 @@ export default defineComponent({
 }
 
 .order_panel {
-  padding-top: 8px;
+  padding: 8px 8px 0;
 }
 
 .order_type {
