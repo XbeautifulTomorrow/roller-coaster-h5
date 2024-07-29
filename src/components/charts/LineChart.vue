@@ -76,7 +76,7 @@ export default {
       handler(val) {
         if (!this.chart) return;
         if (this.isInit) {
-          this.setOptions(Date.now());
+          this.setOptions();
           return;
         }
 
@@ -276,7 +276,7 @@ export default {
      * 更新图表数据
      * @param newV 数据
      */
-    setOptions(newData:any[]) {
+    setOptions() {
       const currentTime = Date.now();
       const timeDifference = currentTime - this.lastUpdateTime;
       this.lastUpdateTime = currentTime;
