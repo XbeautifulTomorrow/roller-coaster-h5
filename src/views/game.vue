@@ -776,9 +776,8 @@ export default defineComponent({
         this.currentPrice = this.chartData[this.chartData.length - 1].price;
         this.isInit = false;
       } else {
-        this.chartData.push(...event);
         this.chartData.shift();
-
+        this.chartData.push(...event);
         let last = null as any;
 
         if (event.length > 0) {

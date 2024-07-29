@@ -46,6 +46,7 @@ export default {
   data() {
     return {
       chart: null as any,
+      lastUpdateTime: Date.now(),
     };
   },
   computed: {
@@ -75,7 +76,7 @@ export default {
       handler(val) {
         if (!this.chart) return;
         if (this.isInit) {
-          this.setOptions();
+          this.setOptions(Date.now());
           return;
         }
 
@@ -108,65 +109,71 @@ export default {
       this.chart.clear();
       this.chart.showLoading();
 
-      let series = [];
-      series.push({
-        type: "line",
-        data: this.chartData.map(function (item: any) {
-          return item.price;
-        }),
-        smooth: true,
-        symbol: "none",
-        showSymbol: false,
-        sampling: "lttb",
-        showLegendSymbol: false,
-        animationDuration: 100,
-        animationEasing: "quadraticInOut",
-        animationDurationUpdate: 500,
-        animationEasingUpdate: "quadraticInOut",
-        animationDelayUpdate: 0, // 数据更新的动画延迟时间
-        universalTransition: true,
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
+      let series = [
+        {
+          type: "line",
+          data: this.chartData.map((item) => item.price),
+          smooth: true,
+          symbol: "none",
+          showSymbol: false,
+          sampling: "lttb",
+          showLegendSymbol: false,
+          hoverAnimation: false,
+          lineStyle: {
+            normal: {
+              width: 2,
+            },
+          },
+          animationDuration: 0, // 初始动画持续时间
+          animationEasing: "linear", // 初始动画缓动函数
+          // animationDurationUpdate: 500, // 更新动画持续时间
+          // animationEasingUpdate: "linear", // 更新动画缓动函数
+          animationDelayUpdate: 5, // 数据更新的动画延迟时间
+          universalTransition: true,
+          areaStyle: {
+            color: {
+              type: "linear",
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                {
+                  offset: 0,
+                  color: "rgba(255, 176, 24, 0.1)",
+                },
+                {
+                  offset: 1,
+                  color: "rgba(255, 176, 24, 0)",
+                },
+              ],
+              global: false,
+            },
+          },
+          markLine: {
+            animation: false,
+            symbol: "none",
+            lineStyle: {
+              color: this.isDrop ? "#ff4949" : "#72f238",
+            },
+            data: [
               {
-                offset: 0,
-                color: "rgba(255, 176, 24, 0.1)", // 0% 处的颜色
-              },
-              {
-                offset: 1,
-                color: "rgba(255, 176, 24, 0)", // 100% 处的颜色
+                name: this.markNum,
+                yAxis: this.markNum,
               },
             ],
-            global: false, // 缺省为 false
-          },
-        },
-        markLine: {
-          animation: false,
-          symbol: "none", // 标记线两端的标记类型
-          lineStyle: {
-            color: this.isDrop ? "#ff4949" : "#72f238",
-          },
-          data: [
-            {
-              name: this.markNum,
-              yAxis: this.markNum,
+            label: {
+              height: 20,
+              lineHeight: 1,
+              formatter: this.markNum,
+              backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
+              borderRadius: 2,
+              padding: [0, 4, 0, 4],
             },
-          ],
-          label: {
-            height: 20,
-            lineHeight: 1,
-            formatter: this.markNum,
-            backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
-            borderRadius: 2,
-            padding: [0, 4, 0, 4],
           },
         },
-      });
+      ];
+      // series.push();
 
       let xAxis = this.chartData.map((item: any) => {
         return item.localDateTime;
@@ -269,7 +276,12 @@ export default {
      * 更新图表数据
      * @param newV 数据
      */
-    setOptions() {
+    setOptions(newData:any[]) {
+      const currentTime = Date.now();
+      const timeDifference = currentTime - this.lastUpdateTime;
+      this.lastUpdateTime = currentTime;
+      const animationDurationUpdate = Math.max(timeDifference, 500)+10; // 动态设置动画持续时间
+
       this.chart.setOption({
         series: [
           {
@@ -299,6 +311,8 @@ export default {
             },
           },
         ],
+        animationDurationUpdate: animationDurationUpdate,
+        animationEasingUpdate: "linear",
         xAxis: {
           data: this.chartData.map((item: any) => {
             return item.localDateTime;
