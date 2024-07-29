@@ -125,7 +125,7 @@ export default {
             },
           },
           animationDuration: 0, // 初始动画持续时间
-          animationEasing: "linear", // 初始动画缓动函数
+          animationEasing: "baunceIn", // 初始动画缓动函数
           // animationDurationUpdate: 500, // 更新动画持续时间
           // animationEasingUpdate: "linear", // 更新动画缓动函数
           animationDelayUpdate: 0, // 数据更新的动画延迟时间
@@ -148,27 +148,6 @@ export default {
                 },
               ],
               global: false,
-            },
-          },
-          markLine: {
-            animation: false,
-            symbol: "none",
-            lineStyle: {
-              color: this.isDrop ? "#ff4949" : "#72f238",
-            },
-            data: [
-              {
-                name: this.markNum,
-                yAxis: this.markNum,
-              },
-            ],
-            label: {
-              height: 20,
-              lineHeight: 1,
-              formatter: this.markNum,
-              backgroundColor: this.isDrop ? "#ff4949" : "#72f238",
-              borderRadius: 2,
-              padding: [0, 4, 0, 4],
             },
           },
         },
@@ -313,7 +292,7 @@ export default {
           },
         ],
         animationDurationUpdate: animationDurationUpdate,
-        animationEasingUpdate: "linear",
+        animationEasingUpdate: "baunceIn",
         xAxis: {
           data: this.chartData.map((item: any) => {
             return item.localDateTime;
