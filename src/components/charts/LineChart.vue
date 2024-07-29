@@ -128,7 +128,7 @@ export default {
           animationEasing: "linear", // 初始动画缓动函数
           // animationDurationUpdate: 500, // 更新动画持续时间
           // animationEasingUpdate: "linear", // 更新动画缓动函数
-          animationDelayUpdate: 5, // 数据更新的动画延迟时间
+          animationDelayUpdate: 0, // 数据更新的动画延迟时间
           universalTransition: true,
           areaStyle: {
             color: {
@@ -280,7 +280,8 @@ export default {
       const currentTime = Date.now();
       const timeDifference = currentTime - this.lastUpdateTime;
       this.lastUpdateTime = currentTime;
-      const animationDurationUpdate = Math.max(timeDifference, 500)+10; // 动态设置动画持续时间
+      const animationDurationUpdate = Math.max(timeDifference, 500); // 动态设置动画持续时间
+      console.log(animationDurationUpdate)
 
       this.chart.setOption({
         series: [
