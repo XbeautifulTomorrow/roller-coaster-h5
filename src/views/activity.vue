@@ -11,19 +11,19 @@
       <div class="game_info">
         <div class="info_left">
           <v-img
-            :width="24"
+            :width="20"
             cover
             src="@/assets/images/game/icon_rcp.png"
           ></v-img>
-          <span>{{ `${1} - ${Number(10000).toLocaleString()}` }}</span>
+          <span>{{ `${100} - ${Number(10000000).toLocaleString()}` }}</span>
         </div>
         <div class="info_right">
           <v-img
-            :width="16"
+            :width="14"
             cover
             src="@/assets/images/svg/activity/user.svg"
           ></v-img>
-          <span>11111</span>
+          <span>{{ Number(attendeesNum.countOne || 0).toLocaleString() }}</span>
         </div>
       </div>
     </div>
@@ -38,23 +38,23 @@
       <div class="game_info">
         <div class="info_left">
           <v-img
-            :width="24"
+            :width="20"
             cover
             src="@/assets/images/game/icon_rcp.png"
           ></v-img>
           <span>{{
-            `${Number(10000).toLocaleString()} - ${Number(
-              100000000
+            `${Number(1000000).toLocaleString()} - ${Number(
+              100000000000
             ).toLocaleString()}`
           }}</span>
         </div>
         <div class="info_right">
           <v-img
-            :width="16"
+            :width="14"
             cover
             src="@/assets/images/svg/activity/user.svg"
           ></v-img>
-          <span>11111</span>
+          <span>{{ Number(attendeesNum.countTwo || 0).toLocaleString() }}</span>
         </div>
       </div>
     </div>
@@ -69,19 +69,21 @@
       <div class="game_info">
         <div class="info_left">
           <v-img
-            :width="24"
+            :width="20"
             cover
             src="@/assets/images/game/icon_rcp.png"
           ></v-img>
-          <span>{{ `${1} - ${Number(1000000).toLocaleString()}` }}</span>
+          <span>{{ `${100} - ${Number(10000000).toLocaleString()}` }}</span>
         </div>
         <div class="info_right">
           <v-img
-            :width="16"
+            :width="14"
             cover
             src="@/assets/images/svg/activity/user.svg"
           ></v-img>
-          <span>11111</span>
+          <span>{{
+            Number(attendeesNum.countThree || 0).toLocaleString()
+          }}</span>
         </div>
       </div>
     </div>
@@ -91,10 +93,22 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game";
+import { getNumberSessions } from "@/services/api/order.js";
+
+interface attendeesInfo {
+  countOne: number; //BASIC场次人数
+  countTwo: number; //ADVANCED场次人数
+  countThree: number; //LEGENDARY场次人数
+}
 
 export default defineComponent({
   data() {
-    return {};
+    return {
+      attendeesNum: {} as attendeesInfo,
+    };
+  },
+  created() {
+    this.fetchNumberSessions();
   },
   methods: {
     startGame(event: any) {
@@ -103,6 +117,12 @@ export default defineComponent({
       setGameLevel(event);
       // 开始游戏
       this.$router.push("/game");
+    },
+    async fetchNumberSessions() {
+      const res = await getNumberSessions({});
+      if (res.code === 200) {
+        this.attendeesNum = res.data;
+      }
     },
   },
 });
@@ -243,7 +263,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 12px;
     color: rgba(198, 198, 198, 0.6);
 
     .v-img {

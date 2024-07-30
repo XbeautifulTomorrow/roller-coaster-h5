@@ -16,7 +16,7 @@
             cover
             src="@/assets/images/game/icon_rcp.png"
           ></v-img>
-          <div class="energy_item">
+          <div class="energy_item rcp">
             <div class="energy_val">
               {{ Number(userInfo?.rcpAmount || 0).toLocaleString() }}
             </div>
@@ -31,7 +31,7 @@
             cover
             src="@/assets/images/game/icon_roller.png"
           ></v-img>
-          <div class="energy_item">
+          <div class="energy_item rct">
             <div class="energy_val">
               {{ Number(userInfo?.rctAmount).toLocaleString() }}
             </div>
@@ -45,7 +45,7 @@
         <div class="user_info">
           <div class="user_level">
             <v-img
-              :width="30"
+              :width="24"
               :src="levelImages[userInfo.level as keyof typeof levelImages]"
             ></v-img>
           </div>
@@ -180,6 +180,12 @@ export default defineComponent({
     justify-content: flex-end;
     color: #fff;
 
+    &.rcp {
+      min-width: 120px;
+    }
+    &.rct {
+      min-width: 80px;
+    }
     .energy_val {
       font-size: 12px;
       font-weight: bold;

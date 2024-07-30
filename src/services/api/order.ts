@@ -1,6 +1,10 @@
 import * as http from "@/services/apiService";
 const serverUrl = "/coaster-server-web";
-
+/**
+ * 场次对应参加人数
+ * @param params
+ */
+const getNumberSessions = (params: any) => http.get(serverUrl + "/carOrder/numberSessions", params);
 /**
  * 用户下单
  * @param params
@@ -28,6 +32,7 @@ const closeOrder = (params: any) => http.get(serverUrl + "/carOrder/closeOrder",
 
 
 export {
+  getNumberSessions,
   addOrder,
   getOrderData,
   setOrder,

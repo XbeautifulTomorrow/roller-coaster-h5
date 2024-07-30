@@ -78,7 +78,7 @@
           >Wallet</span
         >
       </v-btn>
-      <v-btn
+      <!-- <v-btn
         value="airdrop"
         :to="{ name: 'Airdrop' }"
         density="compact"
@@ -93,7 +93,7 @@
         <span :class="['btn_text', activeItem == 'airdrop' && 'active']"
           >Airdrop</span
         >
-      </v-btn>
+      </v-btn> -->
     </v-bottom-navigation>
   </div>
 </template>

@@ -59,7 +59,11 @@
               src="@/assets/images/svg/main/icon_award.svg"
             ></v-img>
             <span>
-              {{ `Rewards: ${levelData.rewardAmount} ${levelData.coinName}` }}
+              {{
+                `Rewards: ${Number(levelData.rewardAmount).toLocaleString()} ${
+                  levelData.coinName
+                }`
+              }}
             </span>
           </div>
           <div class="other_item">
@@ -85,7 +89,11 @@
               src="@/assets/images/svg/main/new_level.svg"
             ></v-img>
             <span>
-              {{ `Max PRC Entry: ${levelData.rcpMaxAmount}` }}
+              {{
+                `Max PRC Entry: ${Number(
+                  levelData.rcpMaxAmount
+                ).toLocaleString()}`
+              }}
             </span>
           </div>
           <div class="other_item">
@@ -95,7 +103,11 @@
               src="@/assets/images/svg/main/new_level.svg"
             ></v-img>
             <span>
-              {{ `Max PRT Entry: ${levelData.rctMaxAmount}` }}
+              {{
+                `Max PRT Entry: ${Number(
+                  levelData.rctMaxAmount
+                ).toLocaleString()}`
+              }}
             </span>
           </div>
         </div>
@@ -116,7 +128,7 @@
           <div class="amount">
             {{ Number(userInfo.rcpAmount).toLocaleString() }}
           </div>
-          <div class="btn">
+          <div class="btn" @click="toRecharge()">
             <v-img
               :width="16"
               cover
@@ -277,6 +289,10 @@ export default defineComponent({
     },
     toSwap() {
       this.$router.push("/swap");
+    },
+    toRecharge() {
+      const { setShowRecharge } = useUserStore();
+      setShowRecharge(true);
     },
     handleSend() {
       const { setShowSend } = useUserStore();
