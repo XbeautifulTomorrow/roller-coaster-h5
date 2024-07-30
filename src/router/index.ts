@@ -11,6 +11,7 @@ import frens from '@/views/frens.vue';
 import airdrop from '@/views/airdrop.vue';
 import mine from '@/views/mine.vue';
 import frensRanking from '@/views/frensRanking.vue';
+import swap from '@/views/swap.vue';
 
 //2. 路由配置
 const routes = [
@@ -40,9 +41,14 @@ const routes = [
     component: frensRanking
   },
   {
-    path: '/mine',
-    name: 'Mine',
+    path: '/wallet',
+    name: 'Wallet',
     component: mine
+  },
+  {
+    path: '/swap',
+    name: 'Swap',
+    component: swap
   },
   {
     path: '/airdrop',

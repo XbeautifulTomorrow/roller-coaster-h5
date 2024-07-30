@@ -383,14 +383,16 @@ export const formatNumber = (num: any) => {
 /**
  * @description: 精确小数点
  * @param {string} number：为你要转换的数字
- * @param {string} format：要保留几位小数；譬如要保留2位，则值为2
+ * @param {number} format：要保留几位小数；譬如要保留2位，则值为2
  * @param {string} zerFill:是否补零。不需要补零可以不填写此参数
  */
-export const accurateDecimal = (number: any, format: any, zeroFill: boolean = false) => {
+export const accurateDecimal = (number: any, format: number, zeroFill: boolean = false) => {
+
   //判断非空
   if (!isEmpty(number)) {
     //正则匹配:正整数，负整数，正浮点数，负浮点数
     if (!/^\d+(\.\d+)?$|^-\d+(\.\d+)?$/.test(number)) return number;
+
     let n = 1;
     for (let i = 0; i < format; i++) {
       n = n * 10;

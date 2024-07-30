@@ -3,18 +3,28 @@
     <div class="frens_text">Invite Friends!</div>
     <div class="total_rewards">
       <div class="rewards">
-        <v-img
-          :width="24"
-          cover
-          src="@/assets/images/svg/check_in/gm_coin.svg"
-        ></v-img>
-        <div>{{ Number(userInfo?.totalInviteAmount).toLocaleString() }}</div>
+        <div class="amount_box">
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/game/icon_rcp.png"
+          ></v-img>
+          <div>{{ Number(userInfo?.totalRcpAmount).toLocaleString() }}</div>
+        </div>
+        <div class="amount_box">
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/game/icon_roller.png"
+          ></v-img>
+          <div>{{ Number(userInfo?.totalRctAmount).toLocaleString() }}</div>
+        </div>
       </div>
       <div class="invitation_ranking" @click="toRanking()">
         <v-img
           :width="40"
           cover
-          src="@/assets/images/svg/frens/report.svg"
+          src="@/assets/images/svg/earn/invite.svg"
         ></v-img>
         <div>Top 300 Leaders</div>
         <v-icon size="20" icon="mdi-menu-right-outline"></v-icon>
@@ -40,7 +50,7 @@
           </div>
         </div>
         <div class="descriptions_text">
-          Your frens join GMCoin and start any Challenge.
+          Your frens join Roll Coaster and start play.
         </div>
       </div>
       <div class="frens_descriptions_item">
@@ -62,9 +72,7 @@
           </div>
         </div>
         <div class="descriptions_text">
-          <span>{{ `You'll also get an extra ` }}</span>
-          <span style="color: #49b6ed">1%</span>
-          <span>{{ ` from each of your frens' check-ins.` }}</span>
+          You'll also get an extra 20% from each of your frens' cost.
         </div>
       </div>
     </div>
@@ -80,20 +88,11 @@
         <div class="method_box">
           <div class="method_text">Invite a Friend</div>
           <div class="method_prize">
-            <div class="energy">
-              <span class="dot">·</span>
-              <v-icon
-                color="#FFF100"
-                :size="18"
-                icon="mdi-lightning-bolt"
-              ></v-icon>
-              <span>{{ `+ 1` }}</span>
-            </div>
             <div class="bonus">
               <v-img
                 :width="18"
                 cover
-                src="@/assets/images/svg/check_in/gm_coin.svg"
+                src="@/assets/images/game/icon_rcp.png"
               ></v-img>
               <span>{{ `+ 100` }}</span>
             </div>
@@ -104,7 +103,7 @@
       <div class="method_item">
         <div class="method_item_img">
           <v-img
-            :width="60"
+            :width="48"
             cover
             src="@/assets/images/frens/telegram_premium_prize.png"
           ></v-img>
@@ -117,22 +116,13 @@
             </div>
           </div>
           <div class="method_prize">
-            <div class="energy">
-              <span class="dot">·</span>
-              <v-icon
-                color="#FFF100"
-                :size="18"
-                icon="mdi-lightning-bolt"
-              ></v-icon>
-              <span>{{ `+ 3` }}</span>
-            </div>
             <div class="bonus">
               <v-img
                 :width="18"
                 cover
-                src="@/assets/images/svg/check_in/gm_coin.svg"
+                src="@/assets/images/game/icon_rcp.png"
               ></v-img>
-              <span>{{ `+ 500` }}</span>
+              <span>{{ `+ 2500` }}</span>
             </div>
             <div class="text">for you and your friend</div>
           </div>
@@ -148,36 +138,32 @@
           :key="index"
         >
           <div class="frens_list_item_left">
-            <v-avatar
-              v-if="item.avatar"
-              size="40"
-              :image="item.avatar"
-            ></v-avatar>
-            <img
-              v-else
-              width="40"
-              height="40"
-              :avatar="item.userName"
-              color="#3D3D3D"
-              class="avatar"
-            />
+            <div class="user_level">
+              <v-img
+                :width="40"
+                :src="levelImages[userInfo.level as keyof typeof levelImages]"
+              ></v-img>
+            </div>
             <div class="frens_list_item_left_box">
               <div :class="['user_name', item.isMember && 'premium']">
                 {{ item.userName }}
               </div>
-              <div class="user_other">
-                <v-img
-                  :width="60"
-                  cover
-                  :src="levelImages[item.level as keyof typeof levelImages]"
-                ></v-img>
-                <div class="user_points" v-if="item.points">
+              <div class="user_prize">
+                <div class="energy" v-if="item.rcpAmount">
                   <v-img
                     :width="18"
                     cover
-                    src="@/assets/images/svg/check_in/points.svg"
+                    src="@/assets/images/game/icon_rcp.png"
                   ></v-img>
-                  <span>{{ `${unitConversion(item.points)}` }}</span>
+                  <span>{{ `+ ${item.rcpAmount}` }}</span>
+                </div>
+                <div class="bonus" v-if="item.rctAmount">
+                  <v-img
+                    :width="18"
+                    cover
+                    src="@/assets/images/game/icon_roller.png"
+                  ></v-img>
+                  <span>{{ `+ ${unitConversion(item.rctAmount)}` }}</span>
                 </div>
               </div>
             </div>
@@ -186,23 +172,13 @@
             <div class="frens_list_item_right_time">
               {{ timeForStr(item.registrationTime, "MM-dd HH:mm:ss") }}
             </div>
-            <div class="user_prize">
-              <div class="energy" v-if="item.energyAmount">
-                <v-icon
-                  color="#FFF100"
-                  :size="18"
-                  icon="mdi-lightning-bolt"
-                ></v-icon>
-                <span>{{ `+ ${item.energyAmount}` }}</span>
-              </div>
-              <div class="bonus" v-if="item.gmcAmount">
-                <v-img
-                  :width="18"
-                  cover
-                  src="@/assets/images/svg/check_in/gm_coin.svg"
-                ></v-img>
-                <span>{{ `+ ${unitConversion(item.gmcAmount)}` }}</span>
-              </div>
+            <div class="send_btn" @click="handleSend(item)">
+              <v-img
+                :width="18"
+                cover
+                src="@/assets/images/game/icon_roller.png"
+              ></v-img>
+              <span>TIP</span>
             </div>
           </div>
         </div>
@@ -236,27 +212,42 @@ import { getInviteUserList } from "@/services/api/user.js";
 import { shareOnTelegram, timeForStr, unitConversion } from "@/utils";
 
 // 等级图标
-import Level_1 from "@/assets/images/svg/main/level_1.svg";
-import Level_2 from "@/assets/images/svg/main/level_2.svg";
-import Level_3 from "@/assets/images/svg/main/level_3.svg";
-import Level_4 from "@/assets/images/svg/main/level_4.svg";
-import Level_5 from "@/assets/images/svg/main/level_5.svg";
-import Level_6 from "@/assets/images/svg/main/level_6.svg";
-import Level_7 from "@/assets/images/svg/main/level_7.svg";
-import Level_8 from "@/assets/images/svg/main/level_8.svg";
-import Level_9 from "@/assets/images/svg/main/level_9.svg";
-import Level_10 from "@/assets/images/svg/main/level_10.svg";
+import Level_1 from "@/assets/images/main/level_1.png";
+import Level_2 from "@/assets/images/main/level_2.png";
+import Level_3 from "@/assets/images/main/level_3.png";
+import Level_4 from "@/assets/images/main/level_4.png";
+import Level_5 from "@/assets/images/main/level_5.png";
+import Level_6 from "@/assets/images/main/level_6.png";
+import Level_7 from "@/assets/images/main/level_7.png";
+import Level_8 from "@/assets/images/main/level_8.png";
+import Level_9 from "@/assets/images/main/level_9.png";
+import Level_10 from "@/assets/images/main/level_10.png";
+import Level_11 from "@/assets/images/main/level_11.png";
+import Level_12 from "@/assets/images/main/level_12.png";
+import Level_13 from "@/assets/images/main/level_13.png";
+import Level_14 from "@/assets/images/main/level_14.png";
+import Level_15 from "@/assets/images/main/level_15.png";
+import Level_16 from "@/assets/images/main/level_16.png";
+import Level_17 from "@/assets/images/main/level_17.png";
+import Level_18 from "@/assets/images/main/level_18.png";
+import Level_19 from "@/assets/images/main/level_19.png";
+import Level_20 from "@/assets/images/main/level_20.png";
+import Level_21 from "@/assets/images/main/level_21.png";
+import Level_22 from "@/assets/images/main/level_22.png";
+import Level_23 from "@/assets/images/main/level_23.png";
+import Level_24 from "@/assets/images/main/level_24.png";
+import Level_25 from "@/assets/images/main/level_25.png";
+import Level_26 from "@/assets/images/main/level_26.png";
+import Level_27 from "@/assets/images/main/level_27.png";
 
 interface frensInfo {
   userId: number; //用户ID
   userName: string; //用户名
-  avatar: string | any; //头像
-  level: number | string; //用户等级
-  points: number | string | any; //用户积分
+  avatar: string; //头像
   registrationTime: string; //注册时间
-  energyAmount: number | string | any; //能量数量
-  rcpAmount: number | string | any; //GMC数量
-  isMember: boolean; // 是否是会员
+  rcpAmount: number; //RCP数量
+  rctAmount: number; //RCT数量
+  isMember: boolean; //是否为会员
   [x: string]: string | number | any;
 }
 
@@ -276,6 +267,23 @@ export default defineComponent({
         8: Level_8,
         9: Level_9,
         10: Level_10,
+        11: Level_11,
+        12: Level_12,
+        13: Level_13,
+        14: Level_14,
+        15: Level_15,
+        16: Level_16,
+        17: Level_17,
+        18: Level_18,
+        19: Level_19,
+        20: Level_20,
+        21: Level_21,
+        22: Level_22,
+        23: Level_23,
+        24: Level_24,
+        25: Level_25,
+        26: Level_26,
+        27: Level_27,
       },
       page: 1,
       size: 10,
@@ -306,7 +314,6 @@ export default defineComponent({
     unitConversion: unitConversion,
     // 获取邀请用户列表
     async fetchInviteUserList(type = 1, isSearch = true) {
-      if (this.finished) return;
       let _page = this.page;
       if (isSearch) {
         this.finished = false;
@@ -352,6 +359,11 @@ export default defineComponent({
       }
       shareOnTelegram(inviteUrl);
     },
+    handleSend(event: frensInfo) {
+      const { setSendUser, setShowSend } = useUserStore();
+      setSendUser(event.userName);
+      setShowSend(true);
+    },
     // 打开邀请奖励排行榜
     toRanking() {
       this.$router.push({
@@ -370,7 +382,7 @@ export default defineComponent({
 .frens_text {
   font-weight: bold;
   font-size: 24px;
-  color: #fdefd6;
+  color: #b0b5c5;
   text-align: center;
 }
 
@@ -379,7 +391,7 @@ export default defineComponent({
   align-items: center;
   justify-content: space-between;
   background-color: rgba(6, 4, 4, 0.6);
-  height: 50px;
+  height: 70px;
   border-radius: 10px;
   padding: 0 8px;
   margin-top: 4px;
@@ -393,20 +405,29 @@ export default defineComponent({
   font-size: 18px;
   color: #fbb11b;
   border-right: 4px solid #fdefd6;
-
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 
-  .v-img {
-    flex: none;
-    margin-right: 4px;
+  .amount_box {
+    display: flex;
+    align-items: center;
+
+    .v-img {
+      flex: none;
+      margin-right: 4px;
+    }
+  }
+  .amount_box + .amount_box {
+    margin-top: 4px;
   }
 }
 
 .invitation_ranking {
   flex: 1 0 60%;
   font-size: 16px;
-  color: #fdefd6;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -422,7 +443,7 @@ export default defineComponent({
 
   .frens_descriptions_text {
     font-size: 14px;
-    color: #fdefd6;
+    color: #b0b5c5;
   }
 }
 
@@ -439,27 +460,30 @@ export default defineComponent({
       transform: translateX(-50%);
       height: 100%;
       width: 2px;
-      background-color: #fbe945;
+      background-color: #b0b5c5;
+      z-index: 1;
     }
 
     .dot_box {
       display: flex;
       align-items: center;
       height: 20px;
+      z-index: 2;
     }
 
     .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background-color: #fec72f;
-      border: 2px solid #fbe945;
+      background-color: #ea980a;
+      border: 2px solid #b0b5c5;
+      z-index: 2;
     }
   }
 
   .descriptions_text {
     font-size: 14px;
-    color: #fdefd6;
+    color: #b0b5c5;
   }
 }
 
@@ -569,7 +593,7 @@ export default defineComponent({
   .frens_list_text {
     font-weight: bold;
     font-size: 20px;
-    color: #fdefd6;
+    color: #b0b5c5;
   }
 }
 
@@ -585,7 +609,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px;
+  padding: 8px 16px;
 }
 
 .frens_list_item_left {
@@ -612,35 +636,6 @@ export default defineComponent({
     }
   }
 
-  .user_other {
-    display: flex;
-    align-items: center;
-
-    & > .v-img {
-      margin-right: 8px;
-      flex: none;
-    }
-  }
-
-  .user_points {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #fbb11b;
-
-    & > .v-img {
-      margin-right: 4px;
-    }
-  }
-}
-
-.frens_list_item_right {
-  .frens_list_item_right_time {
-    font-size: 16px;
-    color: #e1e1e1;
-  }
-
   .user_prize {
     display: flex;
     align-items: center;
@@ -664,6 +659,30 @@ export default defineComponent({
   }
 }
 
+.frens_list_item_right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  .frens_list_item_right_time {
+    font-size: 16px;
+    color: #e1e1e1;
+  }
+
+  .send_btn {
+    background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0px 4px;
+
+    .v-img {
+      flex: none;
+      margin-right: 4px;
+    }
+  }
+}
+
 .invite_btn {
   position: fixed;
   left: 0;
@@ -671,12 +690,25 @@ export default defineComponent({
   margin: 0 auto;
   bottom: 60px;
   z-index: 2000;
-  background-color: #49b6f6;
-  color: white;
+  background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+  color: #000;
 }
 
 .avatar {
   border: 4px solid #ffad2e;
   border-radius: 50%;
+}
+
+.user_level {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+
+  .v-img {
+    flex: none;
+  }
 }
 </style>

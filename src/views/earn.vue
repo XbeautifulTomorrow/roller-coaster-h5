@@ -1,7 +1,7 @@
 <template>
   <div class="earn_wrapper">
     <div class="gift_box">
-      <v-img :width="180" cover src="@/assets/images/earn/gift.png"></v-img>
+      <v-img :width="160" cover src="@/assets/images/earn/gift.png"></v-img>
       <div class="description_text">Earn More $GMC</div>
     </div>
     <div class="task_panel">
@@ -21,22 +21,22 @@
               </div>
               <div class="task_name" v-else>{{ item.fullName }}</div>
               <div class="task_bonus_box">
-                <div class="task_bonus" v-if="item.energyAmount">
-                  <v-icon
-                    color="#FFF100"
-                    size="20"
-                    icon="mdi-lightning-bolt"
-                  ></v-icon>
-                  <div class="bonus">{{ `+ ${item.energyAmount}` }}</div>
+                <div class="task_bonus" v-if="item.rollerAmount">
+                  <v-img
+                    :width="20"
+                    cover
+                    src="@/assets/images/game/icon_roller.png"
+                  ></v-img>
+                  <div class="bonus">{{ `+ ${item.rollerAmount}` }}</div>
                 </div>
-                <div class="task_bonus" v-if="item.coinAmount">
+                <div class="task_bonus" v-if="item.rcpAmount">
                   <v-img
                     :width="18"
                     cover
-                    src="@/assets/images/svg/check_in/gm_coin.svg"
+                    src="@/assets/images/game/icon_rcp.png"
                   ></v-img>
                   <div class="bonus">
-                    {{ `+ ${Number(item.coinAmount).toLocaleString()}` }}
+                    {{ `+ ${Number(item.rcpAmount).toLocaleString()}` }}
                   </div>
                 </div>
               </div>
@@ -44,9 +44,10 @@
           </div>
           <div class="task_item_right">
             <v-btn
-              :color="item.isFinish ? 'rgb(0,0,0,0)' : '#49B6F6'"
+              color="'rgb(0,0,0,0)'"
+              :class="[item.isFinish ? '' : 'complete_btn']"
               :loading="item.loading"
-              height="24"
+              height="30"
               density="compact"
               @click="completed(item)"
               :variant="item.isFinish ? 'text' : 'flat'"
@@ -54,11 +55,11 @@
             >
               <div v-if="!item.isFinish" class="finished">GO</div>
               <div v-else-if="item.isFinish" class="completed">
-                <v-icon
-                  size="30"
-                  color="#49B6F6"
-                  icon="mdi-check-bold"
-                ></v-icon>
+                <v-img
+                  :width="30"
+                  cover
+                  src="@/assets/images/svg/earn/icon_complete.svg"
+                ></v-img>
               </div>
             </v-btn>
           </div>
@@ -109,22 +110,22 @@
             <div class="task_item_reward">
               <div class="task_name">{{ item.fullName }}</div>
               <div class="task_bonus_box">
-                <div class="task_bonus" v-if="item.energyAmount">
-                  <v-icon
-                    color="#FFF100"
-                    size="20"
-                    icon="mdi-lightning-bolt"
-                  ></v-icon>
-                  <div class="bonus">{{ `+ ${item.energyAmount}` }}</div>
+                <div class="task_bonus" v-if="item.rollerAmount">
+                  <v-img
+                    :width="20"
+                    cover
+                    src="@/assets/images/game/icon_roller.png"
+                  ></v-img>
+                  <div class="bonus">{{ `+ ${item.rollerAmount}` }}</div>
                 </div>
-                <div class="task_bonus" v-if="item.coinAmount">
+                <div class="task_bonus" v-if="item.rcpAmount">
                   <v-img
                     :width="18"
                     cover
-                    src="@/assets/images/svg/check_in/gm_coin.svg"
+                    src="@/assets/images/game/icon_rcp.png"
                   ></v-img>
                   <div class="bonus">
-                    {{ `+ ${Number(item.coinAmount).toLocaleString()}` }}
+                    {{ `+ ${Number(item.rcpAmount).toLocaleString()}` }}
                   </div>
                 </div>
               </div>
@@ -132,9 +133,10 @@
           </div>
           <div class="task_item_right">
             <v-btn
-              :color="item.isFinish ? 'rgb(0,0,0,0)' : '#49B6F6'"
+              color="'rgb(0,0,0,0)'"
+              :class="[item.isFinish ? '' : 'complete_btn']"
               :loading="item.loading"
-              height="24"
+              height="30"
               density="compact"
               @click.stop="!item.isFinish ? completed(item) : toTask(item)"
               :variant="item.isFinish ? 'text' : 'flat'"
@@ -142,11 +144,11 @@
             >
               <div v-if="!item.isFinish" class="finished">GO</div>
               <div v-else-if="item.isFinish" class="completed">
-                <v-icon
-                  size="30"
-                  color="#49B6F6"
-                  icon="mdi-check-bold"
-                ></v-icon>
+                <v-img
+                  :width="30"
+                  cover
+                  src="@/assets/images/svg/earn/icon_complete.svg"
+                ></v-img>
               </div>
             </v-btn>
           </div>
@@ -181,11 +183,11 @@ interface taskInfo {
 
 import LOGIN from "@/assets/images/svg/earn/login.svg";
 import INVITE from "@/assets/images/svg/earn/invite.svg";
-import GM from "@/assets/images/svg/earn/check_in.svg";
-import CHALLENGE from "@/assets/images/svg/earn/join.svg";
+import PLAYMIN from "@/assets/images/svg/earn/play_min.svg";
+import PLAYMULTIPLIER from "@/assets/images/svg/earn/play_multiplier.svg";
+import GMCOIN from "@/assets/images/earn/gmcoin.png";
 import AD from "@/assets/images/svg/earn/ad.svg";
-import PURCHASE from "@/assets/images/svg/earn/purchase.svg";
-import CHAIN_CHECKIN from "@/assets/images/svg/earn/link_check_in.svg";
+
 import { TonConnectUI, ConnectedWallet } from "@tonconnect/ui";
 import { toNano, beginCell } from "@ton/ton";
 
@@ -205,10 +207,9 @@ export default defineComponent({
       taskImages: {
         LOGIN,
         INVITE,
-        PURCHASE,
-        CHAIN_CHECKIN,
-        GM,
-        CHALLENGE,
+        PLAYMIN,
+        PLAYMULTIPLIER,
+        GMCOIN,
         AD,
       },
     };
@@ -383,13 +384,13 @@ export default defineComponent({
         setShowRecharge(true);
       } else if (abbreviation == "TGGROUP") {
         // 加入Telegram群
-        openUrl("https://t.me/GMCoinChat1");
+        openUrl("https://t.me/rollercoaster_chat3");
       } else if (abbreviation == "TGCHANNEL") {
         // 加入Telegram群
-        openUrl("https://t.me/GMCoinChannel");
+        openUrl("https://t.me/theRollerCoaster");
       } else if (abbreviation == "TW") {
         // 关住Twitter，跳到用户
-        openUrl("https://x.com/GMCoin_Fam");
+        openUrl("https://x.com/tonRCP");
       } else if (abbreviation == "3BASE") {
         // 在3Base群里转发
         openUrl("https://t.me/ton_3base_bot/Ton3Base?startapp=673_BRZLED");
@@ -533,23 +534,24 @@ export default defineComponent({
 
 .gift_box {
   margin: 0 auto;
+  margin-top: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-direction: column;
 
   .v-img {
     flex: none;
   }
 
   .description_text {
-    position: absolute;
+    padding-top: 12px;
     width: 100%;
-    bottom: -8px;
     text-align: center;
     font-weight: 700;
     font-size: 20px;
-    color: #fdefd6;
+    color: #ea980a;
   }
 }
 
@@ -570,7 +572,7 @@ export default defineComponent({
 }
 
 .task_item {
-  background-color: rgba(6, 4, 4, 0.65);
+  background-color: #2d303e;
   border-radius: 14px;
   padding: 8px 16px 8px 8px;
   box-sizing: border-box;
@@ -587,6 +589,7 @@ export default defineComponent({
   .v-img {
     flex: none;
     margin-right: 8px;
+    border-radius: 10px;
   }
 }
 
@@ -641,11 +644,20 @@ export default defineComponent({
 
 .task_item_right {
   .v-btn {
-    color: #fff;
+    color: #000;
   }
 
   .finished {
-    color: #fff;
+    color: #000;
   }
+}
+
+.complete_btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+  border: 1px solid #000;
+  border-radius: 4px;
 }
 </style>

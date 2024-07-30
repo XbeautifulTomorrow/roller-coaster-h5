@@ -22,13 +22,7 @@ const getUserInfo = (params: any) => http.get(serverUrl + "/user/userInfo", para
  * 获取等级列表
  * @param params
  */
-const getLevelList = (params: any) => http.get(serverUrl + "/user-level/list", params);
-
-/**
- * 用户升级
- * @param params
- */
-const levelUpgrade = (params: any) => http.get(serverUrl + "/user-level/upgrade", params);
+const getLevelDetails = (params: any) => http.get(serverUrl + "/user-level/details", params);
 
 /**
  * 邀请用户列表
@@ -62,21 +56,37 @@ const buyProduct = (params: any) => http.get(serverUrl + "/product-info/purchase
 
 
 /**
- * 购买产品
+ * 订单列表
  * @param params
  */
 const getOrderList = (params: any) => http.get(serverUrl + "/order/list", params);
+
+/**
+ * swap 购买
+ * @param params
+ */
+const transferSwap = (params: any) => http.post(serverUrl + "/transfer/swap", params);
+
+/**
+ * 发送TIP
+ * @param params
+ */
+const transferSendTip = (params: any) => http.post(serverUrl + "/transfer/sendTip", params);
+
+
+
 
 export {
   validateToken,
   telegramLogin,
   getUserInfo,
-  getLevelList,
-  levelUpgrade,
+  getLevelDetails,
   getInviteUserList,
   getInviteRankingList,
   receiveGifts,
   getProductList,
   buyProduct,
-  getOrderList
+  getOrderList,
+  transferSwap,
+  transferSendTip
 };

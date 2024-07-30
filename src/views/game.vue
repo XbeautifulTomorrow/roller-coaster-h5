@@ -106,7 +106,7 @@
                 <v-img
                   :width="14"
                   cover
-                  src="@/assets/images/svg/check_in/gm_coin.svg"
+                  src="@/assets/images/game/icon_rcp.png"
                 ></v-img>
               </div>
             </div>
@@ -215,7 +215,7 @@
               <v-img
                 :width="24"
                 cover
-                src="@/assets/images/svg/check_in/gm_coin.svg"
+                src="@/assets/images/game/icon_rcp.png"
               ></v-img>
               <v-text-field
                 label=""
@@ -394,7 +394,7 @@
                   <v-img
                     :width="24"
                     cover
-                    src="@/assets/images/svg/check_in/gm_coin.svg"
+                    src="@/assets/images/game/icon_rcp.png"
                   ></v-img>
                   <v-text-field
                     label=""
@@ -437,7 +437,7 @@
               v-model="buyMultiplier"
               :min="1"
               :max="1000"
-              :step="0.01"
+              :step="1"
               hide-details="auto"
               thumb-size="14"
               track-fill-color="rgba(0,0,0,0)"
@@ -1270,6 +1270,7 @@ export default defineComponent({
     },
   },
   beforeUnmount() {
+    if (!this.eventSource) return;
     this.eventSource.close();
     this.eventSource = null;
   },

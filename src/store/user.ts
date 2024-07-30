@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getLocalStore, setSessionStore, getSessionStore, removeSessionStore } from "@/utils";
+import { getLocalStore, setSessionStore, getSessionStore, removeSessionStore, accurateDecimal } from "@/utils";
 import { getUserInfo, receiveGifts } from "@/services/api/user";
 import { buyProduct } from "@/services/api/user.js";
 import { en, zhHant } from 'vuetify/locale'
@@ -11,18 +11,16 @@ const langMenu: any = {
 };
 
 export interface userInterface {
-  userId: number, // 用户ID
-  userName: string; // 用户名
-  tgId: number, // tgID
-  avatar: string, // 头像
-  energyAmount: number, // 能量数量
-  gmcAmount: number, // GMC数量
-  pointAmount: number, // 积分
+  userId: number, //用户ID
+  tgId: number, //tgid
+  avatar: string, //头像
+  userName: string, //用户名
+  rcpAmount: number, //RCP数量
+  rctAmount: number, //RCT数量
   level: number, //等级
-  minAmount: number, // 最小输入金额(GMC)
-  maxAmount: number, // 最大输入金额(GMC)
-  inviteCode: string, // 邀请码
-  totalInviteAmount: number // 总返佣金额
+  inviteCode: string, //邀请码
+  totalRcpAmount: number, //总RCP返佣数量
+  totalRctAmount: number //总RCT返佣数量
   [x: string]: string | number | any;
 }
 
@@ -69,6 +67,8 @@ export const useUserStore = defineStore("user", {
     showConfirm: false, // 确认弹窗
     retryCount: 5, // 登录重试次数
     loadLog: false,
+    showSend: false, // 发送TIP弹窗
+    sendUser: null as string | any // 发送用户名
   }),
   persist: {
     enabled: true,
@@ -90,6 +90,7 @@ export const useUserStore = defineStore("user", {
       const res = await getUserInfo({});
       if (res.code == 200) {
         this.userInfo = res.data;
+        this.userInfo.rcpAmount = accurateDecimal(this.userInfo.rcpAmount, 0);
       } else {
         this.logoutApi();
       }
@@ -150,6 +151,12 @@ export const useUserStore = defineStore("user", {
           }
         })
       }
+    },
+    setShowSend(data: any) {
+      this.showSend = data;
+    },
+    setSendUser(data: any) {
+      this.sendUser = data;
     },
     async logoutApi() {
       const invateCode = getSessionStore("invateCode");

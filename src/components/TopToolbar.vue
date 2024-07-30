@@ -14,41 +14,43 @@
           <v-img
             :width="24"
             cover
-            src="@/assets/images/svg/check_in/gm_coin.svg"
+            src="@/assets/images/game/icon_rcp.png"
           ></v-img>
           <div class="energy_item">
             <div class="energy_val">
               {{ Number(userInfo?.rcpAmount || 0).toLocaleString() }}
             </div>
-            <div class="plus_btn">
+            <div class="plus_btn" @click="toRecharge()">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
           </div>
         </div>
         <div class="energy_box">
-          <v-icon color="#FFF100" :size="24" icon="mdi-lightning-bolt"></v-icon>
+          <v-img
+            :width="24"
+            cover
+            src="@/assets/images/game/icon_roller.png"
+          ></v-img>
           <div class="energy_item">
-            <div class="energy_val">{{ userInfo.rctAmount }}</div>
-            <div class="plus_btn">
+            <div class="energy_val">
+              {{ Number(userInfo?.rctAmount).toLocaleString() }}
+            </div>
+            <div class="plus_btn" @click="toRecharge()">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
           </div>
         </div>
       </template>
       <template v-slot:append>
-        <v-avatar
-          v-if="userInfo.avatar"
-          size="32"
-          :image="userInfo.avatar"
-        ></v-avatar>
-        <img
-          v-else
-          width="32"
-          height="32"
-          :avatar="userInfo.userName || 'avatar'"
-          color="#3D3D3D"
-          class="avatar"
-        />
+        <div class="user_info">
+          <div class="user_level">
+            <v-img
+              :width="30"
+              :src="levelImages[userInfo.level as keyof typeof levelImages]"
+            ></v-img>
+          </div>
+          <div class="user_name">{{ userInfo.userName }}</div>
+        </div>
       </template>
     </v-app-bar>
   </div>
@@ -59,11 +61,69 @@ import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getUserInfo } from "@/services/api/user";
 
+// 等级图标
+import Level_1 from "@/assets/images/main/level_1.png";
+import Level_2 from "@/assets/images/main/level_2.png";
+import Level_3 from "@/assets/images/main/level_3.png";
+import Level_4 from "@/assets/images/main/level_4.png";
+import Level_5 from "@/assets/images/main/level_5.png";
+import Level_6 from "@/assets/images/main/level_6.png";
+import Level_7 from "@/assets/images/main/level_7.png";
+import Level_8 from "@/assets/images/main/level_8.png";
+import Level_9 from "@/assets/images/main/level_9.png";
+import Level_10 from "@/assets/images/main/level_10.png";
+import Level_11 from "@/assets/images/main/level_11.png";
+import Level_12 from "@/assets/images/main/level_12.png";
+import Level_13 from "@/assets/images/main/level_13.png";
+import Level_14 from "@/assets/images/main/level_14.png";
+import Level_15 from "@/assets/images/main/level_15.png";
+import Level_16 from "@/assets/images/main/level_16.png";
+import Level_17 from "@/assets/images/main/level_17.png";
+import Level_18 from "@/assets/images/main/level_18.png";
+import Level_19 from "@/assets/images/main/level_19.png";
+import Level_20 from "@/assets/images/main/level_20.png";
+import Level_21 from "@/assets/images/main/level_21.png";
+import Level_22 from "@/assets/images/main/level_22.png";
+import Level_23 from "@/assets/images/main/level_23.png";
+import Level_24 from "@/assets/images/main/level_24.png";
+import Level_25 from "@/assets/images/main/level_25.png";
+import Level_26 from "@/assets/images/main/level_26.png";
+import Level_27 from "@/assets/images/main/level_27.png";
+
 export default defineComponent({
   data() {
     return {
       title: "GMCoin",
       showMenu: false,
+      levelImages: {
+        1: Level_1,
+        2: Level_2,
+        3: Level_3,
+        4: Level_4,
+        5: Level_5,
+        6: Level_6,
+        7: Level_7,
+        8: Level_8,
+        9: Level_9,
+        10: Level_10,
+        11: Level_11,
+        12: Level_12,
+        13: Level_13,
+        14: Level_14,
+        15: Level_15,
+        16: Level_16,
+        17: Level_17,
+        18: Level_18,
+        19: Level_19,
+        20: Level_20,
+        21: Level_21,
+        22: Level_22,
+        23: Level_23,
+        24: Level_24,
+        25: Level_25,
+        26: Level_26,
+        27: Level_27,
+      },
     };
   },
   created() {
@@ -87,13 +147,7 @@ export default defineComponent({
     toMain() {
       this.$router.push("/activity");
     },
-    toFrens() {
-      // this.$router.push('/frens');
-      const { setShowRecharge } = useUserStore();
-      setShowRecharge(true);
-    },
-    toEarn() {
-      // this.$router.push('/earn');
+    toRecharge() {
       const { setShowRecharge } = useUserStore();
       setShowRecharge(true);
     },
@@ -137,7 +191,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(#ffc81a 0%, #ffe71a 52%, #d9a315 100%);
+    background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
     border: 1px solid #000;
     border-radius: 4px;
   }
@@ -146,5 +200,31 @@ export default defineComponent({
 .avatar {
   border: 4px solid #ffad2e;
   border-radius: 50%;
+}
+
+.user_info {
+  display: flex;
+  align-items: center;
+
+  .user_name {
+    width: 30px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.user_level {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+
+  .v-img {
+    flex: none;
+  }
 }
 </style>

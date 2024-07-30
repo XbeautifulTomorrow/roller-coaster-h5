@@ -61,7 +61,7 @@
           <v-img
             :width="28"
             cover
-            src="@/assets/images/svg/check_in/gm_coin.svg"
+            src="@/assets/images/game/icon_rcp.png"
           ></v-img>
           <span>{{ Number(userInfo.rcpAmount).toLocaleString() }}</span>
         </div>

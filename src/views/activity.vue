@@ -13,7 +13,7 @@
           <v-img
             :width="24"
             cover
-            src="@/assets/images/svg/check_in/gm_coin.svg"
+            src="@/assets/images/game/icon_rcp.png"
           ></v-img>
           <span>{{ `${1} - ${Number(10000).toLocaleString()}` }}</span>
         </div>
@@ -40,7 +40,7 @@
           <v-img
             :width="24"
             cover
-            src="@/assets/images/svg/check_in/gm_coin.svg"
+            src="@/assets/images/game/icon_rcp.png"
           ></v-img>
           <span>{{
             `${Number(10000).toLocaleString()} - ${Number(
@@ -71,7 +71,7 @@
           <v-img
             :width="24"
             cover
-            src="@/assets/images/svg/check_in/gm_coin.svg"
+            src="@/assets/images/game/icon_rcp.png"
           ></v-img>
           <span>{{ `${1} - ${Number(1000000).toLocaleString()}` }}</span>
         </div>

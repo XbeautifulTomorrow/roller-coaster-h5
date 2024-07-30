@@ -379,7 +379,7 @@ export default defineComponent({
   width: 30px;
   height: 30px;
   border-radius: 30px;
-  background: linear-gradient(180deg, #f0d3b3 0%, #f2d0ac 100%);
+  background: linear-gradient(180deg, #f0d3b3 0%, #e6c449 100%);
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3),
     0px 5px 5px 0px rgba(255, 255, 255, 0.3) inset;
   display: flex;
@@ -401,26 +401,20 @@ export default defineComponent({
   max-height: 80vh;
   overflow-y: scroll;
   font-size: 14px;
-  background-color: rgba(137, 104, 85, 1);
+  background-color: rgba(66, 20, 79, 1);
+  box-shadow: 0px 0px 4px rgba(21, 12, 7, 0.5),
+    0px 5px 5px 0px rgba(96, 69, 54, 0.4) inset;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0px 0px 4px rgba(21, 12, 7, 0.5),
-    0px 5px 5px 0px rgba(96, 69, 54, 1) inset;
 
   .recharge_box {
-    background-color: rgba(117, 87, 72, 1);
-    box-sizing: border-box;
-    border: 1px solid rgba(96, 69, 54, 1);
-    border-radius: 16px;
-    box-shadow: 2px 2px 5px rgba(21, 12, 7, 0.5),
-      0px 5px 5px 0px rgba(96, 69, 54, 1) inset;
     padding: 8px 8px 16px;
   }
 }
 
 .buy_title {
   margin-top: 8px;
-  background-color: rgba(252, 223, 189, 1);
+  background-color: rgba(212, 72, 52, 1);
   border-radius: 30px;
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3),
     0px 5px 5px 0px rgba(255, 255, 255, 0.3) inset;

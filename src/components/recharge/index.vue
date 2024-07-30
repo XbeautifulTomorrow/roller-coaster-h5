@@ -1,116 +1,82 @@
 <template>
-  <v-dialog
-    v-model="showRecharge"
-    width="100%"
-    transition="dialog-top-transition"
-    fullscreen
-  >
+  <v-dialog v-model="showRecharge" width="100%">
     <div class="dialog_box">
-      <div class="recharge_title">RECHARGE</div>
-      <div class="recharge_toolbar">
-        <div class="btn" @click="showRecharge = false">
+      <div class="recharge_panel">
+        <div class="recharge_title">SHOP</div>
+        <div class="close_btn" @click="showRecharge = false">
           <v-img :width="16" cover src="@/assets/images/svg/icon_x.svg"></v-img>
         </div>
-        <div class="shading">
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
-          <img src="@/assets/images/svg/bg_shading.svg" />
+        <div class="title_text">
+          <v-img
+            :width="20"
+            cover
+            src="@/assets/images/game/icon_rcp.png"
+          ></v-img>
+          <span>FREE $RCP</span>
         </div>
-      </div>
-      <div class="recharge_panel">
-        <div class="recharge_box">
-          <div class="product_items">
-            <div
-              class="product_item"
-              v-for="(item, index) in productList"
-              :key="index"
-              @click="handleBuy(item)"
-            >
-              <div class="reward_box">
-                <v-img
-                  width="50"
-                  cover
-                  src="@/assets/images/recharge/reward_bg.png"
-                ></v-img>
-                <div class="bonus">
-                  <span class="title">Bonus</span>
-                  <span class="val">{{
-                    `${unitConversion(item.gmcAmount)} $GMC`
-                  }}</span>
-                </div>
-              </div>
-              <div class="energy_img">
-                <v-img
-                  width="70"
-                  v-if="index == 0"
-                  class="reward_img"
-                  cover
-                  src="@/assets/images/recharge/energy_1.png"
-                ></v-img>
-                <v-img
-                  width="70"
-                  v-else-if="index == 1"
-                  class="reward_img"
-                  cover
-                  src="@/assets/images/recharge/energy_2.png"
-                ></v-img>
-                <v-img
-                  width="70"
-                  v-else-if="index == 2"
-                  class="reward_img"
-                  cover
-                  src="@/assets/images/recharge/energy_3.png"
-                ></v-img>
-                <v-img
-                  width="70"
-                  v-else-if="index == 3"
-                  class="reward_img"
-                  cover
-                  src="@/assets/images/recharge/energy_4.png"
-                ></v-img>
-                <v-img
-                  width="70"
-                  v-else-if="index == 4"
-                  class="reward_img"
-                  cover
-                  src="@/assets/images/recharge/energy_5.png"
-                ></v-img>
-                <v-img
-                  width="70"
-                  v-else
-                  class="reward_img"
-                  cover
-                  src="@/assets/images/recharge/energy_6.png"
-                ></v-img>
-              </div>
-              <div class="buy_info">
-                <div class="energy_val">
-                  {{ `${item.energyAmount} Energy` }}
-                </div>
-                <div class="price_val">{{ `$${item.price}` }}</div>
-              </div>
+        <div class="product_items">
+          <div
+            class="product_item"
+            v-for="(item, index) in productList"
+            :key="index"
+            @click="handleBuy(item)"
+          >
+            <div class="reward_box">
+              {{ `${unitConversion(item.rcpAmount)} $RCP  ` }}
+            </div>
+            <div class="amount_img">
+              <v-img
+                width="70"
+                v-if="index == 0"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/token_1.png"
+              ></v-img>
+              <v-img
+                width="70"
+                v-else-if="index == 1"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/token_2.png"
+              ></v-img>
+              <v-img
+                width="70"
+                v-else-if="index == 2"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/token_3.png"
+              ></v-img>
+              <v-img
+                width="70"
+                v-else-if="index == 3"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/token_4.png"
+              ></v-img>
+              <v-img
+                width="70"
+                v-else-if="index == 4"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/token_5.png"
+              ></v-img>
+              <v-img
+                width="70"
+                v-else
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/token_6.png"
+              ></v-img>
+            </div>
+            <div class="buy_info">
+              <v-img
+                width="70"
+                cover
+                src="@/assets/images/svg/btn_bg.svg"
+              ></v-img>
+              <div class="price_val">{{ `$${item.rctAmount / 100}` }}</div>
             </div>
           </div>
-          <div class="interval">OR</div>
-          <v-btn
-            class="connect_btn"
-            :elevation="8"
-            height="40"
-            @click="toFrens()"
-          >
-            <v-img
-              width="24"
-              class="reward_img"
-              cover
-              src="@/assets/images/svg/add_user.svg"
-            ></v-img>
-            <span class="finished">Invite Friend</span>
-          </v-btn>
         </div>
       </div>
     </div>
@@ -121,6 +87,36 @@ import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getProductList } from "@/services/api/user.js";
 import { unitConversion } from "@/utils";
+
+// 等级图标
+import Level_1 from "@/assets/images/main/level_1.png";
+import Level_2 from "@/assets/images/main/level_2.png";
+import Level_3 from "@/assets/images/main/level_3.png";
+import Level_4 from "@/assets/images/main/level_4.png";
+import Level_5 from "@/assets/images/main/level_5.png";
+import Level_6 from "@/assets/images/main/level_6.png";
+import Level_7 from "@/assets/images/main/level_7.png";
+import Level_8 from "@/assets/images/main/level_8.png";
+import Level_9 from "@/assets/images/main/level_9.png";
+import Level_10 from "@/assets/images/main/level_10.png";
+import Level_11 from "@/assets/images/main/level_11.png";
+import Level_12 from "@/assets/images/main/level_12.png";
+import Level_13 from "@/assets/images/main/level_13.png";
+import Level_14 from "@/assets/images/main/level_14.png";
+import Level_15 from "@/assets/images/main/level_15.png";
+import Level_16 from "@/assets/images/main/level_16.png";
+import Level_17 from "@/assets/images/main/level_17.png";
+import Level_18 from "@/assets/images/main/level_18.png";
+import Level_19 from "@/assets/images/main/level_19.png";
+import Level_20 from "@/assets/images/main/level_20.png";
+import Level_21 from "@/assets/images/main/level_21.png";
+import Level_22 from "@/assets/images/main/level_22.png";
+import Level_23 from "@/assets/images/main/level_23.png";
+import Level_24 from "@/assets/images/main/level_24.png";
+import Level_25 from "@/assets/images/main/level_25.png";
+import Level_26 from "@/assets/images/main/level_26.png";
+import Level_27 from "@/assets/images/main/level_27.png";
+
 interface productInfo {
   productId: number; //产品ID
   energyAmount: number; //能量数量
@@ -135,6 +131,35 @@ export default defineComponent({
     return {
       productList: [] as Array<productInfo>,
       tonConnect: null as any,
+      levelImages: {
+        1: Level_1,
+        2: Level_2,
+        3: Level_3,
+        4: Level_4,
+        5: Level_5,
+        6: Level_6,
+        7: Level_7,
+        8: Level_8,
+        9: Level_9,
+        10: Level_10,
+        11: Level_11,
+        12: Level_12,
+        13: Level_13,
+        14: Level_14,
+        15: Level_15,
+        16: Level_16,
+        17: Level_17,
+        18: Level_18,
+        19: Level_19,
+        20: Level_20,
+        21: Level_21,
+        22: Level_22,
+        23: Level_23,
+        24: Level_24,
+        25: Level_25,
+        26: Level_26,
+        27: Level_27,
+      },
     };
   },
   computed: {
@@ -150,7 +175,7 @@ export default defineComponent({
     },
   },
   created() {
-    // this.fetchProductList()
+    this.fetchProductList();
   },
   methods: {
     unitConversion: unitConversion,
@@ -186,9 +211,7 @@ export default defineComponent({
 }
 
 .dialog_box {
-  width: 100%;
-  max-height: 100vh;
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
   padding: 16px;
   display: flex;
   align-items: center;
@@ -200,67 +223,39 @@ export default defineComponent({
 }
 
 .recharge_title {
-  width: 90%;
+  width: 60%;
   color: #fdefd6;
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 4px;
   background: linear-gradient(
     180deg,
     rgba(210, 70, 49, 1) -3%,
     rgba(212, 72, 52, 1) 100%
   );
   padding: 8px 24px;
-  border-radius: 24px 24px 0 0;
+  border-radius: 24px;
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3),
     0px 5px 5px 0px rgba(255, 255, 255, 0.3) inset;
-  margin-bottom: -4px;
+  margin: 0 auto;
+  margin-top: -30px;
 }
 
-.recharge_toolbar {
-  width: 100%;
-  min-height: 40px;
-  background: linear-gradient(
-    180deg,
-    rgba(141, 103, 80, 1) 0%,
-    rgba(141, 103, 80, 1) 100%
-  );
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.9),
+.close_btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #f0d3b3 0%, #f2d0ac 100%);
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3),
     0px 5px 5px 0px rgba(255, 255, 255, 0.3) inset;
-  overflow: hidden;
-  position: relative;
-  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -10px;
+  right: 24px;
 
-  .btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 30px;
-    background: linear-gradient(180deg, #f0d3b3 0%, #f2d0ac 100%);
-    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3),
-      0px 5px 5px 0px rgba(255, 255, 255, 0.3) inset;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 4px;
-    right: 10px;
-
-    .v-img {
-      flex: none;
-    }
-  }
-
-  .shading {
-    min-height: 40px;
-    display: flex;
-    align-items: flex-end;
-
-    img {
-      width: 50px;
-      height: auto;
-    }
+  .v-img {
+    flex: none;
   }
 }
 
@@ -269,22 +264,32 @@ export default defineComponent({
   margin-top: -16px;
   padding: 4px;
   border-radius: 4px;
-  overflow-y: scroll;
   font-size: 14px;
-  background-color: rgba(137, 104, 85, 1);
-  border-radius: 0 0 20px 20px;
+  background-color: rgba(66, 20, 79, 1);
+  box-shadow: 0px 0px 4px rgba(21, 12, 7, 1);
+  border-radius: 20px;
   padding: 16px;
-  box-shadow: 0px 0px 4px rgba(21, 12, 7, 0.5),
-    0px 5px 5px 0px rgba(96, 69, 54, 1) inset;
+}
 
-  .recharge_box {
-    background-color: rgba(117, 87, 72, 1);
-    box-sizing: border-box;
-    border: 1px solid rgba(96, 69, 54, 1);
-    border-radius: 0 0 20px 20px;
-    box-shadow: 2px 2px 5px rgba(21, 12, 7, 0.5),
-      0px 5px 5px 0px rgba(96, 69, 54, 1) inset;
-    padding: 8px 8px 16px;
+.title_text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    180deg,
+    rgba(235, 170, 133, 1) 0%,
+    rgba(191, 112, 118, 1) 100%
+  );
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 8px 0;
+  margin: 8px 0;
+  text-shadow: 1px 1px 5px rgba(66, 20, 79, 1);
+  box-shadow: 0px 5px 2px 0px rgba(230, 217, 217, 0.6) inset;
+
+  .v-img {
+    flex: none;
+    margin-right: 4px;
   }
 }
 
@@ -313,36 +318,34 @@ export default defineComponent({
   flex: 1;
   background: linear-gradient(
     180deg,
-    rgba(255, 231, 199, 1) 7%,
-    rgba(250, 218, 182, 1) 100%
+    rgba(235, 170, 133, 1) 0%,
+    rgba(191, 112, 118, 1) 100%
   );
   box-sizing: border-box;
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
-  border-color: rgba(0, 0, 0, 1);
+  border-color: rgba(0, 0, 0, 0.4);
   border-radius: 10px;
   display: flex;
   align-items: center;
   flex-direction: column;
   position: relative;
-  padding: 40px 0 12px;
+  padding: 12px 0;
 
   .v-img {
     flex: none;
   }
 
   .buy_info {
-    padding-top: 16px;
+    margin-top: 8px;
     font-size: 16px;
-
-    .energy_val {
-      text-align: center;
-      font-weight: bold;
-      color: #000;
-      padding-bottom: 4px;
-    }
+    position: relative;
 
     .price_val {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       text-shadow: 1px 1px 5px rgba(197, 27, 24, 1);
       font-weight: bold;
       color: #ffedd6;
@@ -350,67 +353,20 @@ export default defineComponent({
   }
 
   .reward_box {
-    position: absolute;
-    top: 0;
-    left: 0;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
   }
 
-  .energy_img {
-    width: 70px;
-    height: 70px;
+  .amount_img {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    width: 70px;
+    height: 80px;
 
     .v-img {
       flex: none;
     }
-  }
-
-  .bonus {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotateZ(-45deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    white-space: nowrap;
-    font-size: 12px;
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
-    z-index: 2;
-  }
-}
-
-.interval {
-  font-weight: 24px;
-  font-weight: bold;
-  padding: 16px 0;
-}
-
-.connect_btn {
-  background-color: rgba(73, 182, 246, 1);
-  box-sizing: border-box;
-  border-width: 2px;
-  border-style: solid;
-  border-color: rgba(36, 36, 36, 1);
-  border-radius: 10px;
-  -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
-  font-weight: 700;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  color: #ffffff;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
-
-  .v-img {
-    flex: none;
-    margin-right: 4px;
   }
 }
 

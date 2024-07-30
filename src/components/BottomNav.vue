@@ -63,7 +63,7 @@
       </v-btn>
       <v-btn
         value="wallet"
-        :to="{ name: 'Mine' }"
+        :to="{ name: 'Wallet' }"
         density="compact"
         slim
         min-width="0"
