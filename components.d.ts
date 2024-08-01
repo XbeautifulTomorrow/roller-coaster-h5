@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BottomNav: typeof import('./src/components/BottomNav.vue')['default']
+    Calculator: typeof import('./src/components/calculator/index.vue')['default']
     CandlestickChart: typeof import('./src/components/charts/CandlestickChart.vue')['default']
     Confirm: typeof import('./src/components/recharge/confirm.vue')['default']
     copy: typeof import('./src/components/charts/LineChart copy.vue')['default']

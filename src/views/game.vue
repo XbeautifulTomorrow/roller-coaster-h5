@@ -45,7 +45,7 @@
       ></CandlestickChart>
     </div>
     <div class="other_box">
-      <div class="other_item">
+      <div class="other_item" @click="handleRules()">
         <v-img
           :width="16"
           cover
@@ -53,7 +53,7 @@
         ></v-img>
         <span>How It Works</span>
       </div>
-      <div class="other_item">
+      <div class="other_item" @click="handleRules()">
         <v-img
           :width="16"
           cover
@@ -528,6 +528,8 @@
       </div>
     </v-dialog>
     <stopAmount @onStop="fetchOrderData"></stopAmount>
+    <tipRules></tipRules>
+    <profitCalculator></profitCalculator>
   </div>
 </template>
 
@@ -544,6 +546,8 @@ import { accurateDecimal, unitConversion } from "@/utils";
 import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
 import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
+import tipRules from "@/components/rules/index.vue";
+import profitCalculator from "@/components/calculator/index.vue";
 import { useGameStore } from "@/store/game";
 // import { useMessageStore } from "@/store/message.js";
 
@@ -621,6 +625,8 @@ export default defineComponent({
     LineChart,
     CandlestickChart,
     stopAmount,
+    tipRules,
+    profitCalculator,
   },
   computed: {
     // 是否初始化
@@ -674,6 +680,26 @@ export default defineComponent({
       }
 
       return isBuy;
+    },
+    showRules: {
+      get() {
+        const { showRules } = useGameStore();
+        return showRules;
+      },
+      set(val: boolean) {
+        const { setShowRules } = useGameStore();
+        setShowRules(val);
+      },
+    },
+    showCalculator: {
+      get() {
+        const { showCalculator } = useGameStore();
+        return showCalculator;
+      },
+      set(val: boolean) {
+        const { setShowCalculator } = useGameStore();
+        setShowCalculator(val);
+      },
     },
   },
   created() {
@@ -1020,7 +1046,7 @@ export default defineComponent({
 
       if (type == "buy") {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
-        const typeNum = new bigNumber(0).plus(profit).multipliedBy(0.95);
+        const typeNum = new bigNumber(0).plus(profit);
         return accurateDecimal(typeNum, 2);
       } else {
         // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
@@ -1086,6 +1112,14 @@ export default defineComponent({
 
       const ratio = new bigNumber(income).dividedBy(amount).multipliedBy(100);
       return accurateDecimal(ratio, 2);
+    },
+    // 弹出规则
+    handleRules() {
+      this.showRules = true;
+    },
+    // 弹出计算器
+    handleCalculator() {
+      this.showCalculator = true;
     },
   },
   mounted() {

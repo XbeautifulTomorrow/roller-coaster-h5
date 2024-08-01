@@ -38,7 +38,9 @@ export const useGameStore = defineStore("game", {
     gameLevel: "" as Level, // 当前房间等级
     showRules: false, // 显示规则
     showStop: false, // 显示止盈止损设置
-    buyInfo: null as orderInfo | any // 买入信息
+    buyInfo: null as orderInfo | any, // 买入信息
+    showCalculator: true, // 显示计算器
+
   }),
   persist: {
     enabled: true,
@@ -61,6 +63,9 @@ export const useGameStore = defineStore("game", {
     },
     setBuyInfo(data: any) {
       this.buyInfo = data;
+    },
+    setShowCalculator(data: any) {
+      this.showCalculator = data;
     },
   },
 });
