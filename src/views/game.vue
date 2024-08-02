@@ -15,7 +15,14 @@
             v-else
             src="@/assets/images/svg/game/up.svg"
           ></v-img>
-          <span>{{ Number(currentPrice).toLocaleString() }}</span>
+          <span>
+            {{
+              Number(accurateDecimal(currentPrice, 2, true)).toLocaleString(
+                undefined,
+                { minimumFractionDigits: 2 }
+              )
+            }}
+          </span>
         </div>
         <div class="close_time">
           <v-img
@@ -650,6 +657,7 @@ export default defineComponent({
       orderData: [] as Array<orderInfo>,
       finished: false,
       orderType: 0 as number, // 0:进行中 1:已结束 2:其他玩家
+      orderTimer: null as number | any,
       page: 1,
       size: 10,
       showAuto: false,
@@ -746,6 +754,7 @@ export default defineComponent({
     this.fetchOrderData();
   },
   methods: {
+    accurateDecimal: accurateDecimal,
     unitConversion: unitConversion,
     createSSE() {
       if (window.EventSource) {
@@ -988,14 +997,21 @@ export default defineComponent({
     },
     // 切换订单类型
     handleOrderStatus(event: any) {
-      this.orderType = event;
-      this.orderData = [];
-
-      if (event != 2) {
-        this.fetchOrderData();
-      } else {
-        this.fetchOrderAll();
+      if (this.orderTimer) {
+        clearTimeout(this.orderTimer);
+        this.orderTimer = null;
       }
+
+      this.orderTimer = setTimeout(() => {
+        this.orderType = event;
+        this.orderData = [];
+
+        if (event != 2) {
+          this.fetchOrderData();
+        } else {
+          this.fetchOrderAll();
+        }
+      }, 300);
     },
     // 获取氛围组
     async fetchOrderAll() {
@@ -1447,7 +1463,7 @@ export default defineComponent({
   border-radius: 4px;
   text-align: center;
   font-size: 16px;
-  color: #fff;
+  color: #b0b5c5;
   padding: 2px 8px;
   display: flex;
   align-items: center;
@@ -1702,6 +1718,7 @@ export default defineComponent({
       min-height: 0;
       line-height: 2;
       color: #fff;
+      font-weight: bold;
     }
 
     .multiples_btn {
@@ -1783,6 +1800,7 @@ export default defineComponent({
       color: #fff;
       background-color: #161823;
       border-radius: 6px;
+      font-weight: bold;
     }
 
     .profit_input_box {
@@ -1802,6 +1820,7 @@ export default defineComponent({
         padding: 0;
         min-height: 0;
         background-color: transparent;
+        font-weight: bold;
       }
 
       &.up {

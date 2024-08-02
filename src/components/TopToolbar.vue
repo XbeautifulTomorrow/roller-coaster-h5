@@ -38,7 +38,7 @@
             <div class="energy_val">
               {{ Number(userInfo?.rctAmount || 0).toLocaleString() }}
             </div>
-            <div class="plus_btn" @click="toRecharge()">
+            <div class="plus_btn" @click="toSwap()">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
           </div>
@@ -159,6 +159,9 @@ export default defineComponent({
       const { setShowRecharge } = useUserStore();
       setShowRecharge(true);
     },
+    toSwap() {
+      this.$router.push("/swap");
+    },
   },
   watch: {
     isLogin(val) {
@@ -228,6 +231,7 @@ export default defineComponent({
   .user_name {
     width: 30px;
     font-size: 12px;
+    font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

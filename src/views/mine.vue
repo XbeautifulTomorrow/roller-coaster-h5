@@ -75,9 +75,9 @@
             <span>New Level: </span>
             <div class="new_level">
               <v-img
-                :width="14"
+                :width="16"
                 cover
-                :src="levelImages[userInfo.level as keyof typeof levelImages]"
+                :src="levelImages[levelData.nextLevel as keyof typeof levelImages]"
               ></v-img>
               <span>{{ levelData.nextLevelName }}</span>
             </div>
@@ -95,6 +95,11 @@
                 ).toLocaleString()}`
               }}
             </span>
+            <v-img
+              :width="16"
+              cover
+              src="@/assets/images/game/icon_rcp.png"
+            ></v-img>
           </div>
           <div class="other_item">
             <v-img
@@ -109,6 +114,11 @@
                 ).toLocaleString()}`
               }}
             </span>
+            <v-img
+              :width="16"
+              cover
+              src="@/assets/images/game/icon_roller.png"
+            ></v-img>
           </div>
         </div>
       </div>
@@ -355,6 +365,7 @@ export default defineComponent({
   .current_level {
     font-size: 12px;
     color: #dbe2e5;
+    font-weight: bold;
   }
   .level_exp {
     display: flex;

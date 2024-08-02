@@ -170,11 +170,11 @@ export default {
           },
           axisLine: {
             lineStyle: {
-              color: "#D4E2F1",
+              color: "#b0b5c5",
             },
           },
           axisLabel: {
-            color: "#c4bfbd",
+            color: "#b0b5c5",
             formatter: function (value: string, index: any) {
               const date = new Date(value);
               return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -201,10 +201,10 @@ export default {
         yAxis: {
           position: "right",
           min: function (value: any) {
-            return accurateDecimal(value.min - 20, 2);
+            return accurateDecimal(value.min - 20, 2, true);
           },
           max: function (value: any) {
-            return accurateDecimal(value.max + 20, 2);
+            return accurateDecimal(value.max + 20, 2, true);
           },
           axisTick: {
             show: false,
@@ -216,7 +216,12 @@ export default {
             },
           },
           axisLabel: {
-            color: "#c4bfbd",
+            color: "#b0b5c5",
+            formatter: function (value: string) {
+              return Number(value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              });
+            },
           },
           axisPointer: {
             show: true,
@@ -260,7 +265,7 @@ export default {
       const timeDifference = currentTime - this.lastUpdateTime;
       this.lastUpdateTime = currentTime;
       const animationDurationUpdate = Math.max(timeDifference, 500); // 动态设置动画持续时间
-      console.log(animationDurationUpdate)
+      console.log(animationDurationUpdate);
 
       this.chart.setOption({
         series: [

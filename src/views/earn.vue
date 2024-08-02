@@ -377,9 +377,9 @@ export default defineComponent({
       } else if (abbreviation == "GM") {
         // 去签到
         this.$router.push("/");
-      } else if (abbreviation == "CHALLENGE") {
-        // 去参加挑战
-        this.$router.push("/activity");
+      } else if (abbreviation == "GMCOIN") {
+        // 打开GMCoin
+        openUrl("https://t.me/theGMCoinBot/GMCoin?startapp=rpbWLrCa");
       } else if (abbreviation == "PURCHASE") {
         // 充值消费
         const { setShowRecharge } = useUserStore();
@@ -630,8 +630,10 @@ export default defineComponent({
   .task_bonus {
     display: flex;
     align-items: center;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.2;
+    font-weight: bold;
+    color: #ea980a;
 
     .v-img {
       flex: none;

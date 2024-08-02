@@ -214,7 +214,7 @@ export default defineComponent({
       }
     },
     handleBack() {
-      this.$router.push("/wallet");
+      this.$router.go(-1);
     },
   },
   watch: {

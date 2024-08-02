@@ -687,7 +687,7 @@ export const unitConversion = (val: number, type = 2) => {
   const absVal = Math.abs(val); // 可能是负数，取绝对值比对
 
   if (absVal < kh) {
-    texts = val;
+    texts = accurateDecimal(val, type, true);
   } else if (absVal >= kh && absVal < mh) {
     texts = accurateDecimal(val / kh, type, true) + "K";
   } else if (absVal >= mh && absVal < gh) {
