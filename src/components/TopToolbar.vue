@@ -150,10 +150,10 @@ export default defineComponent({
     getUserInfo: getUserInfo,
 
     goBack() {
-      this.$router.go(-1); // 返回上一页
+      (this.$router as any).go(-1); // 返回上一页
     },
     toMain() {
-      this.$router.push("/activity");
+      (this.$router as any).push("/activity");
     },
     toRecharge() {
       const { setShowRecharge } = useUserStore();
