@@ -1454,7 +1454,6 @@ export default defineComponent({
     right: 0;
     bottom: 0;
     margin: 0;
-    padding-bottom: 8px;
   }
 }
 
@@ -1506,7 +1505,7 @@ export default defineComponent({
 
 .manual_box {
   &.fixed {
-    padding: 8px;
+    padding: 8px 8px 16px;
     background-color: #2e303e;
     padding-bottom: 8px;
   }

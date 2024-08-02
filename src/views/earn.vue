@@ -187,6 +187,7 @@ import PLAYMIN from "@/assets/images/svg/earn/play_min.svg";
 import PLAYMULTIPLIER from "@/assets/images/svg/earn/play_multiplier.svg";
 import GMCOIN from "@/assets/images/earn/gmcoin.png";
 import AD from "@/assets/images/svg/earn/ad.svg";
+import CHAIN_CHECKIN from "@/assets/images/svg/earn/link_check_in.svg";
 
 import { TonConnectUI, ConnectedWallet } from "@tonconnect/ui";
 import { toNano, beginCell } from "@ton/ton";
@@ -207,6 +208,7 @@ export default defineComponent({
       taskImages: {
         LOGIN,
         INVITE,
+        CHAIN_CHECKIN,
         PLAYMIN,
         PLAYMULTIPLIER,
         GMCOIN,
