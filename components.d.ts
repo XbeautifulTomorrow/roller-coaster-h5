@@ -11,7 +11,6 @@ declare module 'vue' {
     Calculator: typeof import('./src/components/calculator/index.vue')['default']
     CandlestickChart: typeof import('./src/components/charts/CandlestickChart.vue')['default']
     Confirm: typeof import('./src/components/recharge/confirm.vue')['default']
-    copy: typeof import('./src/components/charts/LineChart copy.vue')['default']
     CountDown: typeof import('./src/components/countDown/index.vue')['default']
     LineChart: typeof import('./src/components/charts/LineChart.vue')['default']
     Recharge: typeof import('./src/components/recharge/index.vue')['default']
