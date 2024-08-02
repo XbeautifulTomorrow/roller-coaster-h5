@@ -39,7 +39,7 @@ export const useGameStore = defineStore("game", {
     showRules: false, // 显示规则
     showStop: false, // 显示止盈止损设置
     buyInfo: null as orderInfo | any, // 买入信息
-    showCalculator: true, // 显示计算器
+    showCalculator: false, // 显示计算器
 
   }),
   persist: {

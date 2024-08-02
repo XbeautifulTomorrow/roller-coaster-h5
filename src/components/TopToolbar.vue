@@ -10,6 +10,9 @@
       density="compact"
     >
       <template v-slot:prepend>
+        <div class="back" v-if="!isTab" @click="goBack()">
+          <v-img :width="30" cover src="@/assets/images/svg/back.svg"></v-img>
+        </div>
         <div class="energy_box">
           <v-img
             :width="24"
@@ -93,7 +96,6 @@ import Level_27 from "@/assets/images/main/level_27.png";
 export default defineComponent({
   data() {
     return {
-      title: "GMCoin",
       showMenu: false,
       levelImages: {
         1: Level_1,
@@ -124,6 +126,8 @@ export default defineComponent({
         26: Level_26,
         27: Level_27,
       },
+      isTab: true,
+      NavList: ["/", "/Earn", "/Frens", "/Wallet"],
     };
   },
   created() {
@@ -144,6 +148,10 @@ export default defineComponent({
   },
   methods: {
     getUserInfo: getUserInfo,
+
+    goBack() {
+      this.$router.go(-1); // 返回上一页
+    },
     toMain() {
       this.$router.push("/activity");
     },
@@ -159,14 +167,19 @@ export default defineComponent({
         userStore.fetchUserInfo();
       }
     },
-    "$route.path"() {
+    "$route.path"(val) {
       const userStore = useUserStore();
       userStore.fetchUserInfo();
+      this.isTab = this.NavList.includes(val);
     },
   },
 });
 </script>
 <style lang="scss" scoped>
+.back {
+  margin-right: 8px;
+}
+
 .energy_box {
   display: flex;
   align-items: center;
@@ -227,7 +240,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 4px;
+  margin-right: 2px;
 
   .v-img {
     flex: none;

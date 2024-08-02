@@ -102,7 +102,7 @@
 import { defineComponent } from "vue";
 
 // 没有导航按钮的页面
-const notNav = [] as Array<string>;
+const notNav = ["/", "/Earn", "/Frens", "/Wallet"] as Array<string>;
 
 export default defineComponent({
   data() {
@@ -117,7 +117,7 @@ export default defineComponent({
       if (notNav.includes(val)) {
         this.activeNav = true;
       } else {
-        this.activeNav = true;
+        this.activeNav = false;
       }
     },
   },

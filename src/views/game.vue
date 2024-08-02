@@ -53,7 +53,7 @@
         ></v-img>
         <span>How It Works</span>
       </div>
-      <div class="other_item" @click="handleRules()">
+      <div class="other_item" @click="handleCalculator()">
         <v-img
           :width="16"
           cover
@@ -1426,8 +1426,9 @@ export default defineComponent({
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 56px;
+    bottom: 0;
     margin: 0;
+    padding-bottom: 8px;
   }
 }
 
