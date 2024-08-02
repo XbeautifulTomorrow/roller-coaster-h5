@@ -456,6 +456,8 @@ export default defineComponent({
 <style lang="scss" scoped>
 .dialog_box {
   width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
   background-color: #000;
   border-radius: 16px 16px 0 0;
   padding: 16px;
