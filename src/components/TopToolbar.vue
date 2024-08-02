@@ -127,7 +127,7 @@ export default defineComponent({
         27: Level_27,
       },
       isTab: true,
-      NavList: ["/", "/Earn", "/Frens", "/Wallet"],
+      NavList: ["/", "/earn", "/frens", "/wallet"],
     };
   },
   created() {

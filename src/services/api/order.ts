@@ -1,5 +1,12 @@
 import * as http from "@/services/apiService";
 const serverUrl = "/coaster-server-web";
+
+
+/**
+ * 氛围组订单
+ * @param params
+ */
+const getOrderAll = (params: any) => http.get("/coaster-server-sse/sse/getOrderAll", params);
 /**
  * 场次对应参加人数
  * @param params
@@ -32,6 +39,7 @@ const closeOrder = (params: any) => http.get(serverUrl + "/carOrder/closeOrder",
 
 
 export {
+  getOrderAll,
   getNumberSessions,
   addOrder,
   getOrderData,

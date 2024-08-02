@@ -3,8 +3,18 @@
     <div class="toolbar_panel">
       <div class="game_info">
         <div :class="['price_box', isDrop ? 'drop' : 'up']">
-          <v-img :width="16" cover v-if="isDrop" :src="drop"></v-img>
-          <v-img :width="16" cover v-else :src="up"></v-img>
+          <v-img
+            :width="16"
+            cover
+            v-if="isDrop"
+            src="@/assets/images/svg/game/drop.svg"
+          ></v-img>
+          <v-img
+            :width="16"
+            cover
+            v-else
+            src="@/assets/images/svg/game/up.svg"
+          ></v-img>
           <span>{{ Number(currentPrice).toLocaleString() }}</span>
         </div>
         <div class="close_time">
@@ -94,9 +104,14 @@
               :width="24"
               cover
               v-if="item.side == 'sell'"
-              :src="drop"
+              src="@/assets/images/svg/game/drop.svg"
             ></v-img>
-            <v-img :width="24" cover v-else :src="up"></v-img>
+            <v-img
+              :width="24"
+              cover
+              v-else
+              src="@/assets/images/svg/game/up.svg"
+            ></v-img>
           </div>
           <div class="order_data">
             <div class="order_data_info">
@@ -250,7 +265,7 @@
                 :width="10"
                 v-if="buyStatus == 'buy'"
                 cover
-                :src="up"
+                src="@/assets/images/svg/game/up.svg"
               ></v-img>
               <v-img
                 :width="10"
@@ -272,7 +287,7 @@
                 :width="10"
                 v-if="buyStatus == 'sell'"
                 cover
-                :src="drop"
+                src="@/assets/images/svg/game/drop.svg"
               ></v-img>
               <v-img
                 :width="10"
@@ -353,7 +368,7 @@
                     :width="16"
                     v-if="buyStatus == 'buy'"
                     cover
-                    :src="up"
+                    src="@/assets/images/svg/game/up.svg"
                   ></v-img>
                   <v-img
                     :width="16"
@@ -374,7 +389,7 @@
                     :width="16"
                     v-if="buyStatus == 'sell'"
                     cover
-                    :src="drop"
+                    src="@/assets/images/svg/game/drop.svg"
                   ></v-img>
                   <v-img
                     :width="16"
@@ -540,10 +555,13 @@ import CandlestickChart from "@/components/charts/CandlestickChart.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import up from "@/assets/images/svg/game/up.svg";
-import drop from "@/assets/images/svg/game/drop.svg";
 import { accurateDecimal, unitConversion } from "@/utils";
-import { addOrder, getOrderData, closeOrder } from "@/services/api/order.js";
+import {
+  addOrder,
+  getOrderData,
+  closeOrder,
+  getOrderAll,
+} from "@/services/api/order.js";
 import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
 import tipRules from "@/components/rules/index.vue";
@@ -579,8 +597,6 @@ export default defineComponent({
       eventSource: null as any,
       currentPrice: 1000 as number | any,
       isDrop: false,
-      up,
-      drop,
       chartData: [] as Array<any>,
       showType: false,
       typeDrop: [
@@ -924,12 +940,22 @@ export default defineComponent({
         }; // 止损
       }
     },
+    // 切换订单类型
     handleOrderStatus(event: any) {
       this.orderType = event;
       this.orderData = [];
 
       if (event != 2) {
         this.fetchOrderData();
+      } else {
+        this.fetchOrderAll();
+      }
+    },
+    // 获取氛围组
+    async fetchOrderAll() {
+      const res = await getOrderAll({});
+      if (res.code == 200) {
+        this.orderData = res.data;
       }
     },
     // 获取订单列表
