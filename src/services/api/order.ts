@@ -6,7 +6,7 @@ const serverUrl = "/coaster-server-web";
  * 氛围组订单
  * @param params
  */
-const getOrderAll = (params: any) => http.get("/coaster-server-sse/sse/getOrderAll", params);
+const getOrderAll = (params: any) => http.get("/coaster-server-sse/sse/getOrderAll", params, { showLoading: false });
 /**
  * 场次对应参加人数
  * @param params

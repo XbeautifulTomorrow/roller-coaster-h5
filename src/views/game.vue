@@ -78,28 +78,24 @@
           :class="['order_type_item', orderType == 0 ? 'active' : '']"
           @click="handleOrderStatus(0)"
         >
-          Active Bets
+          Active Orders
         </div>
         <div
           :class="['order_type_item', orderType == 1 ? 'active' : '']"
           @click="handleOrderStatus(1)"
         >
-          Closed Bets
+          Closed Orders
         </div>
         <div
           :class="['order_type_item', orderType == 2 ? 'active' : '']"
           @click="handleOrderStatus(2)"
         >
-          Public Bets
+          Public Orders
         </div>
       </div>
-      <div class="order_data_list">
-        <div
-          class="order_data_item"
-          v-for="(item, index) in orderData"
-          :key="index"
-        >
-          <div class="order_types">
+      <transition-group name="list" tag="ul">
+        <li class="list-item" v-for="item in orderData" :key="item.id">
+          <div class="order_types" v-if="orderType != 2">
             <v-img
               :width="24"
               cover
@@ -113,11 +109,32 @@
               src="@/assets/images/svg/game/up.svg"
             ></v-img>
           </div>
+          <div class="order_user" v-else>
+            <v-img
+              :width="30"
+              cover
+              v-if="item.side == 'sell'"
+              :src="levelImages[item.level as keyof typeof levelImages]"
+            ></v-img>
+            <div class="user_name">{{ item.userName }}</div>
+          </div>
           <div class="order_data">
             <div class="order_data_info">
               <div class="title">AMOUNT</div>
               <div class="val amount">
-                <span>{{ unitConversion(item.amount) }}</span>
+                <v-img
+                  :width="14"
+                  cover
+                  v-if="item.side == 'sell'"
+                  src="@/assets/images/svg/game/drop.svg"
+                ></v-img>
+                <v-img
+                  :width="14"
+                  cover
+                  v-else
+                  src="@/assets/images/svg/game/up.svg"
+                ></v-img>
+                <div>{{ unitConversion(item.amount) }}</div>
                 <v-img
                   :width="14"
                   cover
@@ -138,7 +155,7 @@
             <div class="order_data_info">
               <div class="title">BUST PRICE</div>
               <div class="val">
-                {{ Number(item.ebustPrice).toLocaleString() }}
+                {{ Number(item.ebustPrice || 0).toLocaleString() }}
               </div>
             </div>
             <div class="order_data_info" v-if="orderType == 1">
@@ -204,8 +221,8 @@
               src="@/assets/images/svg/game/config_white.svg"
             ></v-img>
           </div>
-        </div>
-      </div>
+        </li>
+      </transition-group>
     </div>
     <div class="buying_panel fixed">
       <div class="buy_types">
@@ -587,6 +604,7 @@ interface orderInfo {
   ebustPrice: number; // 爆仓价格，前端计算
   profit: number; // 止盈
   loss: number; // 止损
+  level: number; // 等级
   [x: string]: string | number | any;
 }
 
@@ -667,6 +685,11 @@ export default defineComponent({
       const { currentPrice, buyStatus, buyMultiplier } = this;
       if (!currentPrice || !buyStatus || !buyMultiplier) return "-";
       return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
+    },
+    // 等级图标
+    levelImages() {
+      const { levelImages } = useUserStore();
+      return levelImages;
     },
     // 当前房间
     gameLevel() {
@@ -769,6 +792,29 @@ export default defineComponent({
 
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
           this.fetchOrderData();
+        });
+
+        this.eventSource.addEventListener("CLOSE_PRIZE", (e: any) => {
+          if (this.orderType != 2) return;
+          try {
+            const closeData = JSON.parse(e.data);
+            // 将新数据添加到列表开头
+            for (let i = 0; i < closeData.length; i++) {
+              setTimeout(() => {
+                this.orderData.unshift(closeData[i]);
+              }, 1000 / 60);
+            }
+
+            this.$forceUpdate();
+
+            // 控制列表长度不超过50个项
+            if (this.orderData.length > 50) {
+              this.orderData.splice(50); // 只保留前10个项
+            }
+          } catch (error) {
+            console.log(e);
+            console.log(error);
+          }
         });
 
         // 设置连接操作
@@ -1871,7 +1917,7 @@ export default defineComponent({
 }
 
 .order_panel {
-  padding: 8px 8px 0;
+  padding: 8px 0 0;
 }
 
 .order_type {
@@ -1880,6 +1926,7 @@ export default defineComponent({
   justify-content: space-between;
   background-color: #242531;
   border-radius: 4px 4px 0 0;
+  margin: 0 8px 0;
   overflow: hidden;
 
   .order_type_item {
@@ -1898,20 +1945,56 @@ export default defineComponent({
   }
 }
 
-.order_data_list {
-  .order_data_item:nth-child(2n-1) {
-    background-color: #323444;
-  }
+.list-item {
+  opacity: 1;
+  transition: opacity 0.5s, transform 0.5s ease;
 }
 
-.order_data_item {
+.list-enter-active,
+.list-leave-active {
+  transition: transform 0.5s ease;
+}
+
+.list-enter,
+.list-leave-to {
+  position: absolute;
+}
+
+.list-enter {
+  transform: translateY(-100%);
+}
+
+.list-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.list-item:nth-child(2n-1) {
+  background-color: #323444;
+}
+
+.list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 4px;
+  padding: 8px 12px;
+  background-color: #1f212e;
 
   .order_types {
     margin-right: 8px;
+  }
+
+  .order_user {
+    .user_name {
+      width: 30px;
+      font-size: 12px;
+      color: #ffffff;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-right: 8px;
+    }
   }
 
   .order_data {
@@ -1941,9 +2024,11 @@ export default defineComponent({
         display: flex;
         align-items: center;
 
+        & > div + div {
+          margin-left: 4px;
+        }
         .v-img {
           flex: none;
-          margin-left: 4px;
         }
       }
 

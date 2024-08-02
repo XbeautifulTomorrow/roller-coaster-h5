@@ -36,7 +36,7 @@
           ></v-img>
           <div class="energy_item rct">
             <div class="energy_val">
-              {{ Number(userInfo?.rctAmount).toLocaleString() }}
+              {{ Number(userInfo?.rctAmount || 0).toLocaleString() }}
             </div>
             <div class="plus_btn" @click="toRecharge()">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>

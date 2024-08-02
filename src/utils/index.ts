@@ -674,7 +674,7 @@ export const delCookie = (name: any) => {
   * @param {number} val - 金额
   */
 
-export const unitConversion = (val: number) => {
+export const unitConversion = (val: number, type = 2) => {
   let h = 1;
   let kh = h * 1000;
   let mh = kh * 1000;
@@ -689,17 +689,17 @@ export const unitConversion = (val: number) => {
   if (absVal < kh) {
     texts = val;
   } else if (absVal >= kh && absVal < mh) {
-    texts = accurateDecimal(val / kh, 2, true) + "K";
+    texts = accurateDecimal(val / kh, type, true) + "K";
   } else if (absVal >= mh && absVal < gh) {
-    texts = accurateDecimal(val / mh, 2, true) + "M";
+    texts = accurateDecimal(val / mh, type, true) + "M";
   } else if (absVal >= gh && absVal < th) {
-    texts = accurateDecimal(val / gh, 2, true) + "B";
+    texts = accurateDecimal(val / gh, type, true) + "B";
   } else if (absVal >= th && absVal < ph) {
-    texts = accurateDecimal(val / th, 2, true) + "T";
+    texts = accurateDecimal(val / th, type, true) + "T";
   } else if (absVal >= ph && absVal < eh) {
-    texts = accurateDecimal(val / ph, 2, true) + "P";
+    texts = accurateDecimal(val / ph, type, true) + "P";
   } else if (absVal >= eh) {
-    texts = accurateDecimal(val / eh, 2, true) + "E";
+    texts = accurateDecimal(val / eh, type, true) + "E";
   }
 
   return texts;

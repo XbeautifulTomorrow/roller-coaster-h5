@@ -196,7 +196,7 @@ export default defineComponent({
       currentPrice: "1,000.00",
       buyStatus: "buy", // 买/多 buy  卖/空 sell
       buyNum: "1,000", // 下注数
-      multiple: "99", // 倍数
+      multiple: "1", // 倍数
       priceChange: null as number | any, // 价格变动
       priceMove: [
         -1, -0.5, -0.1, -0.05, -0.01, -0.005, -0.001, -0.0005, -0.0001, 0,
