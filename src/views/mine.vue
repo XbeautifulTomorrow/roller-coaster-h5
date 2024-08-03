@@ -8,7 +8,12 @@
         ></v-img>
       </div>
       <div class="nick_name">{{ userInfo.userName }}</div>
-      <div class="user_name"></div>
+      <div class="user_Id">
+        <span>{{ `ID:${userInfo.tgId}` }}</span>
+        <div class="copy_btn" @click="copyLink()">
+          <v-icon icon="mdi-content-copy" size="16" color="#b0b5c5"></v-icon>
+        </div>
+      </div>
     </div>
     <div class="level_box">
       <v-slider
@@ -184,6 +189,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import bigNumber from "bignumber.js";
+import { onCopy } from "@/utils";
 
 // 等级图标
 import Level_1 from "@/assets/images/main/level_1.png";
@@ -304,6 +310,13 @@ export default defineComponent({
       const { setShowRecharge } = useUserStore();
       setShowRecharge(true);
     },
+    copyLink() {
+      const {
+        userInfo: { tgId },
+      } = this;
+
+      onCopy(`${tgId}`);
+    },
     handleSend() {
       const { setShowSend } = useUserStore();
       setShowSend(true);
@@ -329,6 +342,25 @@ export default defineComponent({
 
   .nick_name {
     padding-top: 8px;
+  }
+
+  .user_Id {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 400;
+    color: #8c8f9b;
+
+    .v-img {
+      flex: none;
+      margin-left: 8px;
+    }
+
+    .copy_btn {
+      padding: 0px 4px;
+      color: #b0b5c5;
+      margin-left: 4px;
+    }
   }
 }
 

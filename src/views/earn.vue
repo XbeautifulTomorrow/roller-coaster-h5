@@ -368,7 +368,7 @@ export default defineComponent({
         const { inviteCode } = this.userInfo;
         let inviteUrl = "";
         if (import.meta.env.MODE == "prod") {
-          inviteUrl = `https://t.me/theGMCoinBot/GMCoin?startapp=${inviteCode}`;
+          inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
         } else {
           inviteUrl = `https://t.me/gm_coin_test_bot/checking?startapp=${inviteCode}`;
         }
@@ -379,7 +379,9 @@ export default defineComponent({
         this.$router.push("/");
       } else if (abbreviation == "GMCOIN") {
         // 打开GMCoin
-        openUrl("https://t.me/theGMCoinBot/GMCoin?startapp=rpbWLrCa");
+        openUrl(
+          "https://t.me/theRollerCoasterBot/RollerCoaster?startapp=rpbWLrCa"
+        );
       } else if (abbreviation == "PURCHASE") {
         // 充值消费
         const { setShowRecharge } = useUserStore();
@@ -406,11 +408,11 @@ export default defineComponent({
       let miniappUrl = "https://t.me/gm_coin_test_bot/checking";
 
       this.tonConnect = new TonConnectUI({
-        manifestUrl: "https://file.gmking.io/tonconnect-manifest.json",
+        manifestUrl: "https://tonrollercoaster.com/tonconnect-manifest.json",
       });
 
       if (import.meta.env.MODE == "prod") {
-        miniappUrl = "https://t.me/theGMCoinBot/GMCoin";
+        miniappUrl = "https://t.me/theRollerCoasterBot/RollerCoaster";
       }
       // webapp重定向
       this.tonConnect.uiOptions = {

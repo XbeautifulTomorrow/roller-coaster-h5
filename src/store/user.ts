@@ -98,6 +98,7 @@ export const useUserStore = defineStore("user", {
     retryCount: 5, // 登录重试次数
     loadLog: false,
     showSend: false, // 发送TIP弹窗
+    sendUserId: null as string | any, // 发送用户Id
     sendUser: null as string | any, // 发送用户名
     levelImages: {
       1: Level_1,
@@ -216,6 +217,9 @@ export const useUserStore = defineStore("user", {
     },
     setSendUser(data: any) {
       this.sendUser = data;
+    },
+    setSendUserId(data: any) {
+      this.sendUserId = data;
     },
     async logoutApi() {
       const invateCode = getSessionStore("invateCode");

@@ -353,14 +353,15 @@ export default defineComponent({
       const { inviteCode } = this.userInfo;
       let inviteUrl = "";
       if (import.meta.env.MODE == "prod") {
-        inviteUrl = `https://t.me/theGMCoinBot/GMCoin?startapp=${inviteCode}`;
+        inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
       } else {
         inviteUrl = `https://t.me/gm_coin_test_bot/checking?startapp=${inviteCode}`;
       }
       shareOnTelegram(inviteUrl);
     },
     handleSend(event: frensInfo) {
-      const { setSendUser, setShowSend } = useUserStore();
+      const { setSendUserId, setSendUser, setShowSend } = useUserStore();
+      setSendUserId(event.tgId);
       setSendUser(event.userName);
       setShowSend(true);
     },

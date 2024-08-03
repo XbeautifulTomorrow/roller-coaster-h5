@@ -1,16 +1,19 @@
 <template>
   <v-dialog v-model="showSend" width="auto">
     <div class="dialog_box">
-      <div class="dialog_title">AUTO ORDER</div>
+      <div class="dialog_title">
+        <span v-if="isFriend">{{ `TIP ${userName}` }}</span>
+        <span v-else>TIP A FRIEND</span>
+      </div>
       <div class="enter_panel">
         <div class="enter_item" v-if="!isFriend">
-          <div class="enter_title">Username</div>
+          <div class="enter_title">ID</div>
           <div class="enter_input">
             <div class="input_box">
-              <div class="input_prefix">@</div>
               <v-text-field
-                v-model="userName"
+                v-model="userId"
                 base-color="#fff"
+                placeholder="Enter your friend's ID"
                 bg-color="rgba(0,0,0,0)"
                 color="#fff"
                 variant="plain"
@@ -18,15 +21,14 @@
               ></v-text-field>
             </div>
             <div class="user_other">
-              <div>Name:</div>
               <div class="other" v-if="userData && !isUserError">
                 <div class="user_level">
                   <v-img
                     :width="16"
-                    :src="levelImages[userInfo.level as keyof typeof levelImages]"
+                    :src="levelImages[userData.level as keyof typeof levelImages]"
                   ></v-img>
                 </div>
-                <div>{{ userInfo.userName }}</div>
+                <div>{{ `${userData.firstName} ${userData.lastName}` }}</div>
               </div>
             </div>
             <div v-if="isUserError" class="error_box">User does not exist</div>
@@ -75,7 +77,7 @@
           height="30"
           rounded="lg"
           size="small"
-          :disabled="!userName || !amount || isAmountError"
+          :disabled="!userData || !userId || !amount || isAmountError"
         >
           <span class="finished">Send TIP</span>
         </v-btn>
@@ -87,7 +89,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import bigNumber from "bignumber.js";
-import { transferSendTip } from "@/services/api/user";
+import { searchByTgId, transferSendTip } from "@/services/api/user";
 import { useMessageStore } from "@/store/message.js";
 
 // 等级图标
@@ -123,6 +125,7 @@ export default defineComponent({
   data() {
     return {
       isFriend: false,
+      userId: null as number | string | any,
       userName: null as string | any,
       amount: null as number | any,
       userData: null as any,
@@ -157,6 +160,7 @@ export default defineComponent({
         26: Level_26,
         27: Level_27,
       },
+      timer: null as number | any,
     };
   },
   computed: {
@@ -167,6 +171,10 @@ export default defineComponent({
     sendUser() {
       const { sendUser } = useUserStore();
       return sendUser;
+    },
+    sendUserId() {
+      const { sendUserId } = useUserStore();
+      return sendUserId;
     },
     rctAmount() {
       const { userInfo } = useUserStore();
@@ -188,7 +196,7 @@ export default defineComponent({
     async handleSubmit() {
       const res = await transferSendTip({
         rctAmount: this.amount, //转账RCT数量
-        userName: this.userName, //用户名
+        userName: this.userId, //用户名
       });
 
       if (res.code == 200) {
@@ -196,11 +204,22 @@ export default defineComponent({
         this.isFriend = false;
         this.amount = null;
         this.userName = null;
-        const { fetchUserInfo, setSendUser } = useUserStore();
+        const { fetchUserInfo, setSendUserId, setSendUser } = useUserStore();
+        setSendUserId(null);
         setSendUser(null);
         fetchUserInfo();
         const { setMessageText } = useMessageStore();
         setMessageText("Send successful");
+      }
+    },
+    async handleUserInfo() {
+      const { userId } = this;
+      const res = await searchByTgId({
+        tgId: userId,
+      });
+
+      if (res.code == 200) {
+        this.userData = res.data;
       }
     },
     handleMultiply() {
@@ -230,10 +249,22 @@ export default defineComponent({
     },
   },
   watch: {
-    sendUser(newV) {
+    sendUserId(newV) {
       if (!newV) return;
-      this.userName = newV;
+      this.userId = newV;
+      this.userName = this.sendUser;
       this.isFriend = true;
+    },
+    userId(newV) {
+      if (!newV) return;
+      if (this.isFriend) return;
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+      this.timer = setTimeout(() => {
+        this.handleUserInfo();
+      }, 300);
     },
   },
 });

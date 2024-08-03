@@ -68,6 +68,12 @@ const getOrderList = (params: any) => http.get(serverUrl + "/order/list", params
 const transferSwap = (params: any) => http.post(serverUrl + "/transfer/swap", params);
 
 /**
+ * 搜索用户
+ * @param params
+ */
+const searchByTgId = (params: any) => http.get(serverUrl + "/user/findByTgId", params);
+
+/**
  * 发送TIP
  * @param params
  */
@@ -88,5 +94,6 @@ export {
   buyProduct,
   getOrderList,
   transferSwap,
+  searchByTgId,
   transferSendTip
 };

@@ -202,11 +202,11 @@ export default defineComponent({
       let miniappUrl = "https://t.me/gm_coin_test_bot/checking";
 
       this.tonConnect = new TonConnectUI({
-        manifestUrl: "https://file.gmking.io/tonconnect-manifest.json",
+        manifestUrl: "https://tonrollercoaster.com/tonconnect-manifest.json",
       });
 
       if (import.meta.env.MODE == "prod") {
-        miniappUrl = "https://t.me/theGMCoinBot/GMCoin";
+        miniappUrl = "https://t.me/theRollerCoasterBot/RollerCoaster";
       }
       // webapp重定向
       this.tonConnect.uiOptions = {
