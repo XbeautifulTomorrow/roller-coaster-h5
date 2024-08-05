@@ -95,7 +95,7 @@
             ></v-img>
             <span>
               {{
-                `Max RCP Entry: ${Number(
+                `Max RCP Entry: $${Number(
                   levelData.rcpMaxAmount
                 ).toLocaleString()}`
               }}
@@ -114,7 +114,7 @@
             ></v-img>
             <span>
               {{
-                `Max RCT Entry: ${Number(
+                `Max RCT Entry: $${Number(
                   levelData.rctMaxAmount
                 ).toLocaleString()}`
               }}
