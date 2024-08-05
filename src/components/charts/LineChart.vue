@@ -265,7 +265,7 @@ export default {
       const timeDifference = currentTime - this.lastUpdateTime;
       this.lastUpdateTime = currentTime;
       const animationDurationUpdate = Math.max(timeDifference, 500); // 动态设置动画持续时间
-      console.log(animationDurationUpdate);
+      // console.log(animationDurationUpdate);
 
       this.chart.setOption({
         series: [

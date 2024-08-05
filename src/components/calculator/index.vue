@@ -234,7 +234,7 @@ export default defineComponent({
 
       // 自定义变动值
       if (priceChange) {
-        moveArray = [priceChange];
+        moveArray = [new bigNumber(priceChange).dividedBy(100).toNumber()];
       }
 
       const profitArray = [] as Array<profit>;
@@ -273,11 +273,11 @@ export default defineComponent({
         let roi = roiNum < 0 && roiNum < -1 ? -1 : roiNum;
 
         if (buyStatus == "buy") {
-          if (ebustNum <= exitNum) {
+          if (Number(ebustNum) >= Number(exitNum)) {
             roi = -1;
           }
         } else {
-          if (ebustNum >= exitNum) {
+          if (Number(ebustNum) <= Number(exitNum)) {
             roi = -1;
           }
         }
