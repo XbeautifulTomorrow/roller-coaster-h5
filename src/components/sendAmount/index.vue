@@ -196,17 +196,13 @@ export default defineComponent({
     async handleSubmit() {
       const res = await transferSendTip({
         rctAmount: this.amount, //转账RCT数量
-        userName: this.userId, //用户名
+        userName: this.userName, //用户名
       });
 
       if (res.code == 200) {
         this.showSend = false;
-        this.isFriend = false;
-        this.amount = null;
-        this.userName = null;
-        const { fetchUserInfo, setSendUserId, setSendUser } = useUserStore();
-        setSendUserId(null);
-        setSendUser(null);
+        const { fetchUserInfo } = useUserStore();
+        this.handleClear();
         fetchUserInfo();
         const { setMessageText } = useMessageStore();
         setMessageText("Send successful");
@@ -220,6 +216,9 @@ export default defineComponent({
 
       if (res.code == 200) {
         this.userData = res.data;
+        if (res.data) {
+          this.userName = res.data.userName;
+        }
       }
     },
     handleMultiply() {
@@ -244,8 +243,19 @@ export default defineComponent({
       // 更新输入框的值
       this.amount = Math.floor(Number(value));
     },
+
     handleClose() {
       this.showSend = false;
+    },
+    handleClear() {
+      this.userId = null;
+      this.isFriend = false;
+      this.amount = null;
+      this.userName = null;
+      this.userData = null;
+      const { setSendUserId, setSendUser } = useUserStore();
+      setSendUserId(null);
+      setSendUser(null);
     },
   },
   watch: {
@@ -265,6 +275,11 @@ export default defineComponent({
       this.timer = setTimeout(() => {
         this.handleUserInfo();
       }, 300);
+    },
+    showSend(newA) {
+      if (!newA) {
+        this.handleClear();
+      }
     },
   },
 });
@@ -349,7 +364,7 @@ export default defineComponent({
 
   .user_other {
     position: absolute;
-    bottom: 8px;
+    bottom: 2px;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -405,8 +420,8 @@ export default defineComponent({
 }
 
 .user_level {
-  width: 40px;
-  height: 40px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;

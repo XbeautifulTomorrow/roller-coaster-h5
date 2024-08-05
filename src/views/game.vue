@@ -1002,9 +1002,9 @@ export default defineComponent({
         this.orderTimer = null;
       }
 
+      this.orderData = [];
       this.orderTimer = setTimeout(() => {
         this.orderType = event;
-        this.orderData = [];
 
         if (event != 2) {
           this.fetchOrderData();
