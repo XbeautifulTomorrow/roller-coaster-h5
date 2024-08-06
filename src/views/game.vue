@@ -694,7 +694,6 @@ export default defineComponent({
       if (!currentPrice || !buyStatus || !buyMultiplier) return "-";
       return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
     },
-    // 等级图标
     levelImages() {
       const { levelImages } = useUserStore();
       return levelImages;

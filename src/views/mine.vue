@@ -191,35 +191,6 @@ import { useUserStore } from "@/store/user.js";
 import bigNumber from "bignumber.js";
 import { onCopy } from "@/utils";
 
-// 等级图标
-import Level_1 from "@/assets/images/main/level_1.png";
-import Level_2 from "@/assets/images/main/level_2.png";
-import Level_3 from "@/assets/images/main/level_3.png";
-import Level_4 from "@/assets/images/main/level_4.png";
-import Level_5 from "@/assets/images/main/level_5.png";
-import Level_6 from "@/assets/images/main/level_6.png";
-import Level_7 from "@/assets/images/main/level_7.png";
-import Level_8 from "@/assets/images/main/level_8.png";
-import Level_9 from "@/assets/images/main/level_9.png";
-import Level_10 from "@/assets/images/main/level_10.png";
-import Level_11 from "@/assets/images/main/level_11.png";
-import Level_12 from "@/assets/images/main/level_12.png";
-import Level_13 from "@/assets/images/main/level_13.png";
-import Level_14 from "@/assets/images/main/level_14.png";
-import Level_15 from "@/assets/images/main/level_15.png";
-import Level_16 from "@/assets/images/main/level_16.png";
-import Level_17 from "@/assets/images/main/level_17.png";
-import Level_18 from "@/assets/images/main/level_18.png";
-import Level_19 from "@/assets/images/main/level_19.png";
-import Level_20 from "@/assets/images/main/level_20.png";
-import Level_21 from "@/assets/images/main/level_21.png";
-import Level_22 from "@/assets/images/main/level_22.png";
-import Level_23 from "@/assets/images/main/level_23.png";
-import Level_24 from "@/assets/images/main/level_24.png";
-import Level_25 from "@/assets/images/main/level_25.png";
-import Level_26 from "@/assets/images/main/level_26.png";
-import Level_27 from "@/assets/images/main/level_27.png";
-
 import { getLevelDetails } from "@/services/api/user.js";
 
 interface levelInfo {
@@ -241,41 +212,16 @@ export default defineComponent({
   data() {
     return {
       levelData: {} as levelInfo,
-      levelImages: {
-        1: Level_1,
-        2: Level_2,
-        3: Level_3,
-        4: Level_4,
-        5: Level_5,
-        6: Level_6,
-        7: Level_7,
-        8: Level_8,
-        9: Level_9,
-        10: Level_10,
-        11: Level_11,
-        12: Level_12,
-        13: Level_13,
-        14: Level_14,
-        15: Level_15,
-        16: Level_16,
-        17: Level_17,
-        18: Level_18,
-        19: Level_19,
-        20: Level_20,
-        21: Level_21,
-        22: Level_22,
-        23: Level_23,
-        24: Level_24,
-        25: Level_25,
-        26: Level_26,
-        27: Level_27,
-      },
     };
   },
   computed: {
     userInfo() {
       const { userInfo } = useUserStore();
       return userInfo;
+    },
+    levelImages() {
+      const { levelImages } = useUserStore();
+      return levelImages;
     },
     currentExp() {
       const {
