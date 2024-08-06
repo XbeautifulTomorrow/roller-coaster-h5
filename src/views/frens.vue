@@ -215,6 +215,8 @@ interface frensInfo {
   userId: number; //用户ID
   userName: string; //用户名
   avatar: string; //头像
+  level: number; // 等级
+  tgId: number; //tgId
   registrationTime: string; //注册时间
   rcpAmount: number; //RCP数量
   rctAmount: number; //RCT数量

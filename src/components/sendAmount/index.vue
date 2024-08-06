@@ -77,7 +77,7 @@
           height="30"
           rounded="lg"
           size="small"
-          :disabled="!userData || !userId || !amount || isAmountError"
+          :disabled="!userId || !userName || !amount || isAmountError"
         >
           <span class="finished">Send TIP</span>
         </v-btn>
@@ -98,7 +98,7 @@ export default defineComponent({
       isFriend: false,
       userId: null as number | string | any,
       userName: null as string | any,
-      amount: null as number | any,
+      amount: null as string | any,
       userData: null as any,
       isUserError: false,
       isAmountError: false,
@@ -189,7 +189,7 @@ export default defineComponent({
       }
 
       // 去除非数字字符
-      let value = String(this.amount).replace(/[^\d.]/g, "");
+      let value = this.amount.replace(/[^\d.]/g, "");
 
       // 更新输入框的值
       this.amount = Math.floor(Number(value));
@@ -210,7 +210,7 @@ export default defineComponent({
     },
     // 删除指定字符串
     removeTxt(event: string, type = ",") {
-      return event.replace(new RegExp(type, "g"), "");
+      return String(event || 0).replace(new RegExp(type, "g"), "");
     },
   },
   watch: {

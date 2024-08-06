@@ -1019,8 +1019,13 @@ export default defineComponent({
     },
     // 获取氛围组
     async fetchOrderAll() {
+      const { orderType } = this;
+
+      const status = orderType;
       const res = await getOrderAll({});
       if (res.code == 200) {
+        // 如果太卡，数据返回时，检查当前订单类型
+        if (this.orderType != status) return;
         this.orderData = res.data;
       }
     },
@@ -1032,13 +1037,19 @@ export default defineComponent({
         this.page = 1;
         _page = 1;
       }
-      const res = await getOrderData({
+
+      const { size, orderType } = this;
+      const params = {
         pageIndex: _page,
-        pageSize: this.size,
-        status: this.orderType,
-      });
+        pageSize: size,
+        status: orderType,
+      };
+
+      const res = await getOrderData(params);
 
       if (res.code == 200) {
+        // 如果太卡，数据返回时，检查当前订单类型
+        if (this.orderType != params.status) return;
         const pages = Math.ceil(res.data.total / res.data.size);
         if (res.data.page >= pages) {
           this.finished = true;
