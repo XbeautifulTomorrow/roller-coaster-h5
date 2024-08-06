@@ -152,7 +152,6 @@ export default defineComponent({
 </script>
 <style lang="scss" scoped>
 :deep(.v-overlay__content) {
-  margin: 0 !important;
   max-width: max-content !important;
 }
 
@@ -226,7 +225,7 @@ export default defineComponent({
     rgba(235, 170, 133, 1) 0%,
     rgba(191, 112, 118, 1) 100%
   );
-  font-size: 14px;
+  font-size: 16px;
   border-radius: 8px;
   padding: 8px 0;
   margin: 8px 0;
@@ -244,6 +243,8 @@ export default defineComponent({
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+  max-height: 400px;
+  overflow-y: scroll;
 
   & > .product_item + .product_item {
     margin-left: 12px;
@@ -299,7 +300,7 @@ export default defineComponent({
   }
 
   .reward_box {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: bold;
     text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
   }
