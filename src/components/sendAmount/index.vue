@@ -53,7 +53,7 @@
                 @input="handleInput"
                 reverse
               ></v-text-field>
-              <div class="multiply_btn" @click="handleMultiply()">x100</div>
+              <div class="multiply_btn">x100</div>
             </div>
             <div v-if="isAmountError" class="error_box">
               $ROLLER is not enough.
@@ -194,9 +194,15 @@ export default defineComponent({
   },
   methods: {
     async handleSubmit() {
+      const { amount, userName, removeTxt } = this;
+
+      const sendNum = new bigNumber(removeTxt(amount))
+        .multipliedBy(100)
+        .toNumber();
+
       const res = await transferSendTip({
-        rctAmount: this.amount, //转账RCT数量
-        userName: this.userName, //用户名
+        rctAmount: sendNum, //转账RCT数量
+        userName: userName, //用户名
       });
 
       if (res.code == 200) {
@@ -221,16 +227,15 @@ export default defineComponent({
         }
       }
     },
-    handleMultiply() {
-      if (!this.amount) return;
-      this.amount = new bigNumber(this.amount).multipliedBy(100).toNumber();
-    },
     handleInput(val: any) {
       if (!this.amount) return;
+      const sendNum = new bigNumber(this.removeTxt(this.amount))
+        .multipliedBy(100)
+        .toNumber();
 
       if (
         Number(this.rctAmount) <= 0 ||
-        Number(this.amount) > Number(this.rctAmount)
+        Number(sendNum) > Number(this.rctAmount)
       ) {
         this.isAmountError = true;
       } else {
@@ -256,6 +261,10 @@ export default defineComponent({
       const { setSendUserId, setSendUser } = useUserStore();
       setSendUserId(null);
       setSendUser(null);
+    },
+    // 删除指定字符串
+    removeTxt(event: string, type = ",") {
+      return event.replace(new RegExp(type, "g"), "");
     },
   },
   watch: {

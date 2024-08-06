@@ -132,13 +132,13 @@
                 <v-img
                   :width="14"
                   cover
-                  v-if="item.side == 'sell'"
+                  v-if="item.side == 'sell' && orderType == 2"
                   src="@/assets/images/svg/game/drop.svg"
                 ></v-img>
                 <v-img
                   :width="14"
                   cover
-                  v-else
+                  v-if="item.side == 'buy' && orderType == 2"
                   src="@/assets/images/svg/game/up.svg"
                 ></v-img>
                 <div>{{ unitConversion(item.amount) }}</div>
@@ -159,7 +159,7 @@
               <div class="title">ENTRY PRICE</div>
               <div class="val">{{ Number(item.price).toLocaleString() }}</div>
             </div>
-            <div class="order_data_info">
+            <div class="order_data_info" v-if="orderType != 1">
               <div class="title">BUST PRICE</div>
               <div class="val">
                 {{ Number(item.ebustPrice || 0).toLocaleString() }}
@@ -180,7 +180,7 @@
                 }}
               </div>
             </div>
-            <div class="order_data_info" v-if="orderType == 0">
+            <div class="order_data_info">
               <div class="title">ROI</div>
               <div :class="['val', item.roi >= 0 ? 'up' : 'drop']">
                 {{ `${Number(item.roi) >= 0 ? "+" : ""}${item.roi || 0}%` }}
