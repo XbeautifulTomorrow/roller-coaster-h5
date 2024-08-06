@@ -141,7 +141,7 @@
             <div class="user_level">
               <v-img
                 :width="40"
-                :src="levelImages[userInfo.level as keyof typeof levelImages]"
+                :src="levelImages[item.level as keyof typeof levelImages]"
               ></v-img>
             </div>
             <div class="frens_list_item_left_box">
