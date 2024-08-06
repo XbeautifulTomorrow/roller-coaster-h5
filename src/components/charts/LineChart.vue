@@ -5,7 +5,7 @@
 <script lang="ts">
 import * as echarts from "echarts";
 import "echarts/theme/macarons"; // echarts theme
-import { accurateDecimal, timeForStr } from "@/utils";
+import { accurateDecimal, timeForStr, unitConversion } from "@/utils";
 import { useGameStore, orderInfo } from "@/store/game";
 import { useUserStore } from "@/store/user";
 import bigNumber from "bignumber.js";
@@ -324,9 +324,7 @@ export default {
                 type: "image",
                 style: {
                   image:
-                    this.levelImages[
-                      evnet.level as keyof typeof this.levelImages
-                    ],
+                    this.levelImages[evnet.lv as keyof typeof this.levelImages],
                   x: 0,
                   y: 0,
                   width: 16,
@@ -337,11 +335,12 @@ export default {
               {
                 type: "text",
                 style: {
-                  text: evnet.userName,
+                  text: this.truncateStringWithRegex(evnet.userName),
                   fill: "#fff",
                   x: 20,
                   y: 4,
                   fontSize: 10,
+                  fontWeight: "bold",
                 },
               },
               // 图标
@@ -349,7 +348,7 @@ export default {
                 type: "image",
                 style: {
                   image: evnet.side == "sell" ? drop : up,
-                  x: 64,
+                  x: 68,
                   y: 2,
                   width: 8,
                   height: 10,
@@ -378,9 +377,8 @@ export default {
               {
                 type: "text",
                 style: {
-                  text: `${evnet.income > 0 ? "+" : "-"}$${accurateDecimal(
-                    evnet.income,
-                    2
+                  text: `${evnet.income > 0 ? "+" : "-"}$${unitConversion(
+                    accurateDecimal(evnet.income, 0)
                   )}`,
                   fill: evnet.income > 0 ? "#72f238" : "#ff4949",
                   x: 24,
@@ -410,9 +408,11 @@ export default {
               {
                 type: "text",
                 style: {
-                  text: `${new bigNumber(evnet.roi)
-                    .multipliedBy(100)
-                    .toNumber()}%`,
+                  text: `${accurateDecimal(
+                    new bigNumber(evnet.roi).multipliedBy(100).toNumber(),
+                    2,
+                    true
+                  )}%`,
                   fill: evnet.income > 0 ? "#72f238" : "#ff4949",
                   x: 24,
                   y: 0,
@@ -444,8 +444,14 @@ export default {
         );
       }
 
+      const graphicList = [];
+
+      if (tipData) {
+        graphicList.push(tipData);
+      }
+
       this.chart.setOption({
-        graphic: [tipData],
+        graphic: graphicList,
         series: [
           {
             data: this.chartData.map(function (item: any) {
@@ -482,6 +488,14 @@ export default {
           }),
         },
       });
+    },
+    truncateStringWithRegex(str: string, maxLength = 5) {
+      if (str.length <= maxLength) {
+        return str;
+      } else {
+        // 使用正则表达式截取前 maxLength 个字符，并添加省略号
+        return str.slice(0, maxLength).replace(/\.+$/, "") + "...";
+      }
     },
   },
 };

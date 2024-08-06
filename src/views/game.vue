@@ -120,8 +120,7 @@
             <v-img
               :width="30"
               cover
-              v-if="item.side == 'sell'"
-              :src="levelImages[item.level as keyof typeof levelImages]"
+              :src="levelImages[Number(item.lv) as keyof typeof levelImages]"
             ></v-img>
             <div class="user_name">{{ item.userName }}</div>
           </div>
@@ -159,13 +158,13 @@
               <div class="title">ENTRY PRICE</div>
               <div class="val">{{ Number(item.price).toLocaleString() }}</div>
             </div>
-            <div class="order_data_info" v-if="orderType != 1">
+            <div class="order_data_info" v-if="orderType == 0">
               <div class="title">BUST PRICE</div>
               <div class="val">
                 {{ Number(item.ebustPrice || 0).toLocaleString() }}
               </div>
             </div>
-            <div class="order_data_info" v-if="orderType == 1">
+            <div class="order_data_info" v-if="orderType != 0">
               <div class="title">EXIT PRICE</div>
               <div class="val">
                 {{ Number(item.exitPrice).toLocaleString() }}
@@ -586,7 +585,7 @@ import {
   closeOrder,
   getOrderAll,
 } from "@/services/api/order.js";
-import bigNumber from "bignumber.js";
+import bigNumber, { BigNumber } from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
 import tipRules from "@/components/rules/index.vue";
 import profitCalculator from "@/components/calculator/index.vue";
@@ -1069,6 +1068,14 @@ export default defineComponent({
             element.side,
             element.multiplier
           );
+
+          if (this.orderType != 0) {
+            element.roi = accurateDecimal(
+              new BigNumber(element.roi).multipliedBy(100).toNumber(),
+              2,
+              true
+            );
+          }
           this.orderData[i] = element;
         }
 
@@ -2026,6 +2033,7 @@ export default defineComponent({
       font-weight: bold;
       white-space: nowrap;
       overflow: hidden;
+      text-align: center;
       text-overflow: ellipsis;
       margin-right: 8px;
     }
