@@ -87,6 +87,11 @@ export default {
       const { levelImages } = useUserStore();
       return levelImages;
     },
+    // 当前房间
+    gameLevel() {
+      const { gameLevel } = useGameStore();
+      return gameLevel;
+    },
   },
   watch: {
     chartData: {
@@ -377,8 +382,8 @@ export default {
               {
                 type: "text",
                 style: {
-                  text: `${evnet.income > 0 ? "+" : "-"}$${unitConversion(
-                    accurateDecimal(evnet.income, 0)
+                  text: `${evnet.income > 0 ? "+" : "-"}$${this.formatIncome(
+                    evnet.income
                   )}`,
                   fill: evnet.income > 0 ? "#72f238" : "#ff4949",
                   x: 24,
@@ -495,6 +500,18 @@ export default {
       } else {
         // 使用正则表达式截取前 maxLength 个字符，并添加省略号
         return str.slice(0, maxLength).replace(/\.+$/, "") + "...";
+      }
+    },
+    // 格式化收益
+    formatIncome(income: number) {
+      if (this.gameLevel == "LEGENDARY") {
+        return unitConversion(accurateDecimal(income, 0) || 0);
+      } else {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(accurateDecimal(income, 0) || 0);
+        }
       }
     },
   },

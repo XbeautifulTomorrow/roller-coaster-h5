@@ -175,7 +175,7 @@
               <div :class="['val', item.income >= 0 ? 'up' : 'drop']">
                 {{
                   `${Number(item.income) >= 0 ? "+" : ""}` +
-                  unitConversion(accurateDecimal(item.income, 0) || 0)
+                  formatIncome(item.income)
                 }}
               </div>
             </div>
@@ -812,6 +812,11 @@ export default defineComponent({
             if (this.orderType != 2) return;
             // 将新数据添加到列表开头
             for (let i = 0; i < closeData.length; i++) {
+              closeData[i].roi = accurateDecimal(
+                new BigNumber(closeData[i].roi).multipliedBy(100).toNumber(),
+                0
+              );
+
               setTimeout(() => {
                 this.orderData.unshift(closeData[i]);
               }, 1000 / 60);
@@ -1026,6 +1031,17 @@ export default defineComponent({
         // 如果太卡，数据返回时，检查当前订单类型
         if (this.orderType != status) return;
         this.orderData = res.data;
+
+        for (let i = 0; i < this.orderData.length; i++) {
+          const element = this.orderData[i];
+
+          element.roi = accurateDecimal(
+            new BigNumber(element.roi).multipliedBy(100).toNumber(),
+            0
+          );
+
+          this.orderData[i] = element;
+        }
       }
     },
     // 获取订单列表
@@ -1069,13 +1085,6 @@ export default defineComponent({
             element.multiplier
           );
 
-          if (this.orderType != 0) {
-            element.roi = accurateDecimal(
-              new BigNumber(element.roi).multipliedBy(100).toNumber(),
-              2,
-              true
-            );
-          }
           this.orderData[i] = element;
         }
 
@@ -1156,11 +1165,11 @@ export default defineComponent({
 
       if (type == "buy") {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
-        const typeNum = new bigNumber(0).plus(profit);
+        const typeNum = new bigNumber(0).plus(profit).toNumber();
         return accurateDecimal(typeNum, 2);
       } else {
         // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
-        const typeNum = new bigNumber(0).minus(profit);
+        const typeNum = new bigNumber(0).minus(profit).toNumber();
         return accurateDecimal(typeNum, 2);
       }
     },
@@ -1230,6 +1239,18 @@ export default defineComponent({
     // 弹出计算器
     handleCalculator() {
       this.showCalculator = true;
+    },
+    // 格式化收益
+    formatIncome(income: number) {
+      if (this.gameLevel == "LEGENDARY") {
+        return unitConversion(accurateDecimal(income, 0) || 0);
+      } else {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(accurateDecimal(income, 0) || 0);
+        }
+      }
     },
   },
   mounted() {
