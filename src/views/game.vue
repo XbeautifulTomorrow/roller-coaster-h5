@@ -176,7 +176,7 @@
               <div :class="['val', item.income >= 0 ? 'up' : 'drop']">
                 {{
                   `${Number(item.income) >= 0 ? "+" : ""}` +
-                  unitConversion(item.income || 0)
+                  unitConversion(accurateDecimal(item.income, 0) || 0)
                 }}
               </div>
             </div>
