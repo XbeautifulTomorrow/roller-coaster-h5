@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-interface orderInfo {
+export interface orderInfo {
   id: number, // ID
   userName: string, // 用户昵称
   userId: number, // 用户ID
@@ -18,6 +18,7 @@ interface orderInfo {
   ebustPrice: number // 爆仓价格，前端计算
   profit: number; // 止盈
   loss: number; // 止损
+  level: number; // 等级
   [x: string]: string | number | any;
 }
 
@@ -30,6 +31,8 @@ interface orderInfo {
 //   close: string // 收盘
 // }
 
+
+
 type Level = "BASIC" | "ADVANCED" | "LEGENDARY"
 
 export const useGameStore = defineStore("game", {
@@ -39,6 +42,7 @@ export const useGameStore = defineStore("game", {
     showRules: false, // 显示规则
     showStop: false, // 显示止盈止损设置
     buyInfo: null as orderInfo | any, // 买入信息
+    sellData: [],
     showCalculator: false, // 显示计算器
 
   }),
@@ -63,6 +67,9 @@ export const useGameStore = defineStore("game", {
     },
     setBuyInfo(data: any) {
       this.buyInfo = data;
+    },
+    setSellData(data: any) {
+      this.sellData = data;
     },
     setShowCalculator(data: any) {
       this.showCalculator = data;

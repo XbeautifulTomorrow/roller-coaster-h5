@@ -6,7 +6,12 @@
 import * as echarts from "echarts";
 import "echarts/theme/macarons"; // echarts theme
 import { accurateDecimal, timeForStr } from "@/utils";
-import { useGameStore } from "@/store/game";
+import { useGameStore, orderInfo } from "@/store/game";
+import { useUserStore } from "@/store/user";
+import bigNumber from "bignumber.js";
+
+import drop from "@/assets/images/svg/game/drop.svg";
+import up from "@/assets/images/svg/game/up.svg";
 
 interface LineData {
   localDateTime: string | number | any;
@@ -47,6 +52,9 @@ export default {
     return {
       chart: null as any,
       lastUpdateTime: Date.now(),
+      markArray: [] as Array<number>,
+      drop: drop,
+      up: up,
     };
   },
   computed: {
@@ -69,6 +77,16 @@ export default {
 
       return 0;
     },
+    // 气泡
+    sellData() {
+      const { sellData } = useGameStore();
+      return sellData;
+    },
+    // 等级图片
+    levelImages() {
+      const { levelImages } = useUserStore();
+      return levelImages;
+    },
   },
   watch: {
     chartData: {
@@ -82,6 +100,11 @@ export default {
 
         this.initOptions();
       },
+    },
+    sellData(newV) {
+      if (!newV) {
+        return;
+      }
     },
   },
   mounted() {
@@ -98,7 +121,7 @@ export default {
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el);
+      this.chart = echarts.init(this.$el, "macarons");
     },
     /**
      * 初始化图表配置
@@ -152,7 +175,6 @@ export default {
           },
         },
       ];
-      // series.push();
 
       let xAxis = this.chartData.map((item: any) => {
         return item.localDateTime;
@@ -256,6 +278,154 @@ export default {
       this.isInit = true;
       this.chart.hideLoading();
     },
+    setTooltip(evnet: orderInfo) {
+      const lastPoint = this.chartData[this.chartData.length - 1];
+
+      // 获取最后一个点的 x 轴和 y 轴坐标
+      // const x = this.chart.convertToPixel("grid", [
+      //   lastPoint.localDateTime,
+      //   lastPoint.price,
+      // ])[0];
+
+      const y = this.chart.convertToPixel("grid", [
+        lastPoint.localDateTime,
+        lastPoint.price,
+      ])[1];
+
+      // 定义图形组件的配置项，模拟给定的 HTML 结构
+      var customTooltip = {
+        type: "group",
+        left: 220, // x 位置调整
+        top: y, // 向上偏移一点
+        zindex: 10,
+        children: [
+          // 背景色矩形
+          {
+            type: "rect",
+            left: -4,
+            top: -4,
+            shape: {
+              width: 84,
+              height: 48,
+            },
+            style: {
+              fill: "rgba(51, 56, 73,1)", // 设置背景色
+              lineJoin: "round",
+            },
+          },
+          // 第一部分：用户信息和图标
+          {
+            type: "group",
+            left: 0,
+            top: 0,
+            children: [
+              // 用户图标
+              {
+                type: "image",
+                style: {
+                  image:
+                    this.levelImages[
+                      evnet.level as keyof typeof this.levelImages
+                    ],
+                  x: 0,
+                  y: 0,
+                  width: 16,
+                  height: 16,
+                },
+              },
+              // 用户名
+              {
+                type: "text",
+                style: {
+                  text: evnet.userName,
+                  fill: "#fff",
+                  x: 20,
+                  y: 4,
+                  fontSize: 10,
+                },
+              },
+              // 图标
+              {
+                type: "image",
+                style: {
+                  image: evnet.side == "sell" ? drop : up,
+                  x: 64,
+                  y: 2,
+                  width: 8,
+                  height: 10,
+                  opacity: 1, // 单独设置元素的不透明度
+                },
+              },
+            ],
+          },
+          // 第二部分：P&L（盈亏）信息
+          {
+            type: "group",
+            left: 0,
+            top: 20,
+            children: [
+              {
+                type: "text",
+                style: {
+                  text: "P&L",
+                  fill: "#fff",
+                  x: 0,
+                  y: 0,
+                  width: 22,
+                  fontSize: 10,
+                },
+              },
+              {
+                type: "text",
+                style: {
+                  text: `${evnet.income > 0 ? "+" : "-"}$${accurateDecimal(
+                    evnet.income,
+                    2
+                  )}`,
+                  fill: evnet.income > 0 ? "#72f238" : "#ff4949",
+                  x: 24,
+                  y: 0,
+                  fontSize: 10,
+                },
+              },
+            ],
+          },
+          // 第三部分：ROI（投资回报率）信息
+          {
+            type: "group",
+            left: 0,
+            top: 32,
+            children: [
+              {
+                type: "text",
+                style: {
+                  text: "ROI",
+                  fill: "#fff",
+                  x: 0,
+                  y: 0,
+                  width: 22,
+                  fontSize: 10,
+                },
+              },
+              {
+                type: "text",
+                style: {
+                  text: `${new bigNumber(evnet.roi)
+                    .multipliedBy(100)
+                    .toNumber()}%`,
+                  fill: evnet.income > 0 ? "#72f238" : "#ff4949",
+                  x: 24,
+                  y: 0,
+                  fontSize: 10,
+                },
+              },
+            ],
+          },
+        ],
+      };
+
+      return customTooltip;
+    },
     /**
      * 更新图表数据
      * @param newV 数据
@@ -267,7 +437,15 @@ export default {
       const animationDurationUpdate = Math.max(timeDifference, 500); // 动态设置动画持续时间
       // console.log(animationDurationUpdate);
 
+      let tipData = null as any;
+      if (this.sellData.length > 0) {
+        tipData = this.setTooltip(
+          this.sellData[this.sellData.length - 1] as any
+        );
+      }
+
       this.chart.setOption({
+        graphic: [tipData],
         series: [
           {
             data: this.chartData.map(function (item: any) {

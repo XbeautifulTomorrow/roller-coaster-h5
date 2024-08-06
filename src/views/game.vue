@@ -804,9 +804,14 @@ export default defineComponent({
         });
 
         this.eventSource.addEventListener("CLOSE_PRIZE", (e: any) => {
-          if (this.orderType != 2) return;
           try {
             const closeData = JSON.parse(e.data);
+
+            // 添加气泡数据
+            const { setSellData } = useGameStore();
+            setSellData(closeData);
+
+            if (this.orderType != 2) return;
             // 将新数据添加到列表开头
             for (let i = 0; i < closeData.length; i++) {
               setTimeout(() => {
