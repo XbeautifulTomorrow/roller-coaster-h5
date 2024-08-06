@@ -22,7 +22,7 @@
             @click="handleBuy(item)"
           >
             <div class="reward_box">
-              {{ `${unitConversion(item.rcpAmount)} $RCP  ` }}
+              {{ `${unitConversion(item.rcpAmount, 0, false)} $RCP  ` }}
             </div>
             <div class="amount_img">
               <v-img

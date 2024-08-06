@@ -674,7 +674,7 @@ export const delCookie = (name: any) => {
   * @param {number} val - 金额
   */
 
-export const unitConversion = (val: number, type = 2) => {
+export const unitConversion = (val: number, type = 2, zeroFill = true) => {
   let h = 1;
   let kh = h * 1000;
   let mh = kh * 1000;
@@ -687,19 +687,19 @@ export const unitConversion = (val: number, type = 2) => {
   const absVal = Math.abs(val); // 可能是负数，取绝对值比对
 
   if (absVal < kh) {
-    texts = accurateDecimal(val, type, true);
+    texts = accurateDecimal(val, type, zeroFill);
   } else if (absVal >= kh && absVal < mh) {
-    texts = accurateDecimal(val / kh, type, true) + "K";
+    texts = accurateDecimal(val / kh, type, zeroFill) + "K";
   } else if (absVal >= mh && absVal < gh) {
-    texts = accurateDecimal(val / mh, type, true) + "M";
+    texts = accurateDecimal(val / mh, type, zeroFill) + "M";
   } else if (absVal >= gh && absVal < th) {
-    texts = accurateDecimal(val / gh, type, true) + "B";
+    texts = accurateDecimal(val / gh, type, zeroFill) + "B";
   } else if (absVal >= th && absVal < ph) {
-    texts = accurateDecimal(val / th, type, true) + "T";
+    texts = accurateDecimal(val / th, type, zeroFill) + "T";
   } else if (absVal >= ph && absVal < eh) {
-    texts = accurateDecimal(val / ph, type, true) + "P";
+    texts = accurateDecimal(val / ph, type, zeroFill) + "P";
   } else if (absVal >= eh) {
-    texts = accurateDecimal(val / eh, type, true) + "E";
+    texts = accurateDecimal(val / eh, type, zeroFill) + "E";
   }
 
   return texts;
