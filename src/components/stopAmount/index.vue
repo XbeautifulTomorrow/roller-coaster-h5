@@ -136,7 +136,9 @@ export default defineComponent({
       set(val: boolean) {
         const { setShowStop, setBuyInfo } = useGameStore();
         setShowStop(val);
-        setBuyInfo(null); // 清空买入信息
+        if (!val) {
+          setBuyInfo(null); // 清空买入信息
+        }
       },
     },
     buyInfo() {
@@ -149,19 +151,12 @@ export default defineComponent({
       let isBuy = true;
 
       if (
-        !stopProfit.price ||
-        !stopLoss.price ||
         stopProfit.isError ||
-        stopLoss.isError
-      ) {
-        isBuy = false;
-      }
-
-      if (
-        !stopProfit.profit ||
-        !stopLoss.profit ||
-        stopProfit.isError ||
-        stopLoss.isError
+        stopLoss.isError ||
+        (!stopProfit.price &&
+          !stopProfit.profit &&
+          !stopLoss.price &&
+          !stopLoss.profit)
       ) {
         isBuy = false;
       }
@@ -321,14 +316,17 @@ export default defineComponent({
       const {
         stopProfit: { price, profit },
         buyInfo: { amount },
+        removeTxt,
       } = this;
 
       if (price || profit) {
-        const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
-        if (Number(profit) < threshold) {
-          this.stopProfit.isError = true;
-        } else {
+        const threshold = new bigNumber(removeTxt(amount))
+          .multipliedBy(0.1)
+          .toNumber();
+        if (Number(removeTxt(profit)) > threshold) {
           this.stopProfit.isError = false;
+        } else {
+          this.stopProfit.isError = true;
         }
       } else {
         this.stopProfit.isError = false;
@@ -337,13 +335,20 @@ export default defineComponent({
     verifyLoss() {
       const {
         stopLoss: { price, profit },
+
         buyInfo: { amount },
+        removeTxt,
       } = this;
 
       if (price || profit) {
-        const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
+        const threshold = new bigNumber(removeTxt(amount))
+          .multipliedBy(0.1)
+          .toNumber();
 
-        if (Number(profit) >= threshold) {
+        if (
+          Number(removeTxt(profit)) > threshold &&
+          Number(removeTxt(profit)) < Number(removeTxt(amount))
+        ) {
           this.stopLoss.isError = false;
         } else {
           this.stopLoss.isError = true;
@@ -380,14 +385,14 @@ export default defineComponent({
       this.stopProfit = {
         isPrice: false, // 是否价格
         price: null, // 价格
-        profit: newV.profit, // 收益
+        profit: newV.profit ? Number(newV.profit).toLocaleString() : null, // 收益
         isError: false,
       }; // 止盈
 
       this.stopLoss = {
         isPrice: false, // 是否价格
         price: null, // 价格
-        profit: newV.loss, // 收益
+        profit: newV.loss ? Number(newV.loss).toLocaleString() : null, // 收益
         isError: false,
       }; // 止损
     },

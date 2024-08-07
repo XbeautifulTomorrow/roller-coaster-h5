@@ -359,7 +359,11 @@
                   color="#fff"
                   variant="plain"
                   hide-details="auto"
-                  @focus="currentInput = 2"
+                  @input="handleInput"
+                  @focus="
+                    currentInput = 2;
+                    isSlider = false;
+                  "
                 ></v-text-field>
               </div>
               <div class="bust_price">
@@ -522,7 +526,7 @@
               thumb-size="14"
               track-fill-color="rgba(0,0,0,0)"
               thumb-color="#fff"
-              @focus="isSlider = true"
+              @update:focused="isSlider = true"
               track-size="12"
             ></v-slider>
             <div class="multiples_point">
@@ -821,20 +825,21 @@ export default defineComponent({
     isBuy() {
       const { buyType, buyNum, buyMultiplier, stopProfit, stopLoss } = this;
       let isBuy = true;
-      if (!buyNum) {
+
+      // 检查 buyNum 和 buyMultiplier 是否存在
+      if (!buyNum || !buyMultiplier) {
         isBuy = false;
       }
 
-      if (!buyMultiplier) {
-        isBuy = false;
-      }
-
-      if (buyType == "AUTO") {
-        if (!stopProfit.price || !stopLoss.price) {
-          isBuy = false;
-        }
-
-        if (!stopProfit.profit || !stopLoss.profit) {
+      if (buyType === "AUTO") {
+        if (
+          stopProfit.isError ||
+          stopLoss.isError ||
+          (!stopProfit.price &&
+            !stopProfit.profit &&
+            !stopLoss.price &&
+            !stopLoss.profit)
+        ) {
           isBuy = false;
         }
       }
@@ -1142,7 +1147,7 @@ export default defineComponent({
           }
         }
       } else if (this.currentInput == 2) {
-        this.buyMultiplier = parts[0];
+        this.buyMultiplier = Number(value) >= 1000 ? "1,000" : parts[0];
       } else if (this.currentInput == 3) {
         if (isDecimal) {
           parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
@@ -1183,11 +1188,23 @@ export default defineComponent({
     },
     // 购买数量增加
     handlePlus() {
-      this.buyNum = accurateDecimal(this.buyNum * 2, 0);
+      const { gameLevel, buyNum, removeTxt } = this;
+      if (gameLevel == "LEGENDARY") {
+        this.buyNum = accurateDecimal(Number(removeTxt(buyNum)) * 2, 2);
+        return;
+      }
+
+      this.buyNum = Math.floor(Number(removeTxt(buyNum)) * 2);
     },
     // 购买数量减少
     handleMinus() {
-      this.buyNum = accurateDecimal(this.buyNum / 2, 0);
+      const { gameLevel, buyNum, removeTxt } = this;
+      if (gameLevel == "LEGENDARY") {
+        this.buyNum = accurateDecimal(Number(removeTxt(buyNum)) / 2, 2);
+        return;
+      }
+
+      this.buyNum = Math.floor(Number(removeTxt(buyNum)) / 2);
     },
     // 买入
     async handleBuy() {
@@ -1499,14 +1516,17 @@ export default defineComponent({
       const {
         stopProfit: { price, profit },
         buyNum,
+        removeTxt,
       } = this;
 
       if (price || profit) {
-        const threshold = new bigNumber(buyNum).multipliedBy(0.1).toNumber();
-        if (Number(profit) <= threshold) {
-          this.stopProfit.isError = true;
-        } else {
+        const threshold = new bigNumber(removeTxt(buyNum))
+          .multipliedBy(0.1)
+          .toNumber();
+        if (Number(removeTxt(profit)) > threshold) {
           this.stopProfit.isError = false;
+        } else {
+          this.stopProfit.isError = true;
         }
       } else {
         this.stopProfit.isError = false;
@@ -1516,12 +1536,18 @@ export default defineComponent({
       const {
         stopLoss: { price, profit },
         buyNum,
+        removeTxt,
       } = this;
 
       if (price || profit) {
-        const threshold = new bigNumber(buyNum).multipliedBy(0.1).toNumber();
+        const threshold = new bigNumber(removeTxt(buyNum))
+          .multipliedBy(0.1)
+          .toNumber();
 
-        if (Number(profit) >= threshold) {
+        if (
+          Number(removeTxt(profit)) > threshold &&
+          Number(removeTxt(profit)) < Number(removeTxt(buyNum))
+        ) {
           this.stopLoss.isError = false;
         } else {
           this.stopLoss.isError = true;
@@ -1585,7 +1611,6 @@ export default defineComponent({
 
       if (this.gameLevel == "BASIC") {
         const { rcpAmount } = newV;
-        console.log(111);
         if (Number(rcpAmount) > 100000) {
           this.switchType = 1;
           this.showSwitch = true;
@@ -1652,6 +1677,7 @@ export default defineComponent({
           } else {
             if (this.stopProfit.price) {
               this.stopProfit.price = null;
+              this.verifyProfit();
             }
           }
         }
