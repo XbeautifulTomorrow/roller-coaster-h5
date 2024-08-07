@@ -272,7 +272,8 @@ export default defineComponent({
         // ROI
         const roiNum = accurateDecimal(
           new bigNumber(profit).dividedBy(removeTxt(buyNum)).toNumber(),
-          2
+          4,
+          true
         );
 
         let roi = roiNum < 0 && roiNum < -1 ? -1 : roiNum;
@@ -290,7 +291,11 @@ export default defineComponent({
         const params = {
           priceMove: `${ratio}%`,
           roi: roiNum
-            ? `${new bigNumber(roi).multipliedBy(100).toNumber()}%`
+            ? `${accurateDecimal(
+                new bigNumber(roi).multipliedBy(100).toNumber(),
+                2,
+                true
+              )}%`
             : "-",
           exitPrice: exitNum,
           profitAmonut: profit
@@ -311,7 +316,7 @@ export default defineComponent({
         }
 
         if (!currentPrice && buyNum && multiple) {
-          params.roi = "-100%";
+          params.roi = "-100.00%";
           params.profitAmonut = -Number(removeTxt(buyNum));
         }
 
