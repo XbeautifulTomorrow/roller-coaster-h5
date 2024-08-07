@@ -235,15 +235,15 @@ export default defineComponent({
         buyInfo: { amount },
       } = this;
 
-      if (price && profit) {
+      if (price || profit) {
         const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
-        if (Number(profit) > threshold) {
+        if (Number(profit) >= threshold) {
           this.stopProfit.isError = false;
         } else {
           this.stopProfit.isError = true;
         }
       } else {
-        this.stopProfit.isError = true;
+        this.stopProfit.isError = false;
       }
     },
     verifyLoss() {
@@ -252,16 +252,16 @@ export default defineComponent({
         buyInfo: { amount },
       } = this;
 
-      if (price && profit) {
+      if (price || profit) {
         const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
 
-        if (Number(profit) > threshold) {
+        if (Number(profit) >= threshold) {
           this.stopLoss.isError = false;
         } else {
           this.stopLoss.isError = true;
         }
       } else {
-        this.stopLoss.isError = true;
+        this.stopLoss.isError = false;
       }
     },
   },

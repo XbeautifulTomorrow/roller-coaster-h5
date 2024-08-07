@@ -332,7 +332,7 @@ export default defineComponent({
     // 广告
     toAdController(event: taskInfo) {
       // 看广告
-      const AdController = (window as any).Adsgram.init({ blockId: "233" });
+      const AdController = (window as any).Adsgram.init({ blockId: "1634" });
 
       // 显示广告横幅
       AdController.show()
