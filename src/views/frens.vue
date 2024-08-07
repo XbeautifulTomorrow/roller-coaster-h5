@@ -605,7 +605,6 @@ export default defineComponent({
   .user_prize {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
 
     & > div + div {
       margin-left: 8px;

@@ -302,7 +302,6 @@ export default {
         type: "group",
         left: 220, // x 位置调整
         top: y, // 向上偏移一点
-        zindex: 10,
         children: [
           // 背景色矩形
           {
@@ -313,8 +312,9 @@ export default {
               width: 84,
               height: 48,
             },
+            z: 10,
             style: {
-              fill: "rgba(51, 56, 73,1)", // 设置背景色
+              fill: "#333849", // 设置背景色
               lineJoin: "round",
             },
           },
@@ -327,6 +327,7 @@ export default {
               // 用户图标
               {
                 type: "image",
+                z: 11,
                 style: {
                   image:
                     this.levelImages[evnet.lv as keyof typeof this.levelImages],
@@ -339,6 +340,7 @@ export default {
               // 用户名
               {
                 type: "text",
+                z: 11,
                 style: {
                   text: this.truncateStringWithRegex(evnet.userName),
                   fill: "#fff",
@@ -351,6 +353,7 @@ export default {
               // 图标
               {
                 type: "image",
+                z: 11,
                 style: {
                   image: evnet.side == "sell" ? drop : up,
                   x: 68,
@@ -370,6 +373,7 @@ export default {
             children: [
               {
                 type: "text",
+                z: 11,
                 style: {
                   text: "P&L",
                   fill: "#fff",
@@ -381,6 +385,7 @@ export default {
               },
               {
                 type: "text",
+                z: 11,
                 style: {
                   text: `${evnet.income > 0 ? "+" : "-"}$${this.formatIncome(
                     evnet.income
@@ -401,6 +406,7 @@ export default {
             children: [
               {
                 type: "text",
+                z: 11,
                 style: {
                   text: "ROI",
                   fill: "#fff",
@@ -412,6 +418,7 @@ export default {
               },
               {
                 type: "text",
+                z: 11,
                 style: {
                   text: `${accurateDecimal(
                     new bigNumber(evnet.roi).multipliedBy(100).toNumber(),

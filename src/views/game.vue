@@ -579,81 +579,7 @@
         </div>
       </div>
     </v-dialog>
-    <!-- 订单更新弹窗 -->
-    <v-dialog v-model="showOrder" class="dialog_order_panel" width="auto">
-      <div class="order_box">
-        <div class="status_box">
-          <v-img
-            :width="30"
-            cover
-            class="status_img"
-            v-if="orderTip.side == 'sell'"
-            src="@/assets/images/svg/game/drop.svg"
-          ></v-img>
-          <v-img
-            :width="30"
-            cover
-            class="status_img"
-            v-else
-            src="@/assets/images/svg/game/up.svg"
-          ></v-img>
-          <div class="status_info">
-            <div class="status_text">
-              <span v-if="orderTip.tipsType == 1">Order placed</span>
-              <span v-else-if="orderTip.tipsType == 2">
-                {{
-                  `Order busted at loss of ${formatIncome(
-                    Number(orderTip.income || 0)
-                  )}`
-                }}
-              </span>
-              <span v-else>
-                {{
-                  Number(orderTip.income || 0) > 0
-                    ? `Order closed at profit of ${formatIncome(
-                        Number(orderTip.income || 0)
-                      )}`
-                    : `Order closed at loss of ${formatIncome(
-                        Number(orderTip.income || 0)
-                      )}`
-                }}
-              </span>
-            </div>
-            <div class="status_description">
-              <span>
-                {{ `Amount: ${formatIncome(orderTip.amount)}, ` }}
-              </span>
-              <span>{{
-                `Multiplier: x${Number(orderTip.multiplier).toLocaleString()}, `
-              }}</span>
-              <span v-if="orderTip.tipsType == 1">
-                {{
-                  `Buy Price: ${Number(orderTip.price || 0).toLocaleString(
-                    undefined,
-                    { minimumFractionDigits: 2 }
-                  )}`
-                }}
-              </span>
-              <span v-else-if="orderTip.tipsType == 2">
-                {{
-                  `Bust Price: ${Number(
-                    orderTip.ebustPrice || 0
-                  ).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
-                }}
-              </span>
-              <span v-else>
-                {{
-                  `Exit Price: ${Number(orderTip.exitPrice || 0).toLocaleString(
-                    undefined,
-                    { minimumFractionDigits: 2 }
-                  )}`
-                }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </v-dialog>
+    <Toast ref="toast" />
     <stopAmount @onStop="fetchOrderData"></stopAmount>
     <tipRules></tipRules>
     <profitCalculator></profitCalculator>
@@ -674,12 +600,13 @@ import {
   closeOrder,
   getOrderAll,
 } from "@/services/api/order.js";
-import bigNumber, { BigNumber } from "bignumber.js";
+import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
 import tipRules from "@/components/rules/index.vue";
 import profitCalculator from "@/components/calculator/index.vue";
 import { useGameStore } from "@/store/game";
 // import { useMessageStore } from "@/store/message.js";
+import Toast from "@/components/toast/index.vue";
 
 interface orderInfo {
   id: number; // ID
@@ -703,7 +630,7 @@ interface orderInfo {
   [x: string]: string | number | any;
 }
 
-interface orderTipInfo {
+interface ToastMessage {
   tipsType: number; // 提示类型 1：买入 2：爆仓 3：收益 4：亏损
   side: string; // 买入类型
   amount: number; // 购买数量
@@ -761,8 +688,6 @@ export default defineComponent({
       page: 1,
       size: 10,
       showAuto: false,
-      showOrder: false,
-      orderTip: {} as orderTipInfo, // 订单详情
     };
   },
   components: {
@@ -771,6 +696,7 @@ export default defineComponent({
     stopAmount,
     tipRules,
     profitCalculator,
+    Toast,
   },
   computed: {
     // 是否初始化
@@ -855,6 +781,14 @@ export default defineComponent({
     this.fetchOrderData();
   },
   methods: {
+    showToast(event: ToastMessage) {
+      if (this.$refs.toast) {
+        // 检查 $refs.toast 是否存在
+        (this.$refs.toast as any).showToast(event); // 明确类型
+      } else {
+        console.error("Toast reference not found");
+      }
+    },
     accurateDecimal: accurateDecimal,
     unitConversion: unitConversion,
     createSSE() {
@@ -915,22 +849,15 @@ export default defineComponent({
             const bustOrder = JSON.parse(e.data);
 
             const isBust =
-              new BigNumber(bustOrder.amount)
+              new bigNumber(bustOrder.amount)
                 .plus(bustOrder.income)
                 .toNumber() == 0;
 
             if (isBust) {
-              this.orderTip = {
-                ...bustOrder,
-                tipsType: 2,
-              };
+              this.showToast({ ...bustOrder, tipsType: 2 });
             } else {
-              this.orderTip = {
-                ...bustOrder,
-                tipsType: 3,
-              };
+              this.showToast({ ...bustOrder, tipsType: 3 });
             }
-            this.showOrder = true;
           } catch (error) {
             console.log(e);
             console.log(error);
@@ -951,7 +878,7 @@ export default defineComponent({
             // 将新数据添加到列表开头
             for (let i = 0; i < closeData.length; i++) {
               closeData[i].roi = accurateDecimal(
-                new BigNumber(closeData[i].roi).multipliedBy(100).toNumber(),
+                new bigNumber(closeData[i].roi).multipliedBy(100).toNumber(),
                 2,
                 true
               );
@@ -1124,17 +1051,7 @@ export default defineComponent({
       const res = await addOrder(params);
 
       if (res.code == 200) {
-        console.log(res.data);
-
-        this.orderTip = {
-          tipsType: 1,
-          side: res.data.side, // 买入类型
-          amount: res.data.amount, // 购买数量
-          price: res.data.price, // 价格
-          multiplier: res.data.multiplier, // 倍数
-        };
-
-        this.showOrder = true;
+        this.showToast({ ...res.data, tipsType: 1 });
 
         this.fetchOrderData();
         // 更新余额
@@ -1188,7 +1105,7 @@ export default defineComponent({
           const element = this.orderData[i];
 
           element.roi = accurateDecimal(
-            new BigNumber(element.roi).multipliedBy(100).toNumber(),
+            new bigNumber(element.roi).multipliedBy(100).toNumber(),
             2,
             true
           );
@@ -1240,7 +1157,7 @@ export default defineComponent({
 
           if (this.orderType == 1) {
             element.roi = accurateDecimal(
-              new BigNumber(element.roi).multipliedBy(100).toNumber(),
+              new bigNumber(element.roi).multipliedBy(100).toNumber(),
               2,
               true
             );

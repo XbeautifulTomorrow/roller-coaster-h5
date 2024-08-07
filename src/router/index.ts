@@ -138,6 +138,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (isEmpty(tg_certificate)) {
+      console.log(111)
       const { logoutApi } = useUserStore();
       logoutApi();
     }

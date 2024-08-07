@@ -19,6 +19,7 @@ declare module 'vue' {
     Rules: typeof import('./src/components/rules/index.vue')['default']
     SendAmount: typeof import('./src/components/sendAmount/index.vue')['default']
     StopAmount: typeof import('./src/components/stopAmount/index.vue')['default']
+    Toast: typeof import('./src/components/toast/index.vue')['default']
     TopToolbar: typeof import('./src/components/TopToolbar.vue')['default']
   }
 }
