@@ -904,7 +904,10 @@ export default defineComponent({
           try {
             const bustOrder = JSON.parse(e.data);
             console.log(bustOrder);
-            this.orderTip = bustOrder;
+            this.orderTip = {
+              ...bustOrder,
+              tipsType: 2,
+            };
             this.showOrder = true;
           } catch (error) {
             console.log(e);
@@ -1239,7 +1242,7 @@ export default defineComponent({
         console.log(res.data);
         this.orderTip = {
           ...res.data,
-          tipsType: 2,
+          tipsType: 3,
         };
 
         this.showOrder = true;
