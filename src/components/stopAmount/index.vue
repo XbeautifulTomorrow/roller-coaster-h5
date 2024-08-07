@@ -182,7 +182,7 @@ export default defineComponent({
       if (!_value) return;
 
       // 去除非数字字符
-      let value = _value.replace(/[^-\d.]/g, "");
+      let value = _value.replace(/[^\d.]/g, "");
       // 分割整数和小数部分
       let parts = value.split(".");
       // 处理整数部分添加逗号
