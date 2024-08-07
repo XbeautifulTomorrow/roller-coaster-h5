@@ -1377,6 +1377,8 @@ export default defineComponent({
     },
     // 弹出计算器
     handleCalculator() {
+      const { setInitPrice } = useGameStore();
+      setInitPrice(this.currentPrice);
       this.showCalculator = true;
     },
     // 格式化收益

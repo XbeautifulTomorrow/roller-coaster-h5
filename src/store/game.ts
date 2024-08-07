@@ -44,7 +44,7 @@ export const useGameStore = defineStore("game", {
     buyInfo: null as orderInfo | any, // 买入信息
     sellData: [],
     showCalculator: false, // 显示计算器
-
+    initPrice: 1000.00, // 初始计算价格
   }),
   persist: {
     enabled: true,
@@ -73,6 +73,9 @@ export const useGameStore = defineStore("game", {
     },
     setShowCalculator(data: any) {
       this.showCalculator = data;
+    },
+    setInitPrice(data: any) {
+      this.initPrice = data;
     },
   },
 });

@@ -205,6 +205,11 @@ export default defineComponent({
     };
   },
   computed: {
+    initPrice() {
+      const { initPrice } = useGameStore();
+      return initPrice;
+    },
+    // 当前房间
     gameLevel() {
       const { gameLevel } = useGameStore();
       return gameLevel;
@@ -449,6 +454,14 @@ export default defineComponent({
     // 删除指定字符串
     removeTxt(event: string, type = ",") {
       return event.replace(new RegExp(type, "g"), "");
+    },
+  },
+  watch: {
+    initPrice(newV) {
+      if (!newV) return;
+      this.currentPrice = Number(newV).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+      });
     },
   },
 });
