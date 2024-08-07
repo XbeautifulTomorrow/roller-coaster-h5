@@ -571,6 +571,35 @@ export default defineComponent({
     min-height: 0;
     line-height: 1.5;
     color: #fff;
+    font-weight: bold;
+
+    &::-webkit-input-placeholder {
+      /* WebKit, Blink, Edge */
+      color: #b0b5c5;
+    }
+    &:-moz-placeholder {
+      /* Mozilla Firefox 4 to 18 */
+      color: #b0b5c5;
+      opacity: 1;
+    }
+    &::-moz-placeholder {
+      /* Mozilla Firefox 19+ */
+      color: #b0b5c5;
+      opacity: 1;
+    }
+    &:-ms-input-placeholder {
+      /* Internet Explorer 10-11 */
+      color: #b0b5c5;
+    }
+    &::-ms-input-placeholder {
+      /* Microsoft Edge */
+      color: #b0b5c5;
+    }
+
+    &::placeholder {
+      /* Most modern browsers support this now. */
+      color: #b0b5c5;
+    }
   }
 
   .multiple {

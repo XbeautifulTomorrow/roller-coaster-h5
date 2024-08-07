@@ -303,6 +303,7 @@ export default defineComponent({
     padding: 0;
     min-height: 0;
     line-height: 1.2;
+    font-weight: bold;
   }
 
   .unit {

@@ -515,6 +515,7 @@
                 variant="plain"
                 hide-details="auto"
                 @focus="stopProfit.isPrice = true"
+                placeholder="Price"
               ></v-text-field>
               <div class="profit_input_box up">
                 <span>+</span>
@@ -528,6 +529,7 @@
                   variant="plain"
                   hide-details="auto"
                   @focus="stopProfit.isPrice = false"
+                  placeholder="Profit"
                 ></v-text-field>
               </div>
             </div>
@@ -544,6 +546,7 @@
                 variant="plain"
                 hide-details="auto"
                 @focus="stopLoss.isPrice = true"
+                placeholder="Price"
               ></v-text-field>
               <div class="profit_input_box down">
                 <span>-</span>
@@ -557,6 +560,7 @@
                   variant="plain"
                   hide-details="auto"
                   @focus="stopLoss.isPrice = false"
+                  placeholder="Profit"
                 ></v-text-field>
               </div>
             </div>
@@ -1903,6 +1907,34 @@ export default defineComponent({
       line-height: 2;
       color: #fff;
       font-weight: bold;
+
+      &::-webkit-input-placeholder {
+        /* WebKit, Blink, Edge */
+        color: #b0b5c5;
+      }
+      &:-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
+        color: #b0b5c5;
+        opacity: 1;
+      }
+      &::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
+        color: #b0b5c5;
+        opacity: 1;
+      }
+      &:-ms-input-placeholder {
+        /* Internet Explorer 10-11 */
+        color: #b0b5c5;
+      }
+      &::-ms-input-placeholder {
+        /* Microsoft Edge */
+        color: #b0b5c5;
+      }
+
+      &::placeholder {
+        /* Most modern browsers support this now. */
+        color: #b0b5c5;
+      }
     }
 
     .multiples_btn {
@@ -1985,6 +2017,34 @@ export default defineComponent({
       background-color: #161823;
       border-radius: 6px;
       font-weight: bold;
+
+      &::-webkit-input-placeholder {
+        /* WebKit, Blink, Edge */
+        color: #b0b5c5;
+      }
+      &:-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
+        color: #b0b5c5;
+        opacity: 1;
+      }
+      &::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
+        color: #b0b5c5;
+        opacity: 1;
+      }
+      &:-ms-input-placeholder {
+        /* Internet Explorer 10-11 */
+        color: #b0b5c5;
+      }
+      &::-ms-input-placeholder {
+        /* Microsoft Edge */
+        color: #b0b5c5;
+      }
+
+      &::placeholder {
+        /* Most modern browsers support this now. */
+        color: #b0b5c5;
+      }
     }
 
     .profit_input_box {
@@ -2005,6 +2065,34 @@ export default defineComponent({
         min-height: 0;
         background-color: transparent;
         font-weight: bold;
+
+        &::-webkit-input-placeholder {
+          /* WebKit, Blink, Edge */
+          color: #b0b5c5;
+        }
+        &:-moz-placeholder {
+          /* Mozilla Firefox 4 to 18 */
+          color: #b0b5c5;
+          opacity: 1;
+        }
+        &::-moz-placeholder {
+          /* Mozilla Firefox 19+ */
+          color: #b0b5c5;
+          opacity: 1;
+        }
+        &:-ms-input-placeholder {
+          /* Internet Explorer 10-11 */
+          color: #b0b5c5;
+        }
+        &::-ms-input-placeholder {
+          /* Microsoft Edge */
+          color: #b0b5c5;
+        }
+
+        &::placeholder {
+          /* Most modern browsers support this now. */
+          color: #b0b5c5;
+        }
       }
 
       &.up {
