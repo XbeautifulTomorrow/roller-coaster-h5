@@ -1360,7 +1360,8 @@ export default defineComponent({
         const loss = profit < 0 ? Math.abs(profit) : null;
 
         if (loss) {
-          this.stopLoss.profit = Number(loss) > this.buyNum ? null : loss;
+          this.stopLoss.profit =
+            Number(loss) > this.buyNum ? this.buyNum : loss;
         } else {
           this.stopLoss.profit = null;
         }
