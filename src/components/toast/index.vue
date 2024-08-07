@@ -124,7 +124,7 @@ export default defineComponent({
       // Automatically remove the toast after 3 seconds
       setTimeout(() => {
         this.closeToast(id);
-      }, 1000);
+      }, 2000);
     },
     closeToast(id: number) {
       const index = this.toasts.findIndex((toast) => toast.index === id);
