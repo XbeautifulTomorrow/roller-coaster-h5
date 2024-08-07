@@ -425,7 +425,7 @@ export default defineComponent({
         const bustPrice = new bigNumber(1)
           .plus(multiples)
           .multipliedBy(price || 0);
-        return accurateDecimal(bustPrice, 2);
+        return accurateDecimal(bustPrice, 2, true);
       }
     },
     /**

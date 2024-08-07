@@ -141,10 +141,18 @@
                   src="@/assets/images/svg/game/up.svg"
                 ></v-img>
                 <div>{{ unitConversion(item.amount) }}</div>
+
                 <v-img
                   :width="14"
                   cover
+                  v-if="item.coinName == 'RCP'"
                   src="@/assets/images/game/icon_rcp.png"
+                ></v-img>
+                <v-img
+                  :width="14"
+                  cover
+                  v-else
+                  src="@/assets/images/game/icon_roller.png"
                 ></v-img>
               </div>
             </div>
@@ -277,7 +285,14 @@
               <v-img
                 :width="24"
                 cover
+                v-if="coinName == 'RCP'"
                 src="@/assets/images/game/icon_rcp.png"
+              ></v-img>
+              <v-img
+                :width="24"
+                cover
+                v-else
+                src="@/assets/images/game/icon_roller.png"
               ></v-img>
               <v-text-field
                 label=""
@@ -350,29 +365,39 @@
           <div class="buy_multiples fixed">
             <span>PAYOUT MULTIPLIER</span>
             <div class="multiples_box">
-              <div class="buy_input fixed">
-                <span class="multiples">x</span>
-                <v-text-field
-                  label=""
-                  v-model="buyMultiplier"
-                  bg-color="rgba(0,0,0,0)"
-                  color="#fff"
-                  variant="plain"
-                  hide-details="auto"
-                  @input="handleInput"
-                  @focus="
-                    currentInput = 2;
-                    isSlider = false;
-                  "
-                ></v-text-field>
+              <div class="multiples_panel">
+                <div class="plus_btn" @click="multipleMinus()">
+                  <v-icon color="#000" size="20" icon="mdi-minus"></v-icon>
+                </div>
+                <div class="buy_input fixed">
+                  <span class="multiples">x</span>
+                  <v-text-field
+                    label=""
+                    v-model="buyMultiplier"
+                    bg-color="rgba(0,0,0,0)"
+                    color="#fff"
+                    variant="plain"
+                    hide-details="auto"
+                    @input="handleInput"
+                    @focus="
+                      currentInput = 2;
+                      isSlider = false;
+                    "
+                  ></v-text-field>
+                </div>
+                <div class="plus_btn" @click="multiplePlus()">
+                  <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
+                </div>
               </div>
               <div class="bust_price">
                 <div>Bust Price:</div>
                 <div class="bust_val">
                   {{
-                    Number(EbustPrice).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                    })
+                    EbustPrice != "-"
+                      ? Number(EbustPrice).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })
+                      : EbustPrice
                   }}
                 </div>
               </div>
@@ -467,7 +492,14 @@
                   <v-img
                     :width="24"
                     cover
+                    v-if="coinName == 'RCP'"
                     src="@/assets/images/game/icon_rcp.png"
+                  ></v-img>
+                  <v-img
+                    :width="24"
+                    cover
+                    v-else
+                    src="@/assets/images/game/icon_roller.png"
                   ></v-img>
                   <v-text-field
                     label=""
@@ -506,9 +538,11 @@
                     <div>Bust Price:</div>
                     <div class="bust_val">
                       {{
-                        Number(EbustPrice).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })
+                        EbustPrice != "-"
+                          ? Number(EbustPrice).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                            })
+                          : EbustPrice
                       }}
                     </div>
                   </div>
@@ -720,6 +754,7 @@ export default defineComponent({
     return {
       sseType: "ms500",
       eventSource: null as any,
+      coinName: "RCP",
       currentPrice: 1000 as number | any,
       isDrop: false,
       chartData: [] as Array<any>,
@@ -804,7 +839,8 @@ export default defineComponent({
     // 当前爆仓价格
     EbustPrice() {
       const { currentPrice, buyStatus, buyMultiplier, removeTxt } = this;
-      if (!currentPrice || !buyStatus || !buyMultiplier) return "-";
+
+      if (!currentPrice || !buyMultiplier) return "-";
       return this.handleEbust(
         currentPrice,
         buyStatus,
@@ -873,14 +909,17 @@ export default defineComponent({
 
     if (this.gameLevel == "BASIC") {
       this.buyNum = "10";
+      this.coinName = "RCP";
     }
 
     if (this.gameLevel == "ADVANCED") {
       this.buyNum = "1,000";
+      this.coinName = "RCP";
     }
 
     if (this.gameLevel == "LEGENDARY") {
       this.buyNum = "100";
+      this.coinName = "RCT";
     }
   },
   methods: {
@@ -1206,11 +1245,40 @@ export default defineComponent({
 
       this.buyNum = Math.floor(Number(removeTxt(buyNum)) / 2);
     },
+    // 倍数增加
+    multiplePlus() {
+      const { buyMultiplier, removeTxt } = this;
+      const multipleArray = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+      const multiple = Number(removeTxt(buyMultiplier));
+      const multipleId = multipleArray.findIndex((e) => e >= multiple);
+      console.log(multipleId);
+
+      if (multipleId > -1) {
+        const multipleV =
+          multipleId < multipleArray.length - 1
+            ? multipleArray[multipleId + 1]
+            : multipleArray[multipleArray.length - 1];
+        this.buyMultiplier = Number(multipleV).toLocaleString();
+      }
+    },
+    // 倍数减少
+    multipleMinus() {
+      const { buyMultiplier, removeTxt } = this;
+      const multipleArray = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+      const multiple = Number(removeTxt(buyMultiplier));
+      const multipleId = multipleArray.findIndex((e) => e >= multiple);
+
+      if (multipleId > -1) {
+        const multipleV =
+          multipleId > 0 ? multipleArray[multipleId - 1] : multipleArray[0];
+        this.buyMultiplier = Number(multipleV).toLocaleString();
+      }
+    },
     // 买入
     async handleBuy() {
       const { removeTxt } = this;
       let params: any = {
-        coinName: this.gameLevel == "LEGENDARY" ? "RCT" : "RCP",
+        coinName: this.coinName,
         multiplier: removeTxt(this.buyMultiplier),
         amount: removeTxt(this.buyNum),
         carOrderTypeEnum: this.buyStatus,
@@ -1379,7 +1447,11 @@ export default defineComponent({
       multiple: string | number
     ) {
       // 倍率
-      const multiples = new bigNumber(1).dividedBy(multiple).minus(0.00068);
+      const multiples = new bigNumber(1)
+        .dividedBy(multiple || 0)
+        .minus(0.00068)
+        .toNumber();
+
       if (type == "buy") {
         // 多 开仓价1000， 倍数100，当前价格
         // 当前价格<=1000*(1-(1 / 100 - 0.00068))  时 爆仓
@@ -1390,7 +1462,7 @@ export default defineComponent({
         //当前价格>=1000*(1+(1 / 100 - 0.00068)) 时爆仓
 
         const bustPrice = new bigNumber(1).plus(multiples).multipliedBy(price);
-        return accurateDecimal(bustPrice, 2);
+        return accurateDecimal(bustPrice, 2, true);
       }
     },
     /**
@@ -2149,6 +2221,31 @@ export default defineComponent({
 
     & > div + div {
       margin-left: 8px;
+    }
+  }
+
+  .multiples_panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    & > div {
+      flex: 1;
+    }
+
+    & > .buy_input {
+      border-radius: 0;
+    }
+
+    .plus_btn {
+      max-width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+      border: 1px solid #000;
+      border-radius: 4px;
     }
   }
 

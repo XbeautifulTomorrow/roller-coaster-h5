@@ -150,7 +150,8 @@ export const useUserStore = defineStore("user", {
       const res = await getUserInfo({});
       if (res.code == 200) {
         this.userInfo = res.data;
-        this.userInfo.rcpAmount = accurateDecimal(this.userInfo.rcpAmount, 0);
+        this.userInfo.rcpAmount = Math.floor(this.userInfo.rcpAmount);
+        this.userInfo.rctAmount = accurateDecimal(this.userInfo.rctAmount, 2, true);
       } else {
         this.logoutApi();
       }
