@@ -379,9 +379,7 @@ export default defineComponent({
         this.$router.push("/");
       } else if (abbreviation == "GMCOIN") {
         // 打开GMCoin
-        openUrl(
-          "https://t.me/theRollerCoasterBot/RollerCoaster?startapp=rpbWLrCa"
-        );
+        openUrl("https://t.me/theGMCoinBot/GMCoin?startapp=rpbWLrCa");
       } else if (abbreviation == "PURCHASE") {
         // 充值消费
         const { setShowRecharge } = useUserStore();
