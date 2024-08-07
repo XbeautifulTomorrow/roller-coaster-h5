@@ -33,11 +33,11 @@
           <span>{{ `ROUND ENDS IN:10:10:10` }}</span>
         </div>
       </div>
-      <div class="chart_type" @click.stop="showType = !showType">
+      <!-- <div class="chart_type" @click.stop="showType = !showType">
         <span>{{ currentType }}</span>
         <v-icon icon="mdi-chevron-down" size="14"></v-icon>
-      </div>
-      <div class="chart_type_items" v-show="showType">
+      </div> -->
+      <!-- <div class="chart_type_items" v-show="showType">
         <div
           :class="['type_item', sseType == item.val && 'active']"
           v-for="(item, index) in typeDrop"
@@ -46,7 +46,7 @@
         >
           {{ item.text }}
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="chart_box">
       <div class="chart_mask"></div>
@@ -1085,6 +1085,13 @@ export default defineComponent({
             element.multiplier
           );
 
+          if (this.orderType == 1) {
+            element.roi = accurateDecimal(
+              new BigNumber(element.roi).multipliedBy(100).toNumber(),
+              0
+            );
+          }
+
           this.orderData[i] = element;
         }
 
@@ -1243,12 +1250,12 @@ export default defineComponent({
     // 格式化收益
     formatIncome(income: number) {
       if (this.gameLevel == "LEGENDARY") {
-        return unitConversion(accurateDecimal(income, 0) || 0);
+        return unitConversion(accurateDecimal(income, 2, true) || 0);
       } else {
         if (Math.abs(income || 0) < 1000) {
           return Math.floor(income);
         } else {
-          return unitConversion(accurateDecimal(income, 0) || 0);
+          return unitConversion(Math.floor(income) || 0);
         }
       }
     },
@@ -1505,7 +1512,7 @@ export default defineComponent({
   background: rgba(203, 215, 255, 0.03);
   border-radius: 4px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   color: #b0b5c5;
   padding: 2px 8px;
   display: flex;
@@ -1515,7 +1522,7 @@ export default defineComponent({
 
 .chart_type_items {
   position: absolute;
-  right: 0;
+  right: 8px;
   top: 44px;
   background: #242735;
   width: 60px;
@@ -1524,10 +1531,10 @@ export default defineComponent({
 
   .type_item {
     font-size: 14px;
-    color: #fff;
+    color: #b0b5c5;
     text-align: left;
     line-height: 1;
-    padding: 8px;
+    padding: 4px 8px;
 
     &.active {
       color: #ffb018;
