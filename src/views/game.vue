@@ -273,6 +273,7 @@
                 variant="plain"
                 hide-details="auto"
                 @input="handleInput"
+                @focus="currentInput = 1"
               ></v-text-field>
               <div class="multiples_btn fixed" @click="handleMinus()">1/2</div>
               <div class="multiples_btn fixed" @click="handlePlus()">x2</div>
@@ -340,11 +341,11 @@
                 <v-text-field
                   label=""
                   v-model="buyMultiplier"
-                  type="number"
                   bg-color="rgba(0,0,0,0)"
                   color="#fff"
                   variant="plain"
                   hide-details="auto"
+                  @focus="currentInput = 2"
                 ></v-text-field>
               </div>
               <div class="bust_price">
@@ -452,6 +453,7 @@
                     variant="plain"
                     hide-details="auto"
                     @input="handleInput"
+                    @focus="currentInput = 1"
                   ></v-text-field>
                   <div class="multiples_btn" @click="handleMinus()">1/2</div>
                   <div class="multiples_btn" @click="handlePlus()">x2</div>
@@ -465,11 +467,15 @@
                     <v-text-field
                       label=""
                       v-model="buyMultiplier"
-                      type="number"
                       bg-color="rgba(0,0,0,0)"
                       color="#fff"
                       variant="plain"
                       hide-details="auto"
+                      @input="handleInput"
+                      @focus="
+                        currentInput = 2;
+                        isSlider = false;
+                      "
                     ></v-text-field>
                   </div>
                   <div class="bust_price">
@@ -482,7 +488,7 @@
           </div>
           <div class="multiples_slider_box">
             <v-slider
-              v-model="buyMultiplier"
+              v-model="multipleNum"
               :min="1"
               :max="1000"
               :step="1"
@@ -490,6 +496,7 @@
               thumb-size="14"
               track-fill-color="rgba(0,0,0,0)"
               thumb-color="#fff"
+              @focus="isSlider = true"
               track-size="12"
             ></v-slider>
             <div class="multiples_point">
@@ -509,12 +516,15 @@
               <v-text-field
                 label=""
                 v-model="stopProfit.price"
-                type="number"
                 bg-color="rgba(0,0,0,0)"
                 color="#fff"
                 variant="plain"
                 hide-details="auto"
-                @focus="stopProfit.isPrice = true"
+                @input="handleInput"
+                @focus="
+                  stopProfit.isPrice = true;
+                  currentInput = 3;
+                "
                 placeholder="Price"
               ></v-text-field>
               <div class="profit_input_box up">
@@ -522,13 +532,16 @@
                 <v-text-field
                   label=""
                   v-model="stopProfit.profit"
-                  type="number"
                   bg-color="rgba(0,0,0,0)"
                   base-color=""
                   color="#fff"
                   variant="plain"
                   hide-details="auto"
-                  @focus="stopProfit.isPrice = false"
+                  @input="handleInput"
+                  @focus="
+                    stopProfit.isPrice = false;
+                    currentInput = 4;
+                  "
                   placeholder="Profit"
                 ></v-text-field>
               </div>
@@ -543,12 +556,15 @@
               <v-text-field
                 label=""
                 v-model="stopLoss.price"
-                type="number"
                 bg-color="rgba(0,0,0,0)"
                 color="#fff"
                 variant="plain"
                 hide-details="auto"
-                @focus="stopLoss.isPrice = true"
+                @input="handleInput"
+                @focus="
+                  stopLoss.isPrice = true;
+                  currentInput = 5;
+                "
                 placeholder="Price"
               ></v-text-field>
               <div class="profit_input_box down">
@@ -556,13 +572,16 @@
                 <v-text-field
                   label=""
                   v-model="stopLoss.profit"
-                  type="number"
                   bg-color="rgba(0,0,0,0)"
                   base-color=""
                   color="#fff"
                   variant="plain"
                   hide-details="auto"
-                  @focus="stopLoss.isPrice = false"
+                  @input="handleInput"
+                  @focus="
+                    stopLoss.isPrice = false;
+                    currentInput = 6;
+                  "
                   placeholder="Profit"
                 ></v-text-field>
               </div>
@@ -675,18 +694,21 @@ export default defineComponent({
       ],
       buyType: "MANUAL",
       buyStatus: "buy", // 买/多 buy  卖/空 sell
-      buyNum: 1000 as number | any, // 购买数量
-      buyMultiplier: 1000 as number | any, // 倍数
+      currentInput: 1, // 当前Input
+      buyNum: "1,000" as number | any, // 购买数量
+      buyMultiplier: "1,000" as number | any, // 倍数
+      multipleNum: 1000 as number | any, // 倍数
+      isSlider: false, // 是否滑动
       stopProfit: {
         isPrice: true, // 是否价格
-        price: null as number | any, // 价格
-        profit: null as number | any, // 收益
+        price: "" as string | any, // 价格
+        profit: "" as string | any, // 收益
         isError: false, // 阈值是否正确
       }, // 止盈
       stopLoss: {
         isPrice: true, // 是否价格
-        price: null as number | any, // 价格
-        profit: null as number | any, // 收益
+        price: "" as string | any, // 价格
+        profit: "" as string | any, // 收益
         isError: false, // 阈值是否正确
       }, // 止损
       orderData: [] as Array<orderInfo>,
@@ -726,9 +748,13 @@ export default defineComponent({
     },
     // 当前爆仓价格
     EbustPrice() {
-      const { currentPrice, buyStatus, buyMultiplier } = this;
+      const { currentPrice, buyStatus, buyMultiplier, removeTxt } = this;
       if (!currentPrice || !buyStatus || !buyMultiplier) return "-";
-      return this.handleEbust(currentPrice, buyStatus, buyMultiplier);
+      return this.handleEbust(
+        currentPrice,
+        buyStatus,
+        removeTxt(buyMultiplier)
+      );
     },
     levelImages() {
       const { levelImages } = useUserStore();
@@ -787,6 +813,18 @@ export default defineComponent({
   created() {
     this.createSSE();
     this.fetchOrderData();
+
+    if (this.gameLevel == "BASIC") {
+      this.buyNum = "10,000";
+    }
+
+    if (this.gameLevel == "ADVANCED") {
+      this.buyNum = "1,000,000";
+    }
+
+    if (this.gameLevel == "LEGENDARY") {
+      this.buyNum = "100,000";
+    }
   },
   methods: {
     showToast(event: ToastMessage) {
@@ -1017,21 +1055,79 @@ export default defineComponent({
       this.sseType = event.val;
       this.showType = false;
     },
-    handleInput(val: any) {
+    handleInput(event: any) {
+      let {
+          target: { _value },
+        } = event,
+        isDecimal = false;
+
+      if (!_value) return;
+
       // 去除非数字字符
-      let value = this.buyNum.replace(/[^\d.]/g, "");
+      let value = _value.replace(/[^-\d.]/g, "");
       // 分割整数和小数部分
-      // let parts = value.split(".");
+      let parts = value.split(".");
       // 处理整数部分添加逗号
-      // parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       // 拼接整数和小数部分
-      // if (parts[1]) {
-      //   value = parts.join(".");
-      // } else {
-      //   value = parts[0];
-      // }
+      if (parts[1]) {
+        isDecimal = true;
+      } else {
+        isDecimal = false;
+      }
+
       // 更新输入框的值
-      this.buyNum = value;
+      if (this.currentInput == 1) {
+        if (this.gameLevel != "LEGENDARY") {
+          this.buyNum = parts[0];
+        } else {
+          if (isDecimal) {
+            parts[1] =
+              parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
+            this.buyNum = parts.join(".");
+          } else {
+            this.buyNum = parts.join(".");
+          }
+        }
+      } else if (this.currentInput == 2) {
+        this.buyMultiplier = parts[0];
+      } else if (this.currentInput == 3) {
+        if (isDecimal) {
+          parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
+          this.stopProfit.price = parts.join(".");
+        } else {
+          this.stopProfit.price = parts.join(".");
+        }
+      } else if (this.currentInput == 4) {
+        if (this.gameLevel != "LEGENDARY") {
+          this.stopProfit.profit = parts[0];
+        } else {
+          if (isDecimal) {
+            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
+            this.stopProfit.profit = parts.join(".");
+          } else {
+            this.stopProfit.profit = parts.join(".");
+          }
+        }
+      } else if (this.currentInput == 5) {
+        if (isDecimal) {
+          parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
+          this.stopLoss.price = parts.join(".");
+        } else {
+          this.stopLoss.price = parts.join(".");
+        }
+      } else if (this.currentInput == 6) {
+        if (this.gameLevel != "LEGENDARY") {
+          this.stopLoss.profit = parts[0];
+        } else {
+          if (isDecimal) {
+            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
+            this.stopLoss.profit = parts.join(".");
+          } else {
+            this.stopLoss.profit = parts.join(".");
+          }
+        }
+      }
     },
     // 购买数量增加
     handlePlus() {
@@ -1043,10 +1139,11 @@ export default defineComponent({
     },
     // 买入
     async handleBuy() {
+      const { removeTxt } = this;
       let params: any = {
-        coinName: "RCP",
-        multiplier: this.buyMultiplier,
-        amount: this.buyNum,
+        coinName: this.gameLevel == "LEGENDARY" ? "RCT" : "RCP",
+        multiplier: removeTxt(this.buyMultiplier),
+        amount: removeTxt(this.buyNum),
         carOrderTypeEnum: this.buyStatus,
         numberSessionsEnum: this.gameLevel,
       };
@@ -1202,12 +1299,16 @@ export default defineComponent({
     },
     /**
      * 计算爆仓价格。
-     * @param {number} price - 买入价格。
+     * @param {string} price - 买入价格。
      * @param {string} type - 类型，'buy':多/'sell':空
-     * @param {number} multiple - 杠杆倍数。
+     * @param {string} multiple - 杠杆倍数。
      * @returns {string} - 爆仓价格，保留两位小数的字符串形式。
      */
-    handleEbust(price: number, type: string, multiple: number) {
+    handleEbust(
+      price: string | number,
+      type: string,
+      multiple: string | number
+    ) {
       // 倍率
       const multiples = new bigNumber(1).dividedBy(multiple).minus(0.00068);
       if (type == "buy") {
@@ -1235,10 +1336,10 @@ export default defineComponent({
      */
     getProfit(
       type: string,
-      buyPrice: number,
-      sellPrice: number,
-      buyNum: number,
-      multiple: number,
+      buyPrice: string | number,
+      sellPrice: string | number,
+      buyNum: string | number,
+      multiple: string | number,
       isFee: boolean
     ) {
       const diffNum = new bigNumber(sellPrice).minus(buyPrice); // 差值
@@ -1267,46 +1368,55 @@ export default defineComponent({
      * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的卖出价格。
      */
-    getSellPrice(profit: number, isFee: boolean) {
-      const { currentPrice, buyNum, buyMultiplier } = this;
+    getSellPrice(profit: number | string, isFee: boolean) {
+      const { currentPrice, buyNum, buyMultiplier, removeTxt } = this;
       if (isFee) {
         profit = Number(new bigNumber(profit).multipliedBy(1.05));
       }
       // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
-      const multiplierNum = new bigNumber(buyMultiplier).multipliedBy(buyNum);
+      const multiplierNum = new bigNumber(
+        removeTxt(buyMultiplier)
+      ).multipliedBy(removeTxt(buyNum));
       const sellPrice = new bigNumber(profit)
         .dividedBy(multiplierNum)
         .multipliedBy(currentPrice)
         .plus(currentPrice);
-      return accurateDecimal(sellPrice, 2);
+
+      return Number(accurateDecimal(sellPrice, 2)).toLocaleString();
     },
     // 计算止盈止损价格
     handleStopProfit(num: any, type: string) {
+      const { removeTxt } = this;
+      const buyNumber = Number(removeTxt(this.buyNum));
+
       if (type == "profit") {
         const profit = this.getProfit(
           this.buyStatus,
           this.currentPrice,
           num,
-          this.buyNum,
-          this.buyMultiplier,
+          buyNumber,
+          removeTxt(this.buyMultiplier),
           true
         );
 
-        this.stopProfit.profit = profit > 0 ? profit : null;
+        this.stopProfit.profit =
+          profit > 0 ? Number(profit).toLocaleString() : null;
       } else {
         const profit = this.getProfit(
           this.buyStatus,
           this.currentPrice,
           num,
-          this.buyNum,
-          this.buyMultiplier,
+          buyNumber,
+          removeTxt(this.buyMultiplier),
           false
         );
         const loss = profit < 0 ? Math.abs(profit) : null;
 
         if (loss) {
           this.stopLoss.profit =
-            Number(loss) > this.buyNum ? this.buyNum : loss;
+            Number(loss) > buyNumber
+              ? buyNumber.toLocaleString()
+              : Number(loss).toLocaleString();
         } else {
           this.stopLoss.profit = null;
         }
@@ -1329,10 +1439,10 @@ export default defineComponent({
 
       if (price || profit) {
         const threshold = new bigNumber(buyNum).multipliedBy(0.1).toNumber();
-        if (Number(profit) >= threshold) {
-          this.stopProfit.isError = false;
-        } else {
+        if (Number(profit) <= threshold) {
           this.stopProfit.isError = true;
+        } else {
+          this.stopProfit.isError = false;
         }
       } else {
         this.stopProfit.isError = false;
@@ -1378,6 +1488,10 @@ export default defineComponent({
         }
       }
     },
+    // 删除指定字符串
+    removeTxt(event: string, type = ",") {
+      return String(event).replace(new RegExp(type, "g"), "");
+    },
   },
   mounted() {
     const _this = this;
@@ -1421,16 +1535,18 @@ export default defineComponent({
       if (this.buyType == "AUTO") {
         if (!this.buyMultiplier || !this.buyNum) return;
 
+        const { removeTxt } = this;
+
         if (this.stopProfit.isPrice) {
           // 价格为准止盈
           if (this.stopProfit.price) {
-            this.handleStopProfit(this.stopProfit.price, "profit");
+            this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
             this.verifyProfit();
           }
         } else {
           if (this.stopProfit.profit) {
             this.stopProfit.price = this.getSellPrice(
-              this.stopProfit.profit,
+              removeTxt(this.stopProfit.profit),
               true
             );
             this.verifyProfit();
@@ -1440,13 +1556,13 @@ export default defineComponent({
         if (this.stopLoss.isPrice) {
           // 价格为准止损
           if (this.stopLoss.price) {
-            this.handleStopProfit(this.stopLoss.price, "loss");
+            this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
             this.verifyLoss();
           }
         } else {
           if (this.stopLoss.profit) {
             this.stopLoss.price = this.getSellPrice(
-              -this.stopLoss.profit,
+              -removeTxt(this.stopLoss.profit),
               false
             );
             this.verifyLoss();
@@ -1458,16 +1574,18 @@ export default defineComponent({
     },
     buyStatus(newV, oldV) {
       if (this.buyType != "AUTO") return;
+      const { removeTxt } = this;
+
       if (this.stopProfit.isPrice) {
         // 价格为准止盈
         if (this.stopProfit.price) {
-          this.handleStopProfit(this.stopProfit.price, "profit");
+          this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
           this.verifyProfit();
         }
       } else {
         if (this.stopProfit.profit) {
           this.stopProfit.price = this.getSellPrice(
-            this.stopProfit.profit,
+            removeTxt(this.stopProfit.profit),
             true
           );
           this.verifyProfit();
@@ -1477,31 +1595,35 @@ export default defineComponent({
       if (this.stopLoss.isPrice) {
         // 价格为准止损
         if (this.stopLoss.price) {
-          this.handleStopProfit(this.stopLoss.price, "loss");
+          this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
           this.verifyLoss();
         }
       } else {
         if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
+          this.stopLoss.price = this.getSellPrice(
+            -removeTxt(this.stopLoss.profit),
+            false
+          );
           this.verifyLoss();
         }
       }
     },
     buyNum(newV, oldV) {
       if (this.buyType != "AUTO") return;
+      const { removeTxt } = this;
+
       if (this.stopProfit.isPrice) {
         // 价格为准止盈
         if (this.stopProfit.price) {
-          this.handleStopProfit(this.stopProfit.price, "profit");
+          this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
           this.verifyProfit();
         }
       } else {
         if (this.stopProfit.profit) {
           this.stopProfit.price = this.getSellPrice(
-            this.stopProfit.profit,
+            removeTxt(this.stopProfit.profit),
             true
           );
-
           this.verifyProfit();
         }
       }
@@ -1509,60 +1631,73 @@ export default defineComponent({
       if (this.stopLoss.isPrice) {
         // 价格为准止损
         if (this.stopLoss.price) {
-          this.handleStopProfit(this.stopLoss.price, "loss");
+          this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
           this.verifyLoss();
         }
       } else {
         if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
+          this.stopLoss.price = this.getSellPrice(
+            -removeTxt(this.stopLoss.profit),
+            false
+          );
           this.verifyLoss();
         }
       }
     },
+    multipleNum(newV, oldV) {
+      if (this.isSlider) {
+        this.buyMultiplier = Number(newV).toLocaleString();
+      }
+    },
     buyMultiplier(newV, oldV) {
+      if (!this.isSlider) {
+        this.multipleNum = this.removeTxt(newV);
+      }
+
       if (this.buyType != "AUTO") return;
+      const { removeTxt } = this;
+
       if (this.stopProfit.isPrice) {
         // 价格为准止盈
         if (this.stopProfit.price) {
-          this.handleStopProfit(this.stopProfit.price, "profit");
+          this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
+          this.verifyProfit();
         }
-
-        this.verifyProfit();
       } else {
         if (this.stopProfit.profit) {
           this.stopProfit.price = this.getSellPrice(
-            this.stopProfit.profit,
+            removeTxt(this.stopProfit.profit),
             true
           );
+          this.verifyProfit();
         }
-
-        this.verifyProfit();
       }
 
       if (this.stopLoss.isPrice) {
         // 价格为准止损
         if (this.stopLoss.price) {
-          this.handleStopProfit(this.stopLoss.price, "loss");
+          this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
+          this.verifyLoss();
         }
-
-        this.verifyLoss();
       } else {
         if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(-this.stopLoss.profit, false);
+          this.stopLoss.price = this.getSellPrice(
+            -removeTxt(this.stopLoss.profit),
+            false
+          );
+          this.verifyLoss();
         }
-
-        this.verifyLoss();
       }
     },
     "stopProfit.price"(newV: any) {
       if (!this.stopProfit.isPrice) return;
       this.handleStopProfit(newV, "profit");
-
       this.verifyProfit();
     },
     "stopProfit.profit"(newV: any) {
       if (this.stopProfit.isPrice) return;
-      this.stopProfit.price = this.getSellPrice(newV, true);
+
+      this.stopProfit.price = this.getSellPrice(this.removeTxt(newV), true);
 
       this.verifyProfit();
     },
@@ -1572,11 +1707,10 @@ export default defineComponent({
 
       this.verifyLoss();
     },
-
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice) return;
       if (newV > 0 && newV <= this.buyNum) {
-        this.stopLoss.price = this.getSellPrice(-newV, true);
+        this.stopLoss.price = this.getSellPrice(-this.removeTxt(newV), true);
       } else {
         this.stopLoss.price = null;
       }
@@ -1706,14 +1840,15 @@ export default defineComponent({
 }
 
 .buying_panel {
-  margin: 16px;
+  width: 100%;
+  padding: 16px;
 
   &.fixed {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 0;
+    padding: 0;
   }
 }
 
@@ -2019,6 +2154,7 @@ export default defineComponent({
 
   & > div {
     max-width: calc(50% - 2px);
+    flex: 1;
   }
 
   :deep(.v-field__input) {
@@ -2402,7 +2538,7 @@ export default defineComponent({
 }
 
 .dialog_box {
-  width: 100%;
+  width: 100vw;
   background-color: #1f212e;
   border-radius: 4px 4px 0 0;
 

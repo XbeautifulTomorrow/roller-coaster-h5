@@ -197,7 +197,7 @@ export default defineComponent({
       buyStatus: "buy", // 买/多 buy  卖/空 sell
       buyNum: "1,000", // 下注数
       multiple: "1", // 倍数
-      priceChange: null as number | any, // 价格变动
+      priceChange: null as string | any, // 价格变动
       priceMove: [
         -1, -0.5, -0.1, -0.05, -0.01, -0.005, -0.001, -0.0005, -0.0001, 0,
         0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10,
@@ -239,7 +239,9 @@ export default defineComponent({
 
       // 自定义变动值
       if (priceChange) {
-        moveArray = [new bigNumber(priceChange).dividedBy(100).toNumber()];
+        moveArray = [
+          new bigNumber(removeTxt(priceChange)).dividedBy(100).toNumber(),
+        ];
       }
 
       const profitArray = [] as Array<profit>;
@@ -466,7 +468,7 @@ export default defineComponent({
     },
     // 删除指定字符串
     removeTxt(event: string, type = ",") {
-      return event.replace(new RegExp(type, "g"), "");
+      return String(event).replace(new RegExp(type, "g"), "");
     },
   },
   watch: {
