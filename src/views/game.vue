@@ -565,6 +565,81 @@
         </div>
       </div>
     </v-dialog>
+    <!-- 订单更新弹窗 -->
+    <v-dialog v-model="showOrder" class="dialog_order_panel" width="auto">
+      <div class="order_box">
+        <div class="status_box">
+          <v-img
+            :width="30"
+            cover
+            class="status_img"
+            v-if="orderTip.side == 'sell'"
+            src="@/assets/images/svg/game/drop.svg"
+          ></v-img>
+          <v-img
+            :width="30"
+            cover
+            class="status_img"
+            v-else
+            src="@/assets/images/svg/game/up.svg"
+          ></v-img>
+          <div class="status_info">
+            <div class="status_text">
+              <span v-if="orderTip.tipsType == 1">Order placed</span>
+              <span v-else-if="orderTip.tipsType == 2">
+                {{
+                  `Order busted at loss of ${formatIncome(
+                    Number(orderTip.income || 0)
+                  )}`
+                }}
+              </span>
+              <span v-else>
+                {{
+                  Number(orderTip.income || 0) > 0
+                    ? `Order closed at profit of ${formatIncome(
+                        Number(orderTip.income || 0)
+                      )}`
+                    : `Order closed at loss of ${formatIncome(
+                        Number(orderTip.income || 0)
+                      )}`
+                }}
+              </span>
+            </div>
+            <div class="status_description">
+              <span>
+                {{ `Amount: ${formatIncome(orderTip.amount)}, ` }}
+              </span>
+              <span>{{
+                `Multiplier: x${Number(orderTip.multiplier).toLocaleString()}, `
+              }}</span>
+              <span v-if="orderTip.tipsType == 1">
+                {{
+                  `Buy Price: ${Number(orderTip.price || 0).toLocaleString(
+                    undefined,
+                    { minimumFractionDigits: 2 }
+                  )}`
+                }}
+              </span>
+              <span v-else-if="orderTip.tipsType == 2">
+                {{
+                  `Bust Price: ${Number(
+                    orderTip.ebustPrice || 0
+                  ).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                }}
+              </span>
+              <span v-else>
+                {{
+                  `Exit Price: ${Number(orderTip.exitPrice || 0).toLocaleString(
+                    undefined,
+                    { minimumFractionDigits: 2 }
+                  )}`
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </v-dialog>
     <stopAmount @onStop="fetchOrderData"></stopAmount>
     <tipRules></tipRules>
     <profitCalculator></profitCalculator>
@@ -614,6 +689,18 @@ interface orderInfo {
   [x: string]: string | number | any;
 }
 
+interface orderTipInfo {
+  tipsType: number; // 提示类型 1：买入 2：爆仓 3：收益 4：亏损
+  side: string; // 买入类型
+  amount: number; // 购买数量
+  price: number; // 价格
+  multiplier: number; // 倍数
+  exitPrice?: number; // 退出价格
+  income?: number; // 收益
+  ebustPrice?: number; // 爆仓价格，前端计算
+  [x: string]: string | number | any;
+}
+
 export default defineComponent({
   data() {
     return {
@@ -660,6 +747,8 @@ export default defineComponent({
       page: 1,
       size: 10,
       showAuto: false,
+      showOrder: false,
+      orderTip: {} as orderTipInfo, // 订单详情
     };
   },
   components: {
@@ -798,7 +887,17 @@ export default defineComponent({
         });
 
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
-          this.fetchOrderData();
+          try {
+            const bustOrder = JSON.parse(e.data);
+            console.log(bustOrder);
+            this.orderTip = bustOrder;
+            this.showOrder = true;
+          } catch (error) {
+            console.log(e);
+            console.log(error);
+          } finally {
+            this.fetchOrderData();
+          }
         });
 
         this.eventSource.addEventListener("CLOSE_PRIZE", (e: any) => {
@@ -984,7 +1083,20 @@ export default defineComponent({
       }
 
       const res = await addOrder(params);
+
       if (res.code == 200) {
+        console.log(res.data);
+
+        this.orderTip = {
+          tipsType: 1,
+          side: res.data.side, // 买入类型
+          amount: res.data.amount, // 购买数量
+          price: res.data.price, // 价格
+          multiplier: res.data.multiplier, // 倍数
+        };
+
+        this.showOrder = true;
+
         this.fetchOrderData();
         // 更新余额
         const user = useUserStore();
@@ -1110,6 +1222,13 @@ export default defineComponent({
     async handleCloseOrder(event: orderInfo) {
       const res = await closeOrder({ id: event.id });
       if (res.code == 200) {
+        console.log(res.data);
+        this.orderTip = {
+          ...res.data,
+          tipsType: 2,
+        };
+
+        this.showOrder = true;
         this.fetchOrderData();
         // 更新余额
         const user = useUserStore();
@@ -2187,6 +2306,45 @@ export default defineComponent({
     top: 16px;
     right: 16px;
     color: #b0b5c5;
+  }
+}
+
+.dialog_order_panel {
+  :deep(.v-overlay__content) {
+    margin: 0 !important;
+    max-width: max-content !important;
+  }
+
+  .order_box {
+    background-color: #161823;
+    margin: 0 16px;
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .status_box {
+    display: flex;
+    align-items: center;
+
+    .v-img {
+      flex: none;
+      margin-right: 8px;
+    }
+  }
+
+  .status_info {
+    .status_text {
+      font-size: 16px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .status_description {
+      font-weight: 400;
+      font-style: normal;
+      font-size: 12px;
+      color: #8c90a0;
+    }
   }
 }
 </style>

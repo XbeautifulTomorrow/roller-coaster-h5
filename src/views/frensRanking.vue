@@ -77,9 +77,7 @@
             <div class="frens_relevant">
               <div class="frens_num">{{ `${item.totalNumber} Frens` }}</div>
               <div class="frens_prize">
-                <span>{{
-                  `+ ${Number(item.rcpAmount).toLocaleString()}`
-                }}</span>
+                <span>{{ `+ ${formatIncome(item.rcpAmount, "RCP")}` }}</span>
                 <v-img
                   :width="16"
                   cover
@@ -97,7 +95,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { shareOnTelegram, onCopy } from "@/utils";
+import {
+  shareOnTelegram,
+  onCopy,
+  unitConversion,
+  accurateDecimal,
+} from "@/utils";
+
 import { getInviteRankingList } from "@/services/api/user.js";
 
 interface frensRankingInfo {
@@ -196,6 +200,18 @@ export default defineComponent({
         inviteUrl = `https://t.me/gm_coin_test_bot/checking?startapp=${inviteCode}`;
       }
       onCopy(inviteUrl);
+    },
+    // 格式化收益
+    formatIncome(income: number, type: string) {
+      if (type == "RCT") {
+        return unitConversion(accurateDecimal(income, 2, true) || 0);
+      } else {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(Math.floor(income) || 0);
+        }
+      }
     },
   },
   mounted() {
