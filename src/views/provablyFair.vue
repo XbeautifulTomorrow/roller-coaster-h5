@@ -15,7 +15,7 @@
         Using this published seed, anyone can verify that we followed the
         algorithm described below and that we did not alter any prices after the
         round's trading began. In particular, it is not possible for us to
-        change prices based on the bets placed by users.
+        change prices based on the orders placed by users.
       </div>
     </div>
     <div class="description_item">

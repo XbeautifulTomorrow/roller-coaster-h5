@@ -11,7 +11,7 @@
         <v-img :width="16" cover src="@/assets/images/svg/icon_x.svg"></v-img>
       </div>
       <div class="calculator_description">
-        Rollercoaster has 2.5% house edge and a 5% fee on profitable bets.
+        Rollercoaster has 2.5% house edge and a 5% fee on profitable orders.
       </div>
       <div class="calculator_panel">
         <div class="calculator_params">

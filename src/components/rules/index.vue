@@ -40,7 +40,7 @@
           <v-img width="100%" cover src="@/assets/images/rules/5.png"></v-img>
           <span>
             Cashout at any time, profit or loss. Set profit or loss targets to
-            automatically cashout your bets.
+            automatically cashout your orders.
           </span>
         </div>
         <div class="rules_content_item">
