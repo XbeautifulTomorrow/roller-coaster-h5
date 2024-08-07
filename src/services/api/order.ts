@@ -36,7 +36,11 @@ const setOrder = (params: any) => http.post(serverUrl + "/carOrder/setOrder", pa
  */
 const closeOrder = (params: any) => http.get(serverUrl + "/carOrder/closeOrder", params);
 
-
+/**
+ * 获取最近10条种子
+ * @param params
+ */
+const getCarSeed = (params: any) => http.get(serverUrl + "/carSeed/list", params);
 
 export {
   getOrderAll,
@@ -44,5 +48,6 @@ export {
   addOrder,
   getOrderData,
   setOrder,
-  closeOrder
+  closeOrder,
+  getCarSeed
 };

@@ -12,6 +12,7 @@ import airdrop from '@/views/airdrop.vue';
 import mine from '@/views/mine.vue';
 import frensRanking from '@/views/frensRanking.vue';
 import swap from '@/views/swap.vue';
+import provablyFair from '@/views/provablyFair.vue';
 
 //2. 路由配置
 const routes = [
@@ -54,7 +55,13 @@ const routes = [
     path: '/airdrop',
     name: 'Airdrop',
     component: airdrop
-  }
+  },
+  {
+    path: '/provablyFair',
+    name: 'ProvablyFair',
+    component: provablyFair
+  },
+
 ];
 
 // 3. 创建路由实例

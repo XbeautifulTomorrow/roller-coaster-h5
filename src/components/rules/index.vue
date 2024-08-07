@@ -3,6 +3,7 @@
     v-model="showRules"
     width="auto"
     transition="dialog-bottom-transition"
+    fullscreen
   >
     <div class="dialog_box">
       <div class="rules_title">HOW IT WORKS</div>
@@ -47,7 +48,12 @@
           <span>
             Rollercoaster prices are generated using a provably fair algorithm.
             The house edge is 2.5%.
-            <span style="color: #ea980a">Learn more here.</span>
+            <span
+              style="color: #ea980a; font-weight: bold"
+              @click="handleProvablyFair()"
+            >
+              Learn more here.
+            </span>
           </span>
         </div>
       </div>
@@ -90,6 +96,10 @@ export default defineComponent({
     handleReady() {
       this.showRules = false;
     },
+    handleProvablyFair() {
+      this.$router.push("/provablyFair");
+      this.handleReady();
+    },
   },
 });
 </script>
@@ -102,6 +112,8 @@ export default defineComponent({
 
 .dialog_box {
   width: 100%;
+  overflow-y: scroll;
+  height: 100vh;
   background-color: #000;
   border-radius: 16px 16px 0 0;
   padding: 16px;
