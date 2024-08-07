@@ -913,10 +913,23 @@ export default defineComponent({
         this.eventSource.addEventListener("USER_CLOSE_PRIZE", (e: any) => {
           try {
             const bustOrder = JSON.parse(e.data);
-            this.orderTip = {
-              ...bustOrder,
-              tipsType: 2,
-            };
+
+            const isBust =
+              new BigNumber(bustOrder.amount)
+                .plus(bustOrder.income)
+                .toNumber() == 0;
+
+            if (isBust) {
+              this.orderTip = {
+                ...bustOrder,
+                tipsType: 2,
+              };
+            } else {
+              this.orderTip = {
+                ...bustOrder,
+                tipsType: 3,
+              };
+            }
             this.showOrder = true;
           } catch (error) {
             console.log(e);
@@ -1248,13 +1261,6 @@ export default defineComponent({
     async handleCloseOrder(event: orderInfo) {
       const res = await closeOrder({ id: event.id });
       if (res.code == 200) {
-        console.log(res.data);
-        this.orderTip = {
-          ...res.data,
-          tipsType: 3,
-        };
-
-        this.showOrder = true;
         this.fetchOrderData();
         // 更新余额
         const user = useUserStore();
