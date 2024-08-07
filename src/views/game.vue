@@ -902,8 +902,17 @@ export default defineComponent({
 
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
           try {
+            this.fetchOrderData();
+          } catch (error) {
+            console.log(e);
+            console.log(error);
+          } finally {
+          }
+        });
+
+        this.eventSource.addEventListener("USER_CLOSE_PRIZE", (e: any) => {
+          try {
             const bustOrder = JSON.parse(e.data);
-            console.log(bustOrder);
             this.orderTip = {
               ...bustOrder,
               tipsType: 2,
