@@ -61,7 +61,7 @@
               </span>
               <span v-else-if="toast.tipsType == 2">
                 {{
-                  `Bust Price: ${Number(toast.ebustPrice || 0).toLocaleString(
+                  `Bust Price: ${Number(toast.exitPrice || 0).toLocaleString(
                     undefined,
                     { minimumFractionDigits: 2 }
                   )}`
@@ -124,7 +124,7 @@ export default defineComponent({
       // Automatically remove the toast after 3 seconds
       setTimeout(() => {
         this.closeToast(id);
-      }, 3000);
+      }, 1000);
     },
     closeToast(id: number) {
       const index = this.toasts.findIndex((toast) => toast.index === id);

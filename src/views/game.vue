@@ -675,11 +675,13 @@ export default defineComponent({
         isPrice: true, // 是否价格
         price: null as number | any, // 价格
         profit: null as number | any, // 收益
+        isError: false, // 阈值是否正确
       }, // 止盈
       stopLoss: {
         isPrice: true, // 是否价格
         price: null as number | any, // 价格
         profit: null as number | any, // 收益
+        isError: false, // 阈值是否正确
       }, // 止损
       orderData: [] as Array<orderInfo>,
       finished: false,
@@ -1064,11 +1066,13 @@ export default defineComponent({
           isPrice: true, // 是否价格
           price: null, // 价格
           profit: null, // 收益
+          isError: false, // 阈值是否正确
         }; // 止盈
         this.stopLoss = {
           isPrice: true, // 是否价格
           price: null, // 价格
           profit: null, // 收益
+          isError: false, // 阈值是否正确
         }; // 止损
       }
     },
@@ -1311,6 +1315,41 @@ export default defineComponent({
       const ratio = new bigNumber(income).dividedBy(amount).multipliedBy(100);
       return accurateDecimal(ratio, 2);
     },
+    verifyProfit() {
+      const {
+        stopProfit: { price, profit },
+        buyNum,
+      } = this;
+
+      if (price && profit) {
+        const threshold = new bigNumber(buyNum).multipliedBy(0.1).toNumber();
+        if (Number(profit) > threshold) {
+          this.stopProfit.isError = false;
+        } else {
+          this.stopProfit.isError = true;
+        }
+      } else {
+        this.stopProfit.isError = true;
+      }
+    },
+    verifyLoss() {
+      const {
+        stopLoss: { price, profit },
+        buyNum,
+      } = this;
+
+      if (price && profit) {
+        const threshold = new bigNumber(buyNum).multipliedBy(0.1).toNumber();
+
+        if (Number(profit) > threshold) {
+          this.stopLoss.isError = false;
+        } else {
+          this.stopLoss.isError = true;
+        }
+      } else {
+        this.stopLoss.isError = true;
+      }
+    },
     // 弹出规则
     handleRules() {
       this.showRules = true;
@@ -1491,14 +1530,20 @@ export default defineComponent({
     "stopProfit.price"(newV: any) {
       if (!this.stopProfit.isPrice) return;
       this.handleStopProfit(newV, "profit");
+
+      this.verifyProfit();
     },
     "stopProfit.profit"(newV: any) {
       if (this.stopProfit.isPrice) return;
       this.stopProfit.price = this.getSellPrice(newV, true);
+
+      this.verifyProfit();
     },
     "stopLoss.price"(newV, oldV) {
       if (!this.stopLoss.isPrice) return;
       this.handleStopProfit(newV, "loss");
+
+      this.verifyLoss();
     },
 
     "stopLoss.profit"(newV: any) {
@@ -1508,6 +1553,8 @@ export default defineComponent({
       } else {
         this.stopLoss.price = null;
       }
+
+      this.verifyLoss();
     },
     showAuto(newV) {
       if (!newV) {

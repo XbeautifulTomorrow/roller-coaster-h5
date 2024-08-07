@@ -31,6 +31,9 @@
                 placeholder="Profit"
               ></v-text-field>
             </div>
+            <div class="error_text" v-if="stopProfit.isError">
+              Trigger price is too close to current price
+            </div>
           </div>
         </div>
         <div class="stop_loss">
@@ -61,6 +64,9 @@
                 @focus="stopLoss.isPrice = false"
                 placeholder="Profit"
               ></v-text-field>
+            </div>
+            <div class="error_text" v-if="stopLoss.isError">
+              Trigger price is too close to current price
             </div>
           </div>
         </div>
@@ -93,11 +99,13 @@ export default defineComponent({
         isPrice: false, // 是否价格
         price: null as number | any, // 价格
         profit: null as number | any, // 收益
+        isError: false, // 阈值是否正确
       }, // 止盈
       stopLoss: {
         isPrice: false, // 是否价格
         price: null as number | any, // 价格
         profit: null as number | any, // 收益
+        isError: false, // 阈值是否正确
       }, // 止损
     };
   },
@@ -221,6 +229,41 @@ export default defineComponent({
         setBuyInfo(null);
       }
     },
+    verifyProfit() {
+      const {
+        stopProfit: { price, profit },
+        buyInfo: { amount },
+      } = this;
+
+      if (price && profit) {
+        const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
+        if (Number(profit) > threshold) {
+          this.stopProfit.isError = false;
+        } else {
+          this.stopProfit.isError = true;
+        }
+      } else {
+        this.stopProfit.isError = true;
+      }
+    },
+    verifyLoss() {
+      const {
+        stopLoss: { price, profit },
+        buyInfo: { amount },
+      } = this;
+
+      if (price && profit) {
+        const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
+
+        if (Number(profit) > threshold) {
+          this.stopLoss.isError = false;
+        } else {
+          this.stopLoss.isError = true;
+        }
+      } else {
+        this.stopLoss.isError = true;
+      }
+    },
   },
   watch: {
     buyInfo(newV) {
@@ -229,12 +272,14 @@ export default defineComponent({
           isPrice: true, // 是否价格
           price: null, // 价格
           profit: null, // 收益
+          isError: false,
         };
 
         this.stopLoss = {
           isPrice: true, // 是否价格
           price: null, // 价格
           profit: null, // 收益
+          isError: false,
         };
 
         return;
@@ -244,25 +289,33 @@ export default defineComponent({
         isPrice: false, // 是否价格
         price: null, // 价格
         profit: newV.profit, // 收益
+        isError: false,
       }; // 止盈
 
       this.stopLoss = {
         isPrice: false, // 是否价格
         price: null, // 价格
         profit: newV.loss, // 收益
+        isError: false,
       }; // 止损
     },
     "stopProfit.price"(newV: any) {
       if (!this.stopProfit.isPrice || !this.buyInfo) return;
       this.handleStopProfit(newV, "profit");
+
+      this.verifyProfit();
     },
     "stopProfit.profit"(newV: any) {
       if (this.stopProfit.isPrice || !this.buyInfo) return;
       this.stopProfit.price = this.getSellPrice(newV, true);
+
+      this.verifyProfit();
     },
     "stopLoss.price"(newV: any) {
       if (!this.stopLoss.isPrice || !this.buyInfo) return;
       this.handleStopProfit(newV, "loss");
+
+      this.verifyLoss();
     },
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice || !this.buyInfo) return;
@@ -271,6 +324,8 @@ export default defineComponent({
       } else {
         this.stopLoss.price = null;
       }
+
+      this.verifyLoss();
     },
   },
 });
@@ -296,7 +351,7 @@ export default defineComponent({
 .buy_numer_info {
   & > div {
     width: 220px;
-    padding-bottom: 14px;
+    padding-bottom: 24px;
   }
 }
 
@@ -311,22 +366,70 @@ export default defineComponent({
     display: block;
     margin-bottom: 4px;
   }
+}
 
-  .profit_input {
+.profit_input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+
+  & > div {
+    max-width: calc(50% - 2px);
+  }
+
+  :deep(.v-field__input) {
+    padding: 4px;
+    min-height: 0;
+    color: #fff;
+    background-color: #161823;
+    border-radius: 6px;
+    font-weight: bold;
+
+    &::-webkit-input-placeholder {
+      /* WebKit, Blink, Edge */
+      color: #b0b5c5;
+    }
+    &:-moz-placeholder {
+      /* Mozilla Firefox 4 to 18 */
+      color: #b0b5c5;
+      opacity: 1;
+    }
+    &::-moz-placeholder {
+      /* Mozilla Firefox 19+ */
+      color: #b0b5c5;
+      opacity: 1;
+    }
+    &:-ms-input-placeholder {
+      /* Internet Explorer 10-11 */
+      color: #b0b5c5;
+    }
+    &::-ms-input-placeholder {
+      /* Microsoft Edge */
+      color: #b0b5c5;
+    }
+
+    &::placeholder {
+      /* Most modern browsers support this now. */
+      color: #b0b5c5;
+    }
+  }
+
+  .profit_input_box {
+    background-color: #161823;
+    border-radius: 6px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    padding: 4px;
 
-    & > div {
-      max-width: calc(50% - 2px);
+    span {
+      padding-right: 4px;
     }
 
     :deep(.v-field__input) {
-      padding: 4px;
+      padding: 0;
       min-height: 0;
-      color: #fff;
-      background-color: #161823;
-      border-radius: 6px;
+      background-color: transparent;
       font-weight: bold;
 
       &::-webkit-input-placeholder {
@@ -358,76 +461,38 @@ export default defineComponent({
       }
     }
 
-    .profit_input_box {
-      background-color: #161823;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      padding: 4px;
-
-      span {
-        padding-right: 4px;
-      }
+    &.up {
+      color: #66ff07;
 
       :deep(.v-field__input) {
-        padding: 0;
-        min-height: 0;
-        background-color: transparent;
-        font-weight: bold;
-
-        &::-webkit-input-placeholder {
-          /* WebKit, Blink, Edge */
-          color: #b0b5c5;
-        }
-        &:-moz-placeholder {
-          /* Mozilla Firefox 4 to 18 */
-          color: #b0b5c5;
-          opacity: 1;
-        }
-        &::-moz-placeholder {
-          /* Mozilla Firefox 19+ */
-          color: #b0b5c5;
-          opacity: 1;
-        }
-        &:-ms-input-placeholder {
-          /* Internet Explorer 10-11 */
-          color: #b0b5c5;
-        }
-        &::-ms-input-placeholder {
-          /* Microsoft Edge */
-          color: #b0b5c5;
-        }
-
-        &::placeholder {
-          /* Most modern browsers support this now. */
-          color: #b0b5c5;
-        }
-      }
-
-      &.up {
         color: #66ff07;
-
-        :deep(.v-field__input) {
-          color: #66ff07;
-        }
-
-        &:hover {
-          box-shadow: 0px 0px 4px #66ff07;
-        }
       }
 
-      &.down {
-        color: #ff0000;
-
-        :deep(.v-field__input) {
-          color: #ff0000;
-        }
-
-        &:hover {
-          box-shadow: 0px 0px 4px #ff0000;
-        }
+      &:hover {
+        box-shadow: 0px 0px 4px #66ff07;
       }
     }
+
+    &.down {
+      color: #ff0000;
+
+      :deep(.v-field__input) {
+        color: #ff0000;
+      }
+
+      &:hover {
+        box-shadow: 0px 0px 4px #ff0000;
+      }
+    }
+  }
+
+  .error_text {
+    position: absolute;
+    bottom: -16px;
+    width: 100%;
+    max-width: none;
+    font-size: 12px;
+    color: #ff0000;
   }
 }
 
