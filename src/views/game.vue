@@ -814,7 +814,8 @@ export default defineComponent({
             for (let i = 0; i < closeData.length; i++) {
               closeData[i].roi = accurateDecimal(
                 new BigNumber(closeData[i].roi).multipliedBy(100).toNumber(),
-                0
+                2,
+                true
               );
 
               setTimeout(() => {
@@ -1037,7 +1038,8 @@ export default defineComponent({
 
           element.roi = accurateDecimal(
             new BigNumber(element.roi).multipliedBy(100).toNumber(),
-            0
+            2,
+            true
           );
 
           this.orderData[i] = element;
@@ -1088,7 +1090,8 @@ export default defineComponent({
           if (this.orderType == 1) {
             element.roi = accurateDecimal(
               new BigNumber(element.roi).multipliedBy(100).toNumber(),
-              0
+              2,
+              true
             );
           }
 
