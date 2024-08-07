@@ -228,6 +228,16 @@
             ></v-img>
           </div>
         </li>
+        <li v-if="!(orderData.length > 0)">
+          <div class="no_data">
+            <v-img
+              :width="48"
+              cover
+              src="@/assets/images/svg/game/no_data.svg"
+            ></v-img>
+            <span>No Orders Found</span>
+          </div>
+        </li>
       </transition-group>
     </div>
     <div class="buying_panel fixed">
@@ -1132,7 +1142,7 @@ export default defineComponent({
         } else {
           this.fetchOrderAll();
         }
-      }, 300);
+      }, 10);
     },
     // 获取氛围组
     async fetchOrderAll() {
@@ -2345,6 +2355,24 @@ export default defineComponent({
       font-size: 12px;
       color: #8c90a0;
     }
+  }
+}
+
+.no_data {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 16px;
+  color: #b0b5c5;
+  font-weight: bold;
+  background-color: #2d303e;
+
+  .v-img {
+    flex: none;
+    margin: 0 auto;
+    margin-bottom: 16px;
   }
 }
 </style>
