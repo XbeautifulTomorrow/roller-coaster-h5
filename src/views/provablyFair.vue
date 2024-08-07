@@ -76,7 +76,7 @@
         <div>price = 1000.0</div>
         <div>
           seed =
-          'a686d7df4cd947b944ed61681064f4b0bf274f17b38ca50e886ca465fcf191c1'
+          'nqwj556c2qz043jo19g26ii35129pba4afybg486hgz66ffkjov25hdcpuvjg9r6'
         </div>
         <br />
         <div>volatility = 0.001</div>
@@ -111,10 +111,10 @@
       <div class="description_item_text">The output is:</div>
       <div class="description_item_text code_blocks">
         <div>Price at time 0: 1000.0</div>
-        <div>Price at time 1: 999.02</div>
-        <div>Price at time 2: 999.77</div>
-        <div>Price at time 3: 1000.21</div>
-        <div>Price at time 4: 998.31</div>
+        <div>Price at time 1: 999.63</div>
+        <div>Price at time 2: 1000.11</div>
+        <div>Price at time 3: 999.79</div>
+        <div>Price at time 4: 1001.23</div>
       </div>
     </div>
   </div>
