@@ -324,6 +324,14 @@ export default defineComponent({
   methods: {
     handleReady() {
       this.showCalculator = false;
+      this.currentInput = 1; // 当前Input
+      this.currentPrice = "1,000.00";
+      this.buyStatus = "buy"; // 买/多 buy  卖/空 sell
+      this.buyNum = "1,000"; // 下注数
+      this.multiple = "1"; // 倍数
+      this.priceChange = null; // 价格变动
+      const { setInitPrice } = useGameStore();
+      setInitPrice(1000);
     },
     handleInput(event: any) {
       let {
