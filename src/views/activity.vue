@@ -71,7 +71,7 @@
           <v-img
             :width="20"
             cover
-            src="@/assets/images/game/icon_rcp.png"
+            src="@/assets/images/game/icon_roller.png"
           ></v-img>
           <span>{{ `${100} - ${Number(10000000).toLocaleString()}` }}</span>
         </div>
@@ -87,6 +87,25 @@
         </div>
       </div>
     </div>
+    <!--房间切换弹窗-->
+    <v-dialog v-model="showTips" width="auto">
+      <div class="switch_box">
+        <div class="switch_text">
+          <span v-if="tipsType == 1">
+            You're too rich, please play in the ADVANCED Room.
+          </span>
+          <span v-else-if="tipsType == 2">
+            Your $RCP balance is not enough to enter this room.
+          </span>
+          <span v-else>
+            Your $ROLLERbalance is not enough to enter this room.
+          </span>
+        </div>
+        <v-btn class="enter_btn" @click="showTips = false">
+          <span class="finished">Close</span>
+        </v-btn>
+      </div>
+    </v-dialog>
   </div>
 </template>
 
@@ -94,6 +113,7 @@
 import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game";
 import { getNumberSessions } from "@/services/api/order.js";
+import { useUserStore } from "@/store/user.js";
 
 interface attendeesInfo {
   countOne: number; //BASIC场次人数
@@ -105,14 +125,45 @@ export default defineComponent({
   data() {
     return {
       attendeesNum: {} as attendeesInfo,
+      showTips: false,
+      tipsType: 1, // 1:新手场提示 2：高级场提示 3：终极场提示
     };
   },
   created() {
     this.fetchNumberSessions();
   },
+  computed: {
+    // 用户信息
+    userInfo() {
+      const { userInfo } = useUserStore();
+      return userInfo;
+    },
+  },
   methods: {
     startGame(event: any) {
-      console.log(event);
+      const {
+        userInfo: { rcpAmount, rctAmount },
+      } = this;
+
+      if (event == "BASIC") {
+        if (Number(rcpAmount) > 100000) {
+          this.tipsType = 1;
+          this.showTips = true;
+          return;
+        }
+      } else if (event == "ADVANCED") {
+        if (Number(rcpAmount) < 10000) {
+          this.tipsType = 2;
+          this.showTips = true;
+          return;
+        }
+      } else {
+        if (Number(rctAmount) < 1) {
+          this.tipsType = 3;
+          this.showTips = true;
+          return;
+        }
+      }
       const { setGameLevel } = useGameStore();
       setGameLevel(event);
       // 开始游戏
@@ -270,6 +321,44 @@ export default defineComponent({
       flex: none;
       margin-right: 4px;
     }
+  }
+}
+
+.switch_box {
+  background-color: #1f212e;
+  box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 16px 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: #fff;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.2;
+
+  .switch_text {
+    margin-bottom: 24px;
+  }
+
+  & > .v-btn {
+    font-size: 14px;
+    border-radius: 8px;
+    color: #fff;
+    margin-top: 12px;
+  }
+
+  .enter_btn {
+    background-color: rgba(255, 232, 26, 1);
+    color: #c8c1c1;
+    font-size: 16px;
+    box-shadow: 0px 5px 5px 0px rgba(242, 9, 9, 0.15) inset;
+  }
+
+  .finished {
+    text-transform: none;
+    letter-spacing: 0;
+    color: #000;
   }
 }
 </style>

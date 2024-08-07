@@ -630,6 +630,24 @@
         </div>
       </div>
     </v-dialog>
+    <!--房间切换弹窗-->
+    <v-dialog v-model="showSwitch" width="auto">
+      <div class="switch_box">
+        <div class="switch_text">
+          <span v-if="switchType == 1"
+            >Congratulations, you have unlocked access to the Advanced</span
+          >
+          <span v-else>
+            Unfortunately, your balance is not available to play at the Advanced
+            Room.
+          </span>
+        </div>
+        <v-btn class="enter_btn" @click="showSwitch = false">
+          <span class="finished" v-if="switchType == 1">ENTER</span>
+          <span class="finished" v-else>BACK TO BASIC</span>
+        </v-btn>
+      </div>
+    </v-dialog>
     <Toast ref="toast" />
     <stopAmount @onStop="fetchOrderData"></stopAmount>
     <tipRules></tipRules>
@@ -744,6 +762,8 @@ export default defineComponent({
       page: 1,
       size: 10,
       showAuto: false,
+      switchType: 2, // 1：升级 2：降级
+      showSwitch: false, // 转场弹窗
     };
   },
   components: {
@@ -755,6 +775,11 @@ export default defineComponent({
     Toast,
   },
   computed: {
+    // 用户信息
+    userInfo() {
+      const { userInfo } = useUserStore();
+      return userInfo;
+    },
     // 是否初始化
     isInit: {
       get() {
@@ -791,6 +816,7 @@ export default defineComponent({
       const { gameLevel } = useGameStore();
       return gameLevel;
     },
+
     // 判断是否可购买
     isBuy() {
       const { buyType, buyNum, buyMultiplier, stopProfit, stopLoss } = this;
@@ -841,15 +867,15 @@ export default defineComponent({
     this.fetchOrderData();
 
     if (this.gameLevel == "BASIC") {
-      this.buyNum = "10,000";
+      this.buyNum = "10";
     }
 
     if (this.gameLevel == "ADVANCED") {
-      this.buyNum = "1,000,000";
+      this.buyNum = "1,000";
     }
 
     if (this.gameLevel == "LEGENDARY") {
-      this.buyNum = "100,000";
+      this.buyNum = "100";
     }
   },
   methods: {
@@ -1550,6 +1576,41 @@ export default defineComponent({
         }
 
         this.chartData = [];
+        this.isInit = false;
+        this.createSSE();
+      }
+    },
+    userInfo(newV) {
+      if (!newV) return;
+
+      if (this.gameLevel == "BASIC") {
+        const { rcpAmount } = newV;
+        console.log(111);
+        if (Number(rcpAmount) > 100000) {
+          this.switchType = 1;
+          this.showSwitch = true;
+          const { setGameLevel } = useGameStore();
+          setGameLevel("LEGENDARY");
+        }
+      } else if (this.gameLevel == "LEGENDARY") {
+        const { rcpAmount } = newV;
+        if (Number(rcpAmount) < 10000) {
+          this.switchType = 2;
+          this.showSwitch = true;
+          const { setGameLevel } = useGameStore();
+          setGameLevel("BASIC");
+        }
+      }
+    },
+    gameLevel(newV, oldV) {
+      if (newV != oldV) {
+        if (this.eventSource) {
+          this.eventSource.close();
+          this.eventSource = null;
+        }
+
+        this.chartData = [];
+        this.isInit = false;
         this.createSSE();
       }
     },
@@ -2561,6 +2622,44 @@ export default defineComponent({
     flex: none;
     margin: 0 auto;
     margin-bottom: 16px;
+  }
+}
+
+.switch_box {
+  background-color: #1f212e;
+  box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 16px 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: #fff;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.2;
+
+  .switch_text {
+    margin-bottom: 24px;
+  }
+
+  & > .v-btn {
+    font-size: 14px;
+    border-radius: 8px;
+    color: #fff;
+    margin-top: 12px;
+  }
+
+  .enter_btn {
+    background-color: rgba(255, 232, 26, 1);
+    color: #c8c1c1;
+    font-size: 16px;
+    box-shadow: 0px 5px 5px 0px rgba(242, 9, 9, 0.15) inset;
+  }
+
+  .finished {
+    text-transform: none;
+    letter-spacing: 0;
+    color: #000;
   }
 }
 </style>
