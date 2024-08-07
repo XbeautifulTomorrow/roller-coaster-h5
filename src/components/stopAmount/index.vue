@@ -8,12 +8,15 @@
             <v-text-field
               label=""
               v-model="stopProfit.price"
-              type="number"
               bg-color="rgba(0,0,0,0)"
               color="#fff"
               variant="plain"
               hide-details="auto"
-              @focus="stopProfit.isPrice = true"
+              @input="handleInput"
+              @focus="
+                stopProfit.isPrice = true;
+                currentInput = 1;
+              "
               placeholder="Price"
             ></v-text-field>
             <div class="profit_input_box up">
@@ -21,13 +24,16 @@
               <v-text-field
                 label=""
                 v-model="stopProfit.profit"
-                type="number"
                 bg-color="rgba(0,0,0,0)"
                 base-color=""
                 color="#fff"
                 variant="plain"
                 hide-details="auto"
-                @focus="stopProfit.isPrice = false"
+                @input="handleInput"
+                @focus="
+                  stopProfit.isPrice = false;
+                  currentInput = 2;
+                "
                 placeholder="Profit"
               ></v-text-field>
             </div>
@@ -42,12 +48,15 @@
             <v-text-field
               label=""
               v-model="stopLoss.price"
-              type="number"
               bg-color="rgba(0,0,0,0)"
               color="#fff"
               variant="plain"
               hide-details="auto"
-              @focus="stopLoss.isPrice = true"
+              @input="handleInput"
+              @focus="
+                stopLoss.isPrice = true;
+                currentInput = 3;
+              "
               placeholder="Price"
             ></v-text-field>
             <div class="profit_input_box down">
@@ -55,13 +64,16 @@
               <v-text-field
                 label=""
                 v-model="stopLoss.profit"
-                type="number"
                 bg-color="rgba(0,0,0,0)"
                 base-color=""
                 color="#fff"
                 variant="plain"
                 hide-details="auto"
-                @focus="stopLoss.isPrice = false"
+                @input="handleInput"
+                @focus="
+                  stopLoss.isPrice = false;
+                  currentInput = 4;
+                "
                 placeholder="Profit"
               ></v-text-field>
             </div>
@@ -95,21 +107,27 @@ import { setOrder } from "@/services/api/order.js";
 export default defineComponent({
   data() {
     return {
+      currentInput: 1, // 当前Input
       stopProfit: {
         isPrice: false, // 是否价格
-        price: null as number | any, // 价格
-        profit: null as number | any, // 收益
+        price: "" as string | any, // 价格
+        profit: "" as string | any, // 收益
         isError: false, // 阈值是否正确
       }, // 止盈
       stopLoss: {
         isPrice: false, // 是否价格
-        price: null as number | any, // 价格
-        profit: null as number | any, // 收益
+        price: "" as string | any, // 价格
+        profit: "" as string | any, // 收益
         isError: false, // 阈值是否正确
       }, // 止损
     };
   },
   computed: {
+    // 当前房间
+    gameLevel() {
+      const { gameLevel } = useGameStore();
+      return gameLevel;
+    },
     showStop: {
       get() {
         const { showStop } = useGameStore();
@@ -130,11 +148,21 @@ export default defineComponent({
       const { stopProfit, stopLoss } = this;
       let isBuy = true;
 
-      if (!stopProfit.price || !stopLoss.price) {
+      if (
+        !stopProfit.price ||
+        !stopLoss.price ||
+        stopProfit.isError ||
+        stopLoss.isError
+      ) {
         isBuy = false;
       }
 
-      if (!stopProfit.profit || !stopLoss.profit) {
+      if (
+        !stopProfit.profit ||
+        !stopLoss.profit ||
+        stopProfit.isError ||
+        stopLoss.isError
+      ) {
         isBuy = false;
       }
 
@@ -144,6 +172,66 @@ export default defineComponent({
   methods: {
     handleReady() {
       this.showStop = false;
+    },
+    handleInput(event: any) {
+      let {
+          target: { _value },
+        } = event,
+        isDecimal = false;
+
+      if (!_value) return;
+
+      // 去除非数字字符
+      let value = _value.replace(/[^-\d.]/g, "");
+      // 分割整数和小数部分
+      let parts = value.split(".");
+      // 处理整数部分添加逗号
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      // 拼接整数和小数部分
+      if (parts[1]) {
+        isDecimal = true;
+      } else {
+        isDecimal = false;
+      }
+
+      // 更新输入框的值
+      if (this.currentInput == 1) {
+        if (isDecimal) {
+          parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
+          this.stopProfit.price = parts.join(".");
+        } else {
+          this.stopProfit.price = parts.join(".");
+        }
+      } else if (this.currentInput == 2) {
+        if (this.gameLevel != "LEGENDARY") {
+          this.stopProfit.profit = parts[0];
+        } else {
+          if (isDecimal) {
+            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
+            this.stopProfit.profit = parts.join(".");
+          } else {
+            this.stopProfit.profit = parts.join(".");
+          }
+        }
+      } else if (this.currentInput == 3) {
+        if (isDecimal) {
+          parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
+          this.stopLoss.price = parts.join(".");
+        } else {
+          this.stopLoss.price = parts.join(".");
+        }
+      } else if (this.currentInput == 4) {
+        if (this.gameLevel != "LEGENDARY") {
+          this.stopLoss.profit = parts[0];
+        } else {
+          if (isDecimal) {
+            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
+            this.stopLoss.profit = parts.join(".");
+          } else {
+            this.stopLoss.profit = parts.join(".");
+          }
+        }
+      }
     },
     // 计算止盈止损收益
     handleStopProfit(num: any, type: string) {
@@ -197,19 +285,19 @@ export default defineComponent({
      * @param {number} isFee - 是否有服务费
      * @returns {number} 返回计算后的卖出价格。
      */
-    getSellPrice(profit: number, isFee: boolean) {
+    getSellPrice(profit: number | string, isFee: boolean) {
       const { price, amount, multiplier } = this.buyInfo;
       if (isFee) {
-        profit = Number(new bigNumber(profit).multipliedBy(1.05));
+        profit = Number(new bigNumber(profit || 0).multipliedBy(1.05));
       }
 
       // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
       const multiplierNum = new bigNumber(multiplier).multipliedBy(amount);
-      const sellPrice = new bigNumber(profit)
+      const sellPrice = new bigNumber(profit || 0)
         .dividedBy(multiplierNum)
         .multipliedBy(price)
         .plus(price);
-      return accurateDecimal(sellPrice, 2);
+      return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString();
     },
     async handleSubmit() {
       const {
@@ -219,8 +307,8 @@ export default defineComponent({
       } = this;
       const res = await setOrder({
         id: id,
-        profit: stopProfit.profit,
-        loss: stopLoss.profit,
+        profit: this.removeTxt(stopProfit.profit),
+        loss: this.removeTxt(stopLoss.profit),
       });
       if (res.code == 200) {
         this.$emit("onStop");
@@ -237,10 +325,10 @@ export default defineComponent({
 
       if (price || profit) {
         const threshold = new bigNumber(amount).multipliedBy(0.1).toNumber();
-        if (Number(profit) >= threshold) {
-          this.stopProfit.isError = false;
-        } else {
+        if (Number(profit) < threshold) {
           this.stopProfit.isError = true;
+        } else {
+          this.stopProfit.isError = false;
         }
       } else {
         this.stopProfit.isError = false;
@@ -263,6 +351,10 @@ export default defineComponent({
       } else {
         this.stopLoss.isError = false;
       }
+    },
+    // 删除指定字符串
+    removeTxt(event: string, type = ",") {
+      return String(event).replace(new RegExp(type, "g"), "");
     },
   },
   watch: {
@@ -301,26 +393,26 @@ export default defineComponent({
     },
     "stopProfit.price"(newV: any) {
       if (!this.stopProfit.isPrice || !this.buyInfo) return;
-      this.handleStopProfit(newV, "profit");
+      this.handleStopProfit(this.removeTxt(newV), "profit");
 
       this.verifyProfit();
     },
     "stopProfit.profit"(newV: any) {
       if (this.stopProfit.isPrice || !this.buyInfo) return;
-      this.stopProfit.price = this.getSellPrice(newV, true);
+      this.stopProfit.price = this.getSellPrice(this.removeTxt(newV), true);
 
       this.verifyProfit();
     },
     "stopLoss.price"(newV: any) {
       if (!this.stopLoss.isPrice || !this.buyInfo) return;
-      this.handleStopProfit(newV, "loss");
+      this.handleStopProfit(this.removeTxt(newV), "loss");
 
       this.verifyLoss();
     },
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice || !this.buyInfo) return;
       if (newV > 0 && newV <= this.buyInfo.amount) {
-        this.stopLoss.price = this.getSellPrice(-newV, false);
+        this.stopLoss.price = this.getSellPrice(-this.removeTxt(newV), false);
       } else {
         this.stopLoss.price = null;
       }
@@ -375,6 +467,7 @@ export default defineComponent({
   position: relative;
 
   & > div {
+    flex: 1;
     max-width: calc(50% - 2px);
   }
 

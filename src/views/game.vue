@@ -156,18 +156,32 @@
             </div>
             <div class="order_data_info">
               <div class="title">ENTRY PRICE</div>
-              <div class="val">{{ Number(item.price).toLocaleString() }}</div>
+              <div class="val">
+                {{
+                  Number(item.price).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })
+                }}
+              </div>
             </div>
             <div class="order_data_info" v-if="orderType == 0">
               <div class="title">BUST PRICE</div>
               <div class="val">
-                {{ Number(item.ebustPrice || 0).toLocaleString() }}
+                {{
+                  Number(item.ebustPrice || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })
+                }}
               </div>
             </div>
             <div class="order_data_info" v-if="orderType != 0">
               <div class="title">EXIT PRICE</div>
               <div class="val">
-                {{ Number(item.exitPrice).toLocaleString() }}
+                {{
+                  Number(item.exitPrice).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })
+                }}
               </div>
             </div>
             <div class="order_data_info">
@@ -350,7 +364,13 @@
               </div>
               <div class="bust_price">
                 <div>Bust Price:</div>
-                <div class="bust_val">{{ EbustPrice }}</div>
+                <div class="bust_val">
+                  {{
+                    Number(EbustPrice).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })
+                  }}
+                </div>
               </div>
             </div>
           </div>
@@ -480,7 +500,13 @@
                   </div>
                   <div class="bust_price">
                     <div>Bust Price:</div>
-                    <div class="bust_val">{{ EbustPrice }}</div>
+                    <div class="bust_val">
+                      {{
+                        Number(EbustPrice).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })
+                      }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1149,8 +1175,8 @@ export default defineComponent({
       };
 
       if (this.buyType == "AUTO") {
-        params.profit = this.stopProfit.profit;
-        params.loss = this.stopLoss.profit;
+        params.profit = this.removeTxt(this.stopProfit.profit);
+        params.loss = this.removeTxt(this.stopLoss.profit);
       }
 
       const res = await addOrder(params);
@@ -1371,18 +1397,22 @@ export default defineComponent({
     getSellPrice(profit: number | string, isFee: boolean) {
       const { currentPrice, buyNum, buyMultiplier, removeTxt } = this;
       if (isFee) {
-        profit = Number(new bigNumber(profit).multipliedBy(1.05));
+        profit = Number(new bigNumber(profit || 0).multipliedBy(1.05));
       }
       // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
       const multiplierNum = new bigNumber(
         removeTxt(buyMultiplier)
       ).multipliedBy(removeTxt(buyNum));
-      const sellPrice = new bigNumber(profit)
+      const sellPrice = new bigNumber(profit || 0)
         .dividedBy(multiplierNum)
         .multipliedBy(currentPrice)
-        .plus(currentPrice);
-
-      return Number(accurateDecimal(sellPrice, 2)).toLocaleString();
+        .plus(currentPrice)
+        .toNumber();
+      console.log();
+      return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString(
+        undefined,
+        { minimumFractionDigits: 2 }
+      );
     },
     // 计算止盈止损价格
     handleStopProfit(num: any, type: string) {
@@ -1400,7 +1430,11 @@ export default defineComponent({
         );
 
         this.stopProfit.profit =
-          profit > 0 ? Number(profit).toLocaleString() : null;
+          profit > 0
+            ? Number(profit).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })
+            : null;
       } else {
         const profit = this.getProfit(
           this.buyStatus,
@@ -1415,8 +1449,12 @@ export default defineComponent({
         if (loss) {
           this.stopLoss.profit =
             Number(loss) > buyNumber
-              ? buyNumber.toLocaleString()
-              : Number(loss).toLocaleString();
+              ? buyNumber.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })
+              : Number(loss).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                });
         } else {
           this.stopLoss.profit = null;
         }
@@ -1550,6 +1588,10 @@ export default defineComponent({
               true
             );
             this.verifyProfit();
+          } else {
+            if (this.stopProfit.price) {
+              this.stopProfit.price = null;
+            }
           }
         }
 
@@ -1566,83 +1608,15 @@ export default defineComponent({
               false
             );
             this.verifyLoss();
+          } else {
+            if (this.stopLoss.price) {
+              this.stopLoss.price = null;
+            }
           }
         }
       }
 
       this.$forceUpdate();
-    },
-    buyStatus(newV, oldV) {
-      if (this.buyType != "AUTO") return;
-      const { removeTxt } = this;
-
-      if (this.stopProfit.isPrice) {
-        // 价格为准止盈
-        if (this.stopProfit.price) {
-          this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
-          this.verifyProfit();
-        }
-      } else {
-        if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(
-            removeTxt(this.stopProfit.profit),
-            true
-          );
-          this.verifyProfit();
-        }
-      }
-
-      if (this.stopLoss.isPrice) {
-        // 价格为准止损
-        if (this.stopLoss.price) {
-          this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
-          this.verifyLoss();
-        }
-      } else {
-        if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(
-            -removeTxt(this.stopLoss.profit),
-            false
-          );
-          this.verifyLoss();
-        }
-      }
-    },
-    buyNum(newV, oldV) {
-      if (this.buyType != "AUTO") return;
-      const { removeTxt } = this;
-
-      if (this.stopProfit.isPrice) {
-        // 价格为准止盈
-        if (this.stopProfit.price) {
-          this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
-          this.verifyProfit();
-        }
-      } else {
-        if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(
-            removeTxt(this.stopProfit.profit),
-            true
-          );
-          this.verifyProfit();
-        }
-      }
-
-      if (this.stopLoss.isPrice) {
-        // 价格为准止损
-        if (this.stopLoss.price) {
-          this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
-          this.verifyLoss();
-        }
-      } else {
-        if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(
-            -removeTxt(this.stopLoss.profit),
-            false
-          );
-          this.verifyLoss();
-        }
-      }
     },
     multipleNum(newV, oldV) {
       if (this.isSlider) {
@@ -1652,41 +1626,6 @@ export default defineComponent({
     buyMultiplier(newV, oldV) {
       if (!this.isSlider) {
         this.multipleNum = this.removeTxt(newV);
-      }
-
-      if (this.buyType != "AUTO") return;
-      const { removeTxt } = this;
-
-      if (this.stopProfit.isPrice) {
-        // 价格为准止盈
-        if (this.stopProfit.price) {
-          this.handleStopProfit(removeTxt(this.stopProfit.price), "profit");
-          this.verifyProfit();
-        }
-      } else {
-        if (this.stopProfit.profit) {
-          this.stopProfit.price = this.getSellPrice(
-            removeTxt(this.stopProfit.profit),
-            true
-          );
-          this.verifyProfit();
-        }
-      }
-
-      if (this.stopLoss.isPrice) {
-        // 价格为准止损
-        if (this.stopLoss.price) {
-          this.handleStopProfit(removeTxt(this.stopLoss.price), "loss");
-          this.verifyLoss();
-        }
-      } else {
-        if (this.stopLoss.profit) {
-          this.stopLoss.price = this.getSellPrice(
-            -removeTxt(this.stopLoss.profit),
-            false
-          );
-          this.verifyLoss();
-        }
       }
     },
     "stopProfit.price"(newV: any) {
@@ -1710,7 +1649,10 @@ export default defineComponent({
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice) return;
       if (newV > 0 && newV <= this.buyNum) {
-        this.stopLoss.price = this.getSellPrice(-this.removeTxt(newV), true);
+        this.stopLoss.price = this.getSellPrice(
+          -Number(this.removeTxt(newV)),
+          true
+        );
       } else {
         this.stopLoss.price = null;
       }
