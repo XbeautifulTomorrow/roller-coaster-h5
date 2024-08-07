@@ -700,7 +700,7 @@ import CandlestickChart from "@/components/charts/CandlestickChart.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { accurateDecimal, unitConversion } from "@/utils";
+import { accurateDecimal, unitConversion, isEmpty } from "@/utils";
 import {
   addOrder,
   getOrderData,
@@ -840,7 +840,7 @@ export default defineComponent({
     EbustPrice() {
       const { currentPrice, buyStatus, buyMultiplier, removeTxt } = this;
 
-      if (!currentPrice || !buyMultiplier) return "-";
+      if (isEmpty(currentPrice) || isEmpty(buyMultiplier)) return "-";
       return this.handleEbust(
         currentPrice,
         buyStatus,
@@ -863,7 +863,7 @@ export default defineComponent({
       let isBuy = true;
 
       // 检查 buyNum 和 buyMultiplier 是否存在
-      if (!buyNum || !buyMultiplier) {
+      if (isEmpty(buyNum) || isEmpty(buyMultiplier)) {
         isBuy = false;
       }
 
@@ -1157,7 +1157,7 @@ export default defineComponent({
         } = event,
         isDecimal = false;
 
-      if (!_value) return;
+      if (isEmpty(_value)) return;
 
       // 去除非数字字符
       let value = _value.replace(/[^\d.]/g, "");
