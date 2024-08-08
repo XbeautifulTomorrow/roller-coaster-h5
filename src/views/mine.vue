@@ -159,7 +159,7 @@
               cover
               src="@/assets/images/game/icon_roller.png"
             ></v-img>
-            <span class="coin_name">$ROLLER</span>
+            <span class="coin_name">$RCT</span>
           </div>
           <div class="amount">
             {{ Number(userInfo.rctAmount).toLocaleString() }}

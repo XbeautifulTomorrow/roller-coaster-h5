@@ -39,7 +39,7 @@
               cover
               src="@/assets/images/game/icon_roller.png"
             ></v-img>
-            <span>${{ coinName == "RCP" ? "RCP" : "ROLLER" }}</span>
+            <span>${{ coinName == "RCP" ? "RCP" : "RCT" }}</span>
           </div>
           <v-text-field
             v-model="fromAmount"
@@ -81,7 +81,7 @@
               cover
               src="@/assets/images/game/icon_roller.png"
             ></v-img>
-            <span>${{ coinName != "RCP" ? "RCP" : "ROLLER" }}</span>
+            <span>${{ coinName != "RCP" ? "RCP" : "RCT" }}</span>
           </div>
           <v-text-field
             v-model="toAmount"
@@ -95,7 +95,7 @@
           <div class="unit" v-if="coinName != 'RCP'">M</div>
         </div>
       </div>
-      <div class="tips_text">1$ROLLER=10,000$RCP</div>
+      <div class="tips_text">1$RCT=10,000$RCP</div>
     </div>
     <div class="swap_buttons">
       <v-btn

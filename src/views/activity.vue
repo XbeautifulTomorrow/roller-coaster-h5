@@ -98,7 +98,7 @@
             Your $RCP balance is not enough to enter this room.
           </span>
           <span v-else>
-            Your $ROLLERbalance is not enough to enter this room.
+            Your $RCT balance is not enough to enter this room.
           </span>
         </div>
         <v-btn class="enter_btn" @click="showTips = false">

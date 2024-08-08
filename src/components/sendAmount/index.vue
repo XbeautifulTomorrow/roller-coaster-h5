@@ -56,7 +56,7 @@
               <div class="multiply_btn">x100</div>
             </div>
             <div v-if="isAmountError" class="error_box">
-              $ROLLER is not enough.
+              $RCT is not enough.
             </div>
           </div>
         </div>
