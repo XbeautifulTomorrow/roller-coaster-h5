@@ -2,7 +2,7 @@
   <div class="earn_wrapper">
     <div class="gift_box">
       <v-img :width="160" cover src="@/assets/images/earn/gift.png"></v-img>
-      <div class="description_text">Earn More $GMC</div>
+      <div class="description_text">Earn More $RCP</div>
     </div>
     <div class="task_panel">
       <div class="task_title">Daily Task</div>
