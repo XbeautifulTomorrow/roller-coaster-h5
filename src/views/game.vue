@@ -33,11 +33,11 @@
           <span>{{ `ROUND ENDS IN:10:10:10` }}</span>
         </div>
       </div>
-      <!-- <div class="chart_type" @click.stop="showType = !showType">
+      <div class="chart_type" v-if="false" @click.stop="showType = !showType">
         <span>{{ currentType }}</span>
         <v-icon icon="mdi-chevron-down" size="14"></v-icon>
-      </div> -->
-      <!-- <div class="chart_type_items" v-show="showType">
+      </div>
+      <div class="chart_type_items" v-show="showType">
         <div
           :class="['type_item', sseType == item.val && 'active']"
           v-for="(item, index) in typeDrop"
@@ -46,7 +46,7 @@
         >
           {{ item.text }}
         </div>
-      </div> -->
+      </div>
     </div>
     <div class="chart_box">
       <div class="chart_mask"></div>
@@ -419,7 +419,6 @@
         </div>
       </div>
     </div>
-    <!--Auto弹窗-->
     <v-dialog
       v-model="showAuto"
       class="dialog_panel"
@@ -668,8 +667,7 @@
         </div>
       </div>
     </v-dialog>
-    <!--房间切换弹窗-->
-    <v-dialog v-model="showSwitch" width="auto">
+    <v-dialog v-model="showSwitch" width="auto" persistent>
       <div class="switch_box">
         <div class="switch_text">
           <span v-if="switchType == 1"
@@ -680,7 +678,7 @@
             Room.
           </span>
         </div>
-        <v-btn class="enter_btn" @click="showSwitch = false">
+        <v-btn class="enter_btn" @click="handleSwitchClose()">
           <span class="finished" v-if="switchType == 1">ENTER</span>
           <span class="finished" v-else>BACK TO BASIC</span>
         </v-btn>
@@ -1605,6 +1603,16 @@ export default defineComponent({
       setInitPrice(this.currentPrice);
       this.showCalculator = true;
     },
+    // 关闭切换
+    handleSwitchClose() {
+      this.showSwitch = false;
+      const { setGameLevel } = useGameStore();
+      if (this.switchType == 1) {
+        setGameLevel("LEGENDARY");
+      } else {
+        setGameLevel("BASIC");
+      }
+    },
     // 格式化收益
     formatIncome(income: number) {
       if (Math.abs(income || 0) < 1000) {
@@ -1649,16 +1657,12 @@ export default defineComponent({
         if (Number(rcpAmount) > 100000) {
           this.switchType = 1;
           this.showSwitch = true;
-          const { setGameLevel } = useGameStore();
-          setGameLevel("LEGENDARY");
         }
       } else if (this.gameLevel == "LEGENDARY") {
         const { rcpAmount } = newV;
         if (Number(rcpAmount) < 10000) {
           this.switchType = 2;
           this.showSwitch = true;
-          const { setGameLevel } = useGameStore();
-          setGameLevel("BASIC");
         }
       }
     },

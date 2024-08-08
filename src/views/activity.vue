@@ -87,7 +87,6 @@
         </div>
       </div>
     </div>
-    <!--房间切换弹窗-->
     <v-dialog v-model="showTips" width="auto">
       <div class="switch_box">
         <div class="switch_text">
