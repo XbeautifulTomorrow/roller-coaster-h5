@@ -989,7 +989,6 @@ export default defineComponent({
 
         this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
           try {
-            this.fetchOrderData();
           } catch (error) {
             console.log(e);
             console.log(error);

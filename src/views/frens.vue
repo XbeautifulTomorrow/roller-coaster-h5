@@ -9,7 +9,9 @@
             cover
             src="@/assets/images/game/icon_rcp.png"
           ></v-img>
-          <div>{{ Number(userInfo?.totalRcpAmount).toLocaleString() }}</div>
+          <div>
+            {{ Number(Math.floor(userInfo?.totalRcpAmount)).toLocaleString() }}
+          </div>
         </div>
         <div class="amount_box">
           <v-img
@@ -17,7 +19,9 @@
             cover
             src="@/assets/images/game/icon_roller.png"
           ></v-img>
-          <div>{{ Number(userInfo?.totalRctAmount).toLocaleString() }}</div>
+          <div>
+            {{ Number(Math.floor(userInfo?.totalRctAmount)).toLocaleString() }}
+          </div>
         </div>
       </div>
       <div class="invitation_ranking" @click="toRanking()">

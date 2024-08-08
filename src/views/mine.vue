@@ -16,18 +16,22 @@
       </div>
     </div>
     <div class="level_box">
-      <v-slider
-        v-model="currentExp"
-        :min="1"
-        :max="levelData.upgradeAmount"
-        :step="1"
-        hide-details="auto"
-        thumb-size="0"
-        thumb-color="#fff"
-        track-size="8"
-        readonly
-        track-fill-color="#e5a480"
-      ></v-slider>
+      <div class="level_slider">
+        <div class="level_slider_bg"></div>
+        <v-slider
+          v-if="!upLoading"
+          v-model="currentExp"
+          :min="1"
+          :max="levelData.upgradeAmount"
+          :step="1"
+          hide-details="auto"
+          thumb-size="0"
+          thumb-color="#fff"
+          track-size="8"
+          readonly
+          track-fill-color="#e5a480"
+        ></v-slider>
+      </div>
       <div class="level_panel">
         <div class="level_info">
           <div class="current_level">{{ levelData.name }}</div>
@@ -43,7 +47,7 @@
               </span>
               <v-img
                 :width="12"
-                v-if="levelData.level < 16"
+                v-if="levelData.coinName == 'RCP'"
                 cover
                 src="@/assets/images/game/icon_rcp.png"
               ></v-img>
@@ -208,7 +212,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { useMessageStore } from "@/store/message.js";
 import { onCopy } from "@/utils";
 
 import { getLevelDetails, levelUpgrade } from "@/services/api/user.js";
@@ -249,7 +252,7 @@ export default defineComponent({
         levelData: { rcpAmount, rctAmount, level },
       } = this;
 
-      if (level < 16) {
+      if (level < 15) {
         return rcpAmount;
       }
 
@@ -264,21 +267,23 @@ export default defineComponent({
       const res = await getLevelDetails({});
       if (res.code === 200) {
         this.levelData = res.data;
+        console.log(222);
       }
     },
     async levelUp() {
-      const { setMessageText } = useMessageStore();
-
       this.upLoading = true;
       const res = await levelUpgrade({});
 
       this.upLoading = false;
 
       if (res.code == 200) {
-        setMessageText("Upgrade successful");
-        const userStore = useUserStore();
-        userStore.fetchUserInfo();
-        this.fetchLevelDetails();
+        this.levelData.rcpAmount = 0;
+        this.levelData.rctAmount = 0;
+        setTimeout(() => {
+          const userStore = useUserStore();
+          userStore.fetchUserInfo();
+          this.fetchLevelDetails();
+        }, 100);
       }
     },
     toSwap() {
@@ -356,6 +361,24 @@ export default defineComponent({
 
 .level_box {
   margin-top: 16px;
+
+  .level_slider {
+    width: 100%;
+    height: 32px;
+    position: relative;
+
+    .level_slider_bg {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 8px;
+      width: calc(100% - 16px);
+      margin: 0 8px;
+      border-radius: 4px;
+      background-color: #424242;
+      box-sizing: border-box;
+    }
+  }
 }
 
 .level_panel {
