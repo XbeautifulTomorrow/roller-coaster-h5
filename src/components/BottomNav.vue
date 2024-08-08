@@ -182,6 +182,7 @@ export default defineComponent({
     width: 10px;
     height: 10px;
     background-color: red;
+    border: 2px solid #fff;
     border-radius: 50%;
   }
 }

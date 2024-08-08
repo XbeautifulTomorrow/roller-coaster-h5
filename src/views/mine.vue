@@ -136,6 +136,7 @@
       density="compact"
       @click.stop="levelUp()"
       variant="text"
+      :disabled="!userInfo.isUpgrade"
     >
       <div class="finished">
         <v-img
@@ -144,8 +145,7 @@
           src="@/assets/images/svg/main/icon_award.svg"
         ></v-img>
         <span>Level Up</span>
-
-        <div class="dot"></div>
+        <div class="dot" v-if="userInfo.isUpgrade"></div>
       </div>
     </v-btn>
     <div class="wallet_panel">
@@ -564,8 +564,8 @@ export default defineComponent({
 
   .dot {
     position: absolute;
-    top: 0;
-    right: -8px;
+    top: -4px;
+    right: -12px;
     width: 10px;
     height: 10px;
     background-color: red;
