@@ -382,7 +382,7 @@ export default defineComponent({
           }
         }
       } else if (this.currentInput == 3) {
-        this.multiple = parts[0];
+        this.multiple = Number(value) >= 1000 ? "1,000" : parts[0];
       } else if (this.currentInput == 4) {
         if (isDecimal) {
           parts[1] = parts[1].length > 4 ? parts[1].substring(0, 4) : parts[1];
