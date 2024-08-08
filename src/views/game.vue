@@ -30,7 +30,15 @@
             cover
             src="@/assets/images/svg/game/remind.svg"
           ></v-img>
-          <span>{{ `ROUND ENDS IN:10:10:10` }}</span>
+          <countDown
+            v-slot="timeObj"
+            @onEnd="getNextDayMidnight()"
+            :time="nextDayTime"
+          >
+            <span>
+              {{ `ROUND ENDS IN:${timeObj.hh}:${timeObj.mm}:${timeObj.ss}` }}
+            </span>
+          </countDown>
         </div>
       </div>
       <div class="chart_type" v-if="false" @click.stop="showType = !showType">
@@ -695,6 +703,7 @@
 import { EventSourcePolyfill } from "event-source-polyfill";
 import LineChart from "@/components/charts/LineChart.vue";
 import CandlestickChart from "@/components/charts/CandlestickChart.vue";
+import countDown from "@/components/countDown/index.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
@@ -751,6 +760,7 @@ export default defineComponent({
   data() {
     return {
       sseType: "ms500",
+      nextDayTime: "",
       eventSource: null as any,
       coinName: "RCP",
       currentPrice: 1000 as number | any,
@@ -810,6 +820,7 @@ export default defineComponent({
     tipRules,
     profitCalculator,
     Toast,
+    countDown,
   },
   computed: {
     // 用户信息
@@ -904,6 +915,7 @@ export default defineComponent({
   },
   created() {
     this.createSSE();
+    this.getNextDayMidnight();
     this.fetchOrderData();
 
     if (this.gameLevel == "BASIC") {
@@ -1267,19 +1279,23 @@ export default defineComponent({
       if (res.code == 200) {
         this.showToast({ ...res.data, tipsType: 1 });
 
-        this.fetchOrderData();
+        if (this.orderType != 2) {
+          this.fetchOrderData();
+        }
+
         // 更新余额
         const user = useUserStore();
-
         user.fetchUserInfo();
 
         this.showAuto = false;
+
         this.stopProfit = {
           isPrice: true, // 是否价格
           price: "", // 价格
           profit: "", // 收益
           isError: false, // 阈值是否正确
         }; // 止盈
+
         this.stopLoss = {
           isPrice: true, // 是否价格
           price: "", // 价格
@@ -1387,6 +1403,8 @@ export default defineComponent({
     },
     // 加载更多
     nextQuery() {
+      if (this.orderType == 2) return;
+
       this.page++;
       this.fetchOrderData(2, false);
     },
@@ -1626,6 +1644,15 @@ export default defineComponent({
     // 删除指定字符串
     removeTxt(event: string, type = ",") {
       return String(event).replace(new RegExp(type, "g"), "");
+    },
+    // 获取明天的午夜时间
+    getNextDayMidnight() {
+      const { currentTime } = useUserStore();
+
+      var nextDay = new Date(currentTime);
+      nextDay.setDate(nextDay.getDate() + 1); // 增加一天
+      nextDay.setHours(0, 0, 0, 0); // 将时间设置为午夜（0点）
+      this.nextDayTime = nextDay.toUTCString();
     },
   },
   mounted() {
