@@ -114,7 +114,7 @@
             ></v-img>
             <span>
               {{
-                `Max $RCT Entry: $${Number(
+                `Max $RCT Entry: ${Number(
                   levelData.rctMaxAmount
                 ).toLocaleString()}`
               }}
