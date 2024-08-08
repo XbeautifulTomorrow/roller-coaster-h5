@@ -17,15 +17,17 @@
         slim
         min-width="0"
       >
-        <v-img
-          :width="30"
-          :class="['nav_img', activeItem == 'play' && 'active']"
-          cover
-          src="@/assets/images/svg/tabr/play.svg"
-        ></v-img>
-        <span :class="['btn_text', activeItem == 'play' && 'active']"
-          >Play</span
-        >
+        <div class="btn_box">
+          <v-img
+            :width="30"
+            :class="['nav_img', activeItem == 'play' && 'active']"
+            cover
+            src="@/assets/images/svg/tabr/play.svg"
+          ></v-img>
+          <span :class="['btn_text', activeItem == 'play' && 'active']">
+            Play
+          </span>
+        </div>
       </v-btn>
       <v-btn
         value="earn"
@@ -34,15 +36,17 @@
         slim
         min-width="0"
       >
-        <v-img
-          :width="30"
-          :class="['nav_img', activeItem == 'earn' && 'active']"
-          cover
-          src="@/assets/images/svg/tabr/earn.svg"
-        ></v-img>
-        <span :class="['btn_text', activeItem == 'earn' && 'active']"
-          >Earn</span
-        >
+        <div class="btn_box">
+          <v-img
+            :width="30"
+            :class="['nav_img', activeItem == 'earn' && 'active']"
+            cover
+            src="@/assets/images/svg/tabr/earn.svg"
+          ></v-img>
+          <span :class="['btn_text', activeItem == 'earn' && 'active']">
+            Earn
+          </span>
+        </div>
       </v-btn>
       <v-btn
         value="frens"
@@ -51,15 +55,17 @@
         slim
         min-width="0"
       >
-        <v-img
-          :width="30"
-          :class="['nav_img', activeItem == 'frens' && 'active']"
-          cover
-          src="@/assets/images/svg/tabr/frens.svg"
-        ></v-img>
-        <span :class="['btn_text', activeItem == 'frens' && 'active']"
-          >Frens</span
-        >
+        <div class="btn_box">
+          <v-img
+            :width="30"
+            :class="['nav_img', activeItem == 'frens' && 'active']"
+            cover
+            src="@/assets/images/svg/tabr/frens.svg"
+          ></v-img>
+          <span :class="['btn_text', activeItem == 'frens' && 'active']">
+            Frens
+          </span>
+        </div>
       </v-btn>
       <v-btn
         value="wallet"
@@ -68,15 +74,18 @@
         slim
         min-width="0"
       >
-        <v-img
-          :width="30"
-          :class="['nav_img', activeItem == 'wallet' && 'active']"
-          cover
-          src="@/assets/images/svg/tabr/wallet.svg"
-        ></v-img>
-        <span :class="['btn_text', activeItem == 'wallet' && 'active']"
-          >Wallet</span
-        >
+        <div class="btn_box">
+          <v-img
+            :width="30"
+            :class="['nav_img', activeItem == 'wallet' && 'active']"
+            cover
+            src="@/assets/images/svg/tabr/wallet.svg"
+          ></v-img>
+          <span :class="['btn_text', activeItem == 'wallet' && 'active']">
+            Wallet
+          </span>
+          <div class="dot" v-if="userInfo.isUpgrade"></div>
+        </div>
       </v-btn>
       <!-- <v-btn
         value="airdrop"
@@ -100,6 +109,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useUserStore } from "@/store/user.js";
 
 // 没有导航按钮的页面
 const notNav = ["/", "/earn", "/frens", "/wallet"] as Array<string>;
@@ -110,6 +120,12 @@ export default defineComponent({
       activeItem: "play",
       activeNav: true,
     };
+  },
+  computed: {
+    userInfo() {
+      const { userInfo } = useUserStore();
+      return userInfo;
+    },
   },
   methods: {},
   watch: {
@@ -146,6 +162,27 @@ export default defineComponent({
   &.active {
     color: #ea980a;
     font-weight: bold;
+  }
+}
+
+.btn_box {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+
+  .v-img {
+    flex: none;
+  }
+
+  .dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
   }
 }
 </style>
