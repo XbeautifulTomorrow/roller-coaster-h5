@@ -136,7 +136,6 @@
       density="compact"
       @click.stop="levelUp()"
       variant="text"
-      :disabled="!userInfo.isUpgrade"
     >
       <div class="finished">
         <v-img
@@ -145,6 +144,8 @@
           src="@/assets/images/svg/main/icon_award.svg"
         ></v-img>
         <span>Level Up</span>
+
+        <div class="dot"></div>
       </div>
     </v-btn>
     <div class="wallet_panel">
@@ -208,7 +209,6 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { useMessageStore } from "@/store/message.js";
-import bigNumber from "bignumber.js";
 import { onCopy } from "@/utils";
 
 import { getLevelDetails, levelUpgrade } from "@/services/api/user.js";
@@ -250,11 +250,7 @@ export default defineComponent({
       } = this;
 
       if (level < 16) {
-        const expNum = new bigNumber(rctAmount)
-          .multipliedBy(10000)
-          .plus(rcpAmount);
-
-        return Number(expNum);
+        return rcpAmount;
       }
 
       return rctAmount;
@@ -550,16 +546,32 @@ export default defineComponent({
 }
 
 .finished {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   text-transform: none;
   letter-spacing: 0;
   font-size: 16px;
   font-weight: bold;
+  position: relative;
 
   .v-img {
     flex: none;
     margin-right: 4px;
+  }
+
+  .dot {
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-sizing: border-box;
   }
 }
 

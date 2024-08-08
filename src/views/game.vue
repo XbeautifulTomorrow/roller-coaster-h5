@@ -1003,7 +1003,9 @@ export default defineComponent({
             console.log(e);
             console.log(error);
           } finally {
-            this.fetchOrderData();
+            if (this.orderType != 2) {
+              this.fetchOrderData();
+            }
           }
         });
 
@@ -1658,7 +1660,7 @@ export default defineComponent({
           this.switchType = 1;
           this.showSwitch = true;
         }
-      } else if (this.gameLevel == "LEGENDARY") {
+      } else if (this.gameLevel == "ADVANCED") {
         const { rcpAmount } = newV;
         if (Number(rcpAmount) < 10000) {
           this.switchType = 2;
