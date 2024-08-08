@@ -678,9 +678,9 @@
     <v-dialog v-model="showSwitch" width="auto" persistent>
       <div class="switch_box">
         <div class="switch_text">
-          <span v-if="switchType == 1"
-            >Congratulations, you have unlocked access to the Advanced</span
-          >
+          <span v-if="switchType == 1">
+            Congratulations, you have unlocked access to the Advanced Room.
+          </span>
           <span v-else>
             Unfortunately, your balance is not available to play at the Advanced
             Room.
@@ -1256,7 +1256,9 @@ export default defineComponent({
         removeTxt,
         userInfo: { rcpAmount, rctAmount },
       } = this;
+
       const buyV = Number(removeTxt(this.buyNum));
+
       if (this.coinName == "RCP") {
         if (buyV > rcpAmount) {
           const { setShowRecharge } = useUserStore();
@@ -1643,7 +1645,7 @@ export default defineComponent({
       this.showSwitch = false;
       const { setGameLevel } = useGameStore();
       if (this.switchType == 1) {
-        setGameLevel("LEGENDARY");
+        setGameLevel("ADVANCED");
       } else {
         setGameLevel("BASIC");
       }
@@ -1715,6 +1717,21 @@ export default defineComponent({
         if (this.eventSource) {
           this.eventSource.close();
           this.eventSource = null;
+        }
+
+        if (this.gameLevel == "BASIC") {
+          this.buyNum = "10";
+          this.coinName = "RCP";
+        }
+
+        if (this.gameLevel == "ADVANCED") {
+          this.buyNum = "1,000";
+          this.coinName = "RCP";
+        }
+
+        if (this.gameLevel == "LEGENDARY") {
+          this.buyNum = "100";
+          this.coinName = "RCT";
         }
 
         this.chartData = [];
