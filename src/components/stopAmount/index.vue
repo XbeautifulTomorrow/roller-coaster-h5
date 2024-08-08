@@ -282,8 +282,13 @@ export default defineComponent({
         .plus(price)
         .toNumber();
 
+      console.log(profit);
+
       if (!isEmpty(profit)) {
-        return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString();
+        return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString(
+          undefined,
+          { minimumFractionDigits: 2 }
+        );
       } else {
         return "";
       }
@@ -295,10 +300,8 @@ export default defineComponent({
         stopLoss,
       } = this;
 
-      let params = {
+      let params: any = {
         id: id,
-        profit: "",
-        loss: "",
       };
       if (!isEmpty(stopProfit.profit)) {
         params.profit = this.removeTxt(stopProfit.profit);
@@ -420,7 +423,10 @@ export default defineComponent({
     },
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice || !this.buyInfo) return;
-      if (newV > 0 && newV <= this.buyInfo.amount) {
+      if (
+        Number(this.removeTxt(newV)) > 0 &&
+        Number(this.removeTxt(newV)) <= this.buyInfo.amount
+      ) {
         this.stopLoss.price = this.getSellPrice(
           -Number(this.removeTxt(newV) || 0),
           false

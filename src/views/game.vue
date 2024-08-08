@@ -223,7 +223,7 @@
             <v-img
               :width="20"
               class="drop"
-              v-if="item.profit"
+              v-if="item.loss"
               cover
               src="@/assets/images/svg/game/config_red.svg"
             ></v-img>
@@ -237,7 +237,7 @@
             <v-img
               :width="16"
               class="up"
-              v-if="item.loss"
+              v-if="item.profit"
               cover
               src="@/assets/images/svg/game/config_green.svg"
             ></v-img>
@@ -1498,7 +1498,7 @@ export default defineComponent({
         .multipliedBy(currentPrice)
         .plus(currentPrice)
         .toNumber();
-      console.log();
+
       return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString(
         undefined,
         { minimumFractionDigits: 2 }
@@ -1725,10 +1725,19 @@ export default defineComponent({
           }
         } else {
           if (this.stopLoss.profit) {
-            this.stopLoss.price = this.getSellPrice(
-              -removeTxt(this.stopLoss.profit),
-              false
-            );
+            if (
+              Number(removeTxt(this.stopLoss.profit)) > 0 &&
+              Number(removeTxt(this.stopLoss.profit)) <=
+                Number(this.removeTxt(this.buyNum))
+            ) {
+              this.stopLoss.price = this.getSellPrice(
+                -Number(removeTxt(this.stopLoss.profit)),
+                false
+              );
+            } else {
+              this.stopLoss.price = "";
+            }
+
             this.verifyLoss();
           } else {
             if (this.stopLoss.price) {
@@ -1770,13 +1779,16 @@ export default defineComponent({
     },
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice) return;
-      if (newV > 0 && newV <= this.buyNum) {
+      if (
+        Number(this.removeTxt(newV)) > 0 &&
+        Number(this.removeTxt(newV)) <= Number(this.removeTxt(this.buyNum))
+      ) {
         this.stopLoss.price = this.getSellPrice(
           -Number(this.removeTxt(newV)),
           false
         );
       } else {
-        this.stopLoss.price = null;
+        this.stopLoss.price = "";
       }
 
       this.verifyLoss();
