@@ -987,15 +987,7 @@ export default defineComponent({
           }
         });
 
-        this.eventSource.addEventListener("OPEN_PRIZE", (e: any) => {
-          try {
-          } catch (error) {
-            console.log(e);
-            console.log(error);
-          } finally {
-          }
-        });
-
+        // 结算订单
         this.eventSource.addEventListener("USER_CLOSE_PRIZE", (e: any) => {
           try {
             const bustOrder = JSON.parse(e.data);
@@ -1010,13 +1002,19 @@ export default defineComponent({
             } else {
               this.showToast({ ...bustOrder, tipsType: 3 });
             }
+
+            if (this.orderType != 2) {
+              const index = this.orderData.findIndex(
+                (item: any) => item.id == bustOrder.id
+              );
+
+              if (index > -1) {
+                this.orderData.splice(index, 1);
+              }
+            }
           } catch (error) {
             console.log(e);
             console.log(error);
-          } finally {
-            if (this.orderType != 2) {
-              this.fetchOrderData();
-            }
           }
         });
 
@@ -1279,7 +1277,7 @@ export default defineComponent({
         this.showToast({ ...res.data, tipsType: 1 });
 
         if (this.orderType != 2) {
-          this.fetchOrderData();
+          this.orderData.unshift(res.data);
         }
 
         // 更新余额
