@@ -423,9 +423,9 @@ export const accurateDecimal = (number: any, format: number, zeroFill: boolean =
   return number;
 };
 
-//非空验证
+// 数字非空验证
 export const isEmpty = (ObjVal: any) => {
-  if (ObjVal == null || typeof ObjVal == "undefined" || (typeof ObjVal == "string" && ObjVal != "undefined")) {
+  if (ObjVal == "" || ObjVal == null || ObjVal == undefined || ObjVal == "undefined") {
     return true;
   } else {
     return false;

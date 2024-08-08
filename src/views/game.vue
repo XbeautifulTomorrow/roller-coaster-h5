@@ -841,6 +841,7 @@ export default defineComponent({
       const { currentPrice, buyStatus, buyMultiplier, removeTxt } = this;
 
       if (isEmpty(currentPrice) || isEmpty(buyMultiplier)) return "-";
+
       return this.handleEbust(
         currentPrice,
         buyStatus,
@@ -1229,21 +1230,29 @@ export default defineComponent({
     handlePlus() {
       const { gameLevel, buyNum, removeTxt } = this;
       if (gameLevel == "LEGENDARY") {
-        this.buyNum = accurateDecimal(Number(removeTxt(buyNum)) * 2, 2);
+        this.buyNum = Number(
+          accurateDecimal(Number(removeTxt(buyNum)) * 2, 2)
+        ).toLocaleString(undefined, { minimumFractionDigits: 2 });
         return;
       }
 
-      this.buyNum = Math.floor(Number(removeTxt(buyNum)) * 2);
+      this.buyNum = Number(
+        Math.floor(Number(removeTxt(buyNum)) * 2)
+      ).toLocaleString();
     },
     // 购买数量减少
     handleMinus() {
       const { gameLevel, buyNum, removeTxt } = this;
       if (gameLevel == "LEGENDARY") {
-        this.buyNum = accurateDecimal(Number(removeTxt(buyNum)) / 2, 2);
+        this.buyNum = Number(
+          accurateDecimal(Number(removeTxt(buyNum)) / 2, 2)
+        ).toLocaleString(undefined, { minimumFractionDigits: 2 });
         return;
       }
 
-      this.buyNum = Math.floor(Number(removeTxt(buyNum)) / 2);
+      this.buyNum = Number(
+        Math.floor(Number(removeTxt(buyNum)) / 2)
+      ).toLocaleString();
     },
     // 倍数增加
     multiplePlus() {
