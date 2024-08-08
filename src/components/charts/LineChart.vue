@@ -511,14 +511,10 @@ export default {
     },
     // 格式化收益
     formatIncome(income: number) {
-      if (this.gameLevel == "LEGENDARY") {
-        return unitConversion(accurateDecimal(income, 0) || 0);
+      if (Math.abs(income || 0) < 1000) {
+        return Math.floor(income);
       } else {
-        if (Math.abs(income || 0) < 1000) {
-          return Math.floor(income);
-        } else {
-          return unitConversion(accurateDecimal(income, 0) || 0);
-        }
+        return unitConversion(Math.floor(income) || 0);
       }
     },
   },

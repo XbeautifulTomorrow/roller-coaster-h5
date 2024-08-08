@@ -86,7 +86,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game";
-import { accurateDecimal, unitConversion } from "@/utils";
+import { unitConversion } from "@/utils";
 
 interface ToastMessage {
   id: number; // 索引id
@@ -141,14 +141,10 @@ export default defineComponent({
     },
     // 格式化收益
     formatIncome(income: number) {
-      if (this.gameLevel == "LEGENDARY") {
-        return unitConversion(accurateDecimal(income, 2, true) || 0);
+      if (Math.abs(income || 0) < 1000) {
+        return Math.floor(income);
       } else {
-        if (Math.abs(income || 0) < 1000) {
-          return Math.floor(income);
-        } else {
-          return unitConversion(Math.floor(income) || 0);
-        }
+        return unitConversion(Math.floor(income) || 0);
       }
     },
   },

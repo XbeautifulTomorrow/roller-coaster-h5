@@ -1175,17 +1175,7 @@ export default defineComponent({
 
       // 更新输入框的值
       if (this.currentInput == 1) {
-        if (this.gameLevel != "LEGENDARY") {
-          this.buyNum = parts[0];
-        } else {
-          if (isDecimal) {
-            parts[1] =
-              parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
-            this.buyNum = parts.join(".");
-          } else {
-            this.buyNum = parts.join(".");
-          }
-        }
+        this.buyNum = parts[0];
       } else if (this.currentInput == 2) {
         this.buyMultiplier = Number(value) >= 1000 ? "1,000" : parts[0];
       } else if (this.currentInput == 3) {
@@ -1196,16 +1186,7 @@ export default defineComponent({
           this.stopProfit.price = parts.join(".");
         }
       } else if (this.currentInput == 4) {
-        if (this.gameLevel != "LEGENDARY") {
-          this.stopProfit.profit = parts[0];
-        } else {
-          if (isDecimal) {
-            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
-            this.stopProfit.profit = parts.join(".");
-          } else {
-            this.stopProfit.profit = parts.join(".");
-          }
-        }
+        this.stopProfit.profit = parts[0];
       } else if (this.currentInput == 5) {
         if (isDecimal) {
           parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
@@ -1214,42 +1195,19 @@ export default defineComponent({
           this.stopLoss.price = parts.join(".");
         }
       } else if (this.currentInput == 6) {
-        if (this.gameLevel != "LEGENDARY") {
-          this.stopLoss.profit = parts[0];
-        } else {
-          if (isDecimal) {
-            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
-            this.stopLoss.profit = parts.join(".");
-          } else {
-            this.stopLoss.profit = parts.join(".");
-          }
-        }
+        this.stopLoss.profit = parts[0];
       }
     },
     // 购买数量增加
     handlePlus() {
-      const { gameLevel, buyNum, removeTxt } = this;
-      if (gameLevel == "LEGENDARY") {
-        this.buyNum = Number(
-          accurateDecimal(Number(removeTxt(buyNum)) * 2, 2)
-        ).toLocaleString(undefined, { minimumFractionDigits: 2 });
-        return;
-      }
-
+      const { buyNum, removeTxt } = this;
       this.buyNum = Number(
         Math.floor(Number(removeTxt(buyNum)) * 2)
       ).toLocaleString();
     },
     // 购买数量减少
     handleMinus() {
-      const { gameLevel, buyNum, removeTxt } = this;
-      if (gameLevel == "LEGENDARY") {
-        this.buyNum = Number(
-          accurateDecimal(Number(removeTxt(buyNum)) / 2, 2)
-        ).toLocaleString(undefined, { minimumFractionDigits: 2 });
-        return;
-      }
-
+      const { buyNum, removeTxt } = this;
       this.buyNum = Number(
         Math.floor(Number(removeTxt(buyNum)) / 2)
       ).toLocaleString();
@@ -1295,8 +1253,13 @@ export default defineComponent({
       };
 
       if (this.buyType == "AUTO") {
-        params.profit = this.removeTxt(this.stopProfit.profit);
-        params.loss = this.removeTxt(this.stopLoss.profit);
+        if (isEmpty(this.stopProfit.price)) {
+          params.profit = this.removeTxt(this.stopProfit.profit);
+        }
+
+        if (isEmpty(this.stopLoss.price)) {
+          params.loss = this.removeTxt(this.stopLoss.profit);
+        }
       }
 
       const res = await addOrder(params);
@@ -1313,14 +1276,14 @@ export default defineComponent({
         this.showAuto = false;
         this.stopProfit = {
           isPrice: true, // 是否价格
-          price: null, // 价格
-          profit: null, // 收益
+          price: "", // 价格
+          profit: "", // 收益
           isError: false, // 阈值是否正确
         }; // 止盈
         this.stopLoss = {
           isPrice: true, // 是否价格
-          price: null, // 价格
-          profit: null, // 收益
+          price: "", // 价格
+          profit: "", // 收益
           isError: false, // 阈值是否正确
         }; // 止损
       }
@@ -1558,7 +1521,7 @@ export default defineComponent({
             ? Number(profit).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })
-            : null;
+            : "";
       } else {
         const profit = this.getProfit(
           this.buyStatus,
@@ -1568,7 +1531,7 @@ export default defineComponent({
           removeTxt(this.buyMultiplier),
           false
         );
-        const loss = profit < 0 ? Math.abs(profit) : null;
+        const loss = profit < 0 ? Math.abs(profit) : "";
 
         if (loss) {
           this.stopLoss.profit =
@@ -1580,7 +1543,7 @@ export default defineComponent({
                   minimumFractionDigits: 2,
                 });
         } else {
-          this.stopLoss.profit = null;
+          this.stopLoss.profit = "";
         }
       }
     },
@@ -1649,14 +1612,10 @@ export default defineComponent({
     },
     // 格式化收益
     formatIncome(income: number) {
-      if (this.gameLevel == "LEGENDARY") {
-        return unitConversion(accurateDecimal(income, 2, true) || 0);
+      if (Math.abs(income || 0) < 1000) {
+        return Math.floor(income);
       } else {
-        if (Math.abs(income || 0) < 1000) {
-          return Math.floor(income);
-        } else {
-          return unitConversion(Math.floor(income) || 0);
-        }
+        return unitConversion(Math.floor(income) || 0);
       }
     },
     // 删除指定字符串

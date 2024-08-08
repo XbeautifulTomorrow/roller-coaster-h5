@@ -155,7 +155,7 @@
                     cover
                     src="@/assets/images/game/icon_rcp.png"
                   ></v-img>
-                  <span>{{ `+ ${formatIncome(item.rcpAmount, "RCP")}` }}</span>
+                  <span>{{ `+ ${formatIncome(item.rcpAmount)}` }}</span>
                 </div>
                 <div class="bonus" v-if="item.rctAmount">
                   <v-img
@@ -163,7 +163,7 @@
                     cover
                     src="@/assets/images/game/icon_roller.png"
                   ></v-img>
-                  <span>{{ `+ ${formatIncome(item.rctAmount, "RCT")}` }}</span>
+                  <span>{{ `+ ${formatIncome(item.rctAmount)}` }}</span>
                 </div>
               </div>
             </div>
@@ -209,12 +209,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getInviteUserList } from "@/services/api/user.js";
-import {
-  shareOnTelegram,
-  timeForStr,
-  unitConversion,
-  accurateDecimal,
-} from "@/utils";
+import { shareOnTelegram, timeForStr, unitConversion } from "@/utils";
 
 interface frensInfo {
   userId: number; //用户ID
@@ -325,15 +320,11 @@ export default defineComponent({
       });
     },
     // 格式化收益
-    formatIncome(income: number, type: string) {
-      if (type == "RCT") {
-        return unitConversion(accurateDecimal(income, 2, true) || 0);
+    formatIncome(income: number) {
+      if (Math.abs(income || 0) < 1000) {
+        return Math.floor(income);
       } else {
-        if (Math.abs(income || 0) < 1000) {
-          return Math.floor(income);
-        } else {
-          return unitConversion(Math.floor(income) || 0);
-        }
+        return unitConversion(Math.floor(income) || 0);
       }
     },
   },

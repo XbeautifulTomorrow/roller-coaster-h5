@@ -370,17 +370,7 @@ export default defineComponent({
           this.currentPrice = parts.join(".");
         }
       } else if (this.currentInput == 2) {
-        if (this.gameLevel != "LEGENDARY") {
-          this.buyNum = parts[0];
-        } else {
-          if (isDecimal) {
-            parts[1] =
-              parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
-            this.buyNum = parts.join(".");
-          } else {
-            this.buyNum = parts.join(".");
-          }
-        }
+        this.buyNum = parts[0];
       } else if (this.currentInput == 3) {
         this.multiple = Number(value) >= 1000 ? "1,000" : parts[0];
       } else if (this.currentInput == 4) {

@@ -101,7 +101,7 @@
 import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game.js";
 import bigNumber from "bignumber.js";
-import { accurateDecimal } from "@/utils";
+import { accurateDecimal, isEmpty } from "@/utils";
 import { setOrder } from "@/services/api/order.js";
 
 export default defineComponent({
@@ -198,16 +198,7 @@ export default defineComponent({
           this.stopProfit.price = parts.join(".");
         }
       } else if (this.currentInput == 2) {
-        if (this.gameLevel != "LEGENDARY") {
-          this.stopProfit.profit = parts[0];
-        } else {
-          if (isDecimal) {
-            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
-            this.stopProfit.profit = parts.join(".");
-          } else {
-            this.stopProfit.profit = parts.join(".");
-          }
-        }
+        this.stopProfit.profit = parts[0];
       } else if (this.currentInput == 3) {
         if (isDecimal) {
           parts[1] = parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
@@ -216,16 +207,7 @@ export default defineComponent({
           this.stopLoss.price = parts.join(".");
         }
       } else if (this.currentInput == 4) {
-        if (this.gameLevel != "LEGENDARY") {
-          this.stopLoss.profit = parts[0];
-        } else {
-          if (isDecimal) {
-            parts[1] = parts[1].length > 2 ? parts[1].substring(2) : parts[1];
-            this.stopLoss.profit = parts.join(".");
-          } else {
-            this.stopLoss.profit = parts.join(".");
-          }
-        }
+        this.stopLoss.profit = parts[0];
       }
     },
     // 计算止盈止损收益
@@ -234,15 +216,15 @@ export default defineComponent({
       if (type == "profit") {
         const profit = this.getProfit(num, true);
 
-        this.stopProfit.profit = profit > 0 ? profit : null;
+        this.stopProfit.profit = profit > 0 ? profit : "";
       } else {
         const profit = this.getProfit(num, false);
-        const loss = profit < 0 ? Math.abs(profit) : null;
+        const loss = profit < 0 ? Math.abs(profit) : "";
 
         if (loss) {
           this.stopLoss.profit = Number(loss) > amount ? amount : loss;
         } else {
-          this.stopLoss.profit = null;
+          this.stopLoss.profit = "";
         }
       }
     },
@@ -300,11 +282,21 @@ export default defineComponent({
         stopProfit,
         stopLoss,
       } = this;
-      const res = await setOrder({
+
+      let params = {
         id: id,
-        profit: this.removeTxt(stopProfit.profit),
-        loss: this.removeTxt(stopLoss.profit),
-      });
+        profit: "",
+        loss: "",
+      };
+      if (!isEmpty(stopProfit.profit)) {
+        params.profit = this.removeTxt(stopProfit.profit);
+      }
+
+      if (!isEmpty(stopLoss.profit)) {
+        params.profit = this.removeTxt(stopLoss.profit);
+      }
+
+      const res = await setOrder(params);
       if (res.code == 200) {
         this.$emit("onStop");
         const { setBuyInfo } = useGameStore();
@@ -367,15 +359,15 @@ export default defineComponent({
       if (!newV) {
         this.stopProfit = {
           isPrice: true, // 是否价格
-          price: null, // 价格
-          profit: null, // 收益
+          price: "", // 价格
+          profit: "", // 收益
           isError: false,
         };
 
         this.stopLoss = {
           isPrice: true, // 是否价格
-          price: null, // 价格
-          profit: null, // 收益
+          price: "", // 价格
+          profit: "", // 收益
           isError: false,
         };
 
@@ -384,15 +376,15 @@ export default defineComponent({
 
       this.stopProfit = {
         isPrice: false, // 是否价格
-        price: null, // 价格
-        profit: newV.profit ? Number(newV.profit).toLocaleString() : null, // 收益
+        price: "", // 价格
+        profit: newV.profit ? Number(newV.profit).toLocaleString() : "", // 收益
         isError: false,
       }; // 止盈
 
       this.stopLoss = {
         isPrice: false, // 是否价格
-        price: null, // 价格
-        profit: newV.loss ? Number(newV.loss).toLocaleString() : null, // 收益
+        price: "", // 价格
+        profit: newV.loss ? Number(newV.loss).toLocaleString() : "", // 收益
         isError: false,
       }; // 止损
     },
@@ -419,7 +411,7 @@ export default defineComponent({
       if (newV > 0 && newV <= this.buyInfo.amount) {
         this.stopLoss.price = this.getSellPrice(-this.removeTxt(newV), false);
       } else {
-        this.stopLoss.price = null;
+        this.stopLoss.price = "";
       }
 
       this.verifyLoss();

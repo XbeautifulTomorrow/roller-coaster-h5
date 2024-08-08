@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getLocalStore, setSessionStore, getSessionStore, removeSessionStore, accurateDecimal } from "@/utils";
+import { getLocalStore, setSessionStore, getSessionStore, removeSessionStore } from "@/utils";
 import { getUserInfo, receiveGifts } from "@/services/api/user";
 import { buyProduct } from "@/services/api/user.js";
 import { en, zhHant } from 'vuetify/locale'
@@ -151,7 +151,7 @@ export const useUserStore = defineStore("user", {
       if (res.code == 200) {
         this.userInfo = res.data;
         this.userInfo.rcpAmount = Math.floor(this.userInfo.rcpAmount);
-        this.userInfo.rctAmount = accurateDecimal(this.userInfo.rctAmount, 2, true);
+        this.userInfo.rctAmount = Math.floor(this.userInfo.rctAmount);
       } else {
         this.logoutApi();
       }
