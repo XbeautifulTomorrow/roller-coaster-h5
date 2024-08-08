@@ -155,7 +155,7 @@
         <div class="operating_item">
           <div class="coin_box">
             <v-img
-              :width="16"
+              :width="20"
               cover
               src="@/assets/images/game/icon_roller.png"
             ></v-img>
