@@ -308,7 +308,7 @@ export default defineComponent({
       }
 
       if (!isEmpty(stopLoss.profit)) {
-        params.profit = this.removeTxt(stopLoss.profit);
+        params.loss = this.removeTxt(stopLoss.profit);
       }
 
       const res = await setOrder(params);
