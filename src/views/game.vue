@@ -1252,7 +1252,25 @@ export default defineComponent({
     },
     // 买入
     async handleBuy() {
-      const { removeTxt } = this;
+      const {
+        removeTxt,
+        userInfo: { rcpAmount, rctAmount },
+      } = this;
+      const buyV = Number(removeTxt(this.buyNum));
+      if (this.coinName == "RCP") {
+        if (buyV > rcpAmount) {
+          const { setShowRecharge } = useUserStore();
+          setShowRecharge(true);
+          return;
+        }
+      } else {
+        if (buyV > rctAmount) {
+          const { setShowRecharge } = useUserStore();
+          setShowRecharge(true);
+          return;
+        }
+      }
+
       let params: any = {
         coinName: this.coinName,
         multiplier: removeTxt(this.buyMultiplier),
