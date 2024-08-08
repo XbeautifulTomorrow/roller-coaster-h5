@@ -50,6 +50,7 @@ export interface userInterface {
   inviteCode: string, //邀请码
   totalRcpAmount: number, //总RCP返佣数量
   totalRctAmount: number //总RCT返佣数量
+  isUpgrade: boolean, //是否升级
   [x: string]: string | number | any;
 }
 

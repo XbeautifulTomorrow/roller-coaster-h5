@@ -128,6 +128,25 @@
         </div>
       </div>
     </div>
+    <v-btn
+      color="'rgb(0,0,0,0)'"
+      class="complete_btn"
+      :loading="upLoading"
+      height="40"
+      density="compact"
+      @click.stop="levelUp()"
+      variant="text"
+      :disabled="!userInfo.isUpgrade"
+    >
+      <div class="finished">
+        <v-img
+          :width="24"
+          cover
+          src="@/assets/images/svg/main/icon_award.svg"
+        ></v-img>
+        <span>Level Up</span>
+      </div>
+    </v-btn>
     <div class="wallet_panel">
       <div class="wallet_title">Wallet</div>
       <div class="wallet_operating">
@@ -188,10 +207,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
+import { useMessageStore } from "@/store/message.js";
 import bigNumber from "bignumber.js";
 import { onCopy } from "@/utils";
 
-import { getLevelDetails } from "@/services/api/user.js";
+import { getLevelDetails, levelUpgrade } from "@/services/api/user.js";
 
 interface levelInfo {
   id: number; //等级ID
@@ -212,6 +232,7 @@ export default defineComponent({
   data() {
     return {
       levelData: {} as levelInfo,
+      upLoading: false,
     };
   },
   computed: {
@@ -247,6 +268,21 @@ export default defineComponent({
       const res = await getLevelDetails({});
       if (res.code === 200) {
         this.levelData = res.data;
+      }
+    },
+    async levelUp() {
+      const { setMessageText } = useMessageStore();
+
+      this.upLoading = true;
+      const res = await levelUpgrade({});
+
+      this.upLoading = false;
+
+      if (res.code == 200) {
+        setMessageText("Upgrade successful");
+        const userStore = useUserStore();
+        userStore.fetchUserInfo();
+        this.fetchLevelDetails();
       }
     },
     toSwap() {
@@ -500,6 +536,41 @@ export default defineComponent({
         border-radius: 20px;
       }
     }
+  }
+}
+
+.complete_btn {
+  min-width: 60%;
+  background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+  border: 1px solid #000;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+  margin-top: 16px;
+}
+
+.finished {
+  display: flex;
+  align-items: center;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 16px;
+  font-weight: bold;
+
+  .v-img {
+    flex: none;
+    margin-right: 4px;
+  }
+}
+
+.v-btn--disabled {
+  pointer-events: none;
+  opacity: 1;
+  background: #a4a4a4;
+  color: #dbdbdb;
+
+  .finished {
+    filter: grayscale(100%);
   }
 }
 </style>

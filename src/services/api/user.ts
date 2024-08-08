@@ -19,10 +19,17 @@ const telegramLogin = (params: any) => http.post(serverUrl + "/tg-user/login", p
 const getUserInfo = (params: any) => http.get(serverUrl + "/user/userInfo", params, { showLoading: false });
 
 /**
- * 获取等级列表
+ * 获取等级详情
  * @param params
  */
 const getLevelDetails = (params: any) => http.get(serverUrl + "/user-level/details", params);
+
+
+/**
+ * 用户升级
+ * @param params
+ */
+const levelUpgrade = (params: any) => http.get(serverUrl + "/user-level/upgrade", params);
 
 /**
  * 邀请用户列表
@@ -87,6 +94,7 @@ export {
   telegramLogin,
   getUserInfo,
   getLevelDetails,
+  levelUpgrade,
   getInviteUserList,
   getInviteRankingList,
   receiveGifts,
