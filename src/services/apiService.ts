@@ -11,6 +11,11 @@ const axiosInstance = axios.create({
   timeout: 300000,
 });
 
+// 希望控制报错信息，就把接口地址写这里
+const notMessage: any = [
+  "/coaster-server-web/carOrder/closeOrder"
+];
+
 /* 请求合并只出现一次loading */
 let needLoadingRequestCount = 0;
 /* 计时器对象 */
@@ -44,8 +49,7 @@ function loading(str: string) {
   }
 }
 
-// 希望控制报错信息，就把接口地址写这里
-const notMessage: any = [];
+
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(
