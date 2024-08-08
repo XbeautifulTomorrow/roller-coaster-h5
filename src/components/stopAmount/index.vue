@@ -216,13 +216,17 @@ export default defineComponent({
       if (type == "profit") {
         const profit = this.getProfit(num, true);
 
-        this.stopProfit.profit = profit > 0 ? profit : "";
+        this.stopProfit.profit =
+          profit > 0 ? Number(profit).toLocaleString() : "";
       } else {
         const profit = this.getProfit(num, false);
         const loss = profit < 0 ? Math.abs(profit) : "";
 
         if (loss) {
-          this.stopLoss.profit = Number(loss) > amount ? amount : loss;
+          this.stopLoss.profit =
+            num && Number(loss) > amount
+              ? Number(amount).toLocaleString()
+              : Number(loss).toLocaleString();
         } else {
           this.stopLoss.profit = "";
         }
@@ -248,12 +252,12 @@ export default defineComponent({
 
       if (side == "buy") {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
-        const typeNum = new bigNumber(0).plus(profit);
-        return accurateDecimal(typeNum, 2);
+        const typeNum = new bigNumber(0).plus(profit).toNumber();
+        return Math.floor(typeNum);
       } else {
         // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
-        const typeNum = new bigNumber(0).minus(profit);
-        return accurateDecimal(typeNum, 2);
+        const typeNum = new bigNumber(0).minus(profit).toNumber();
+        return Math.floor(typeNum);
       }
     },
     /**
@@ -264,17 +268,25 @@ export default defineComponent({
      */
     getSellPrice(profit: number | string, isFee: boolean) {
       const { price, amount, multiplier } = this.buyInfo;
+      let profitNum = profit;
+
       if (isFee) {
-        profit = Number(new bigNumber(profit || 0).multipliedBy(1.05));
+        profitNum = Number(new bigNumber(profit || 0).multipliedBy(1.05));
       }
 
       // 卖出价格 = 收益 / (杠杆倍数 * 买入数量) * 买入价 + 买入价
       const multiplierNum = new bigNumber(multiplier).multipliedBy(amount);
-      const sellPrice = new bigNumber(profit || 0)
+      const sellPrice = new bigNumber(profitNum || 0)
         .dividedBy(multiplierNum)
         .multipliedBy(price)
-        .plus(price);
-      return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString();
+        .plus(price)
+        .toNumber();
+
+      if (!isEmpty(profit)) {
+        return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString();
+      } else {
+        return "";
+      }
     },
     async handleSubmit() {
       const {
@@ -409,7 +421,10 @@ export default defineComponent({
     "stopLoss.profit"(newV: any) {
       if (this.stopLoss.isPrice || !this.buyInfo) return;
       if (newV > 0 && newV <= this.buyInfo.amount) {
-        this.stopLoss.price = this.getSellPrice(-this.removeTxt(newV), false);
+        this.stopLoss.price = this.getSellPrice(
+          -Number(this.removeTxt(newV) || 0),
+          false
+        );
       } else {
         this.stopLoss.price = "";
       }
