@@ -1592,7 +1592,7 @@ export default defineComponent({
       }
 
       const ratio = new bigNumber(income).dividedBy(amount).multipliedBy(100);
-      return accurateDecimal(ratio, 2);
+      return accurateDecimal(ratio, 2, true);
     },
     verifyProfit() {
       const {
