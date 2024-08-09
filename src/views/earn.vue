@@ -370,7 +370,7 @@ export default defineComponent({
         if (import.meta.env.MODE == "prod") {
           inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
         } else {
-          inviteUrl = `https://t.me/gm_coin_test_bot/checking?startapp=${inviteCode}`;
+          inviteUrl = `https://t.me/test1gscbot/test1gsc?startapp=${inviteCode}`;
         }
 
         shareOnTelegram(inviteUrl);
@@ -403,7 +403,7 @@ export default defineComponent({
     },
     // 初始化ton-connect
     async initTonConnect() {
-      let miniappUrl = "https://t.me/gm_coin_test_bot/checking";
+      let miniappUrl = "https://t.me/test1gscbot/test1gsc";
 
       this.tonConnect = new TonConnectUI({
         manifestUrl: "https://tonrollercoaster.com/tonconnect-manifest.json",

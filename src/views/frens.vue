@@ -307,7 +307,7 @@ export default defineComponent({
       if (import.meta.env.MODE == "prod") {
         inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
       } else {
-        inviteUrl = `https://t.me/gm_coin_test_bot/checking?startapp=${inviteCode}`;
+        inviteUrl = `https://t.me/test1gscbot/test1gsc?startapp=${inviteCode}`;
       }
       shareOnTelegram(inviteUrl);
     },

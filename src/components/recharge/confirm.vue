@@ -192,7 +192,7 @@ export default defineComponent({
     },
     // 初始化ton-connect
     async initTonConnect() {
-      let miniappUrl = "https://t.me/gm_coin_test_bot/checking";
+      let miniappUrl = "https://t.me/test1gscbot/test1gsc";
 
       this.tonConnect = new TonConnectUI({
         manifestUrl: "https://tonrollercoaster.com/tonconnect-manifest.json",

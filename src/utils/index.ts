@@ -706,15 +706,23 @@ export const unitConversion = (val: number, type = 2, zeroFill = true) => {
 }
 
 /**
-  * Telegram分享。
-  * @param {string} url - 分享链接。
-  */
+ * Telegram分享。
+ * @param {string} url - 分享链接。
+ */
 export const shareOnTelegram = (url: string) => {
-  const inviteText = `Start the Self-Discipline Challenge at GMcoin and you will be rewarded with up to 500 $GMC🧧 as startup capital.
-  
-I am invincible when it comes to self-discipline, dare you challenge me?🤑🤑🤑`;
+  const inviteText = `
+  💸 Turn $10 into $10,000 IN SECONDS!
+
+🎢 RollerCoaster's 1000x multiplier awaits！
+
+💰 Use my link for a FREE $100 RCP boost!
+`;
+
+  // 使用 encodeURIComponent 对文本进行编码
+  const encodedText = encodeURIComponent(inviteText);
+
   // 构建分享内容的URL
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(inviteText)}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodedText}`;
 
   // 打开Telegram小程序或网页版Telegram进行分享
   openUrl(shareUrl);
