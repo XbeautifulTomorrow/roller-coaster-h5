@@ -24,25 +24,56 @@
           ></v-img>
           <div class="status_info">
             <div class="status_text">
-              <span v-if="toast.tipsType == 1">Order placed</span>
-              <span v-else-if="toast.tipsType == 2">
-                {{
-                  `Order busted at loss of ${formatIncome(
-                    Number(toast.income || 0)
-                  )}`
-                }}
-              </span>
-              <span v-else>
-                {{
-                  Number(toast.income || 0) > 0
-                    ? `Order closed at profit of ${formatIncome(
-                        Number(toast.income || 0)
-                      )}`
-                    : `Order closed at loss of ${formatIncome(
-                        Number(toast.income || 0)
-                      )}`
-                }}
-              </span>
+              <div v-if="toast.tipsType == 1">Order placed</div>
+              <div v-else-if="toast.tipsType == 2">
+                <span>Order busted at loss of</span>
+                <span class="loss">
+                  {{
+                    `&nbsp;${
+                      Number(toast.income || 0) >= 0 ? "+" : ""
+                    }${formatIncome(Number(toast.income || 0))}`
+                  }}
+                </span>
+                <v-img
+                  :width="14"
+                  cover
+                  v-if="toast.coinName == 'RCP'"
+                  src="@/assets/images/game/icon_rcp.png"
+                ></v-img>
+                <v-img
+                  :width="14"
+                  cover
+                  v-else
+                  src="@/assets/images/game/icon_roller.png"
+                ></v-img>
+              </div>
+              <div v-else>
+                <span v-if="Number(toast.income || 0) >= 0">
+                  Order closed at profit of
+                </span>
+                <span v-else>Order closed at loss of</span>
+                <span
+                  :class="[Number(toast.income || 0) >= 0 ? 'profit' : 'loss']"
+                >
+                  {{
+                    `&nbsp;${
+                      Number(toast.income || 0) >= 0 ? "+" : ""
+                    }${formatIncome(Number(toast.income || 0))}`
+                  }}
+                </span>
+                <v-img
+                  :width="14"
+                  cover
+                  v-if="toast.coinName == 'RCP'"
+                  src="@/assets/images/game/icon_rcp.png"
+                ></v-img>
+                <v-img
+                  :width="14"
+                  cover
+                  v-else
+                  src="@/assets/images/game/icon_roller.png"
+                ></v-img>
+              </div>
             </div>
             <div class="status_description">
               <span>
@@ -202,6 +233,22 @@ export default defineComponent({
     font-size: 16px;
     color: white;
     font-weight: bold;
+    & > div {
+      display: inline-flex;
+      align-items: center;
+
+      .v-img {
+        flex: none;
+        margin-left: 4px;
+      }
+    }
+    .loss {
+      color: #ff4949;
+    }
+
+    .profit {
+      color: #72f238;
+    }
   }
 
   .status_description {

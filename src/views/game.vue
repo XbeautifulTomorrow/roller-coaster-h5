@@ -149,7 +149,6 @@
                   src="@/assets/images/svg/game/up.svg"
                 ></v-img>
                 <div>{{ unitConversion(item.amount) }}</div>
-
                 <v-img
                   :width="14"
                   cover
