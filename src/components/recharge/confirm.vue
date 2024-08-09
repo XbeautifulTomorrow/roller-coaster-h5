@@ -24,14 +24,18 @@
           </div>
           <div class="user_wallet interval" v-else></div>
           <div class="product_box">
-            <div class="product_ton_val">{{ `${productInfo.amount} TON` }}</div>
-            <div class="product_usd_val">{{ `$${productInfo.price}` }}</div>
+            <div class="product_ton_val">
+              {{ `${productInfo.amount || 0} TON` }}
+            </div>
+            <div class="product_usd_val">
+              {{ `$${productInfo.price || 0}` }}
+            </div>
           </div>
           <v-btn
             v-if="!isConnect"
             class="connect_btn"
             :elevation="8"
-            width="90%"
+            width="auto"
             height="40"
             @click="connectToWallet()"
           >
@@ -47,7 +51,7 @@
             v-else
             class="connect_btn"
             :elevation="8"
-            width="90%"
+            width="auto"
             height="40"
             @click="handlePayment()"
           >
@@ -67,7 +71,6 @@
             <v-btn
               class="connect_btn"
               :elevation="8"
-              width="80%"
               height="36"
               @click="handleReady()"
             >
@@ -397,7 +400,6 @@ export default defineComponent({
 
 .recharge_panel {
   width: 100%;
-  padding: 4px;
   border-radius: 4px;
   max-height: 80vh;
   overflow-y: scroll;
@@ -406,25 +408,16 @@ export default defineComponent({
   box-shadow: 0px 0px 4px rgba(21, 12, 7, 0.5),
     0px 5px 5px 0px rgba(96, 69, 54, 0.4) inset;
   border-radius: 16px;
-  padding: 16px;
-
-  .recharge_box {
-    padding: 8px 8px 16px;
-  }
+  padding: 0 0 16px;
 }
 
 .buy_title {
-  margin-top: 8px;
-  background-color: rgba(212, 72, 52, 1);
-  border-radius: 30px;
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3),
-    0px 5px 5px 0px rgba(255, 255, 255, 0.3) inset;
   word-wrap: break-word;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
   font-weight: 700;
   font-style: normal;
-  display: inline-block;
-  padding: 6px 32px;
+  padding: 12px 0;
   font-size: 20px;
   color: #ffffff;
   text-align: center;
@@ -473,7 +466,7 @@ export default defineComponent({
     font-weight: 700;
     font-style: normal;
     font-size: 24px;
-    color: #e3d1af;
+    color: white;
   }
 
   .product_usd_val {

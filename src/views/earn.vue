@@ -386,7 +386,7 @@ export default defineComponent({
         setShowRecharge(true);
       } else if (abbreviation == "TGGROUP") {
         // 加入Telegram群
-        openUrl("https://t.me/rollercoaster_chat3");
+        openUrl("https://t.me/rollercoaster_chat");
       } else if (abbreviation == "TGCHANNEL") {
         // 加入Telegram群
         openUrl("https://t.me/theRollerCoaster");
