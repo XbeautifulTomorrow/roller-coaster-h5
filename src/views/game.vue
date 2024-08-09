@@ -805,7 +805,6 @@ export default defineComponent({
       orderData: [] as Array<orderInfo>,
       finished: false,
       orderType: 0 as number, // 0:进行中 1:已结束 2:其他玩家
-      orderTimer: null as number | any,
       page: 1,
       size: 10,
       showAuto: false,
@@ -1357,21 +1356,15 @@ export default defineComponent({
     },
     // 切换订单类型
     handleOrderStatus(event: any) {
-      if (this.orderTimer) {
-        clearTimeout(this.orderTimer);
-        this.orderTimer = null;
-      }
-
       this.orderData = [];
-      this.orderTimer = setTimeout(() => {
-        this.orderType = event;
+      this.orderType = event;
+      this.$forceUpdate();
 
-        if (event != 2) {
-          this.fetchOrderData();
-        } else {
-          this.fetchOrderAll();
-        }
-      }, 10);
+      if (event != 2) {
+        this.fetchOrderData();
+      } else {
+        this.fetchOrderAll();
+      }
     },
     // 获取氛围组
     async fetchOrderAll() {
@@ -1395,6 +1388,8 @@ export default defineComponent({
 
           this.orderData[i] = element;
         }
+
+        this.$forceUpdate();
       }
     },
     // 获取订单列表
