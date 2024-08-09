@@ -707,7 +707,7 @@ import countDown from "@/components/countDown/index.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { accurateDecimal, unitConversion, isEmpty } from "@/utils";
+import { accurateDecimal, unitConversion, isEmpty, deepClone } from "@/utils";
 import {
   addOrder,
   getOrderData,
@@ -1032,12 +1032,18 @@ export default defineComponent({
 
             // 添加气泡数据
             const { setSellData } = useGameStore();
-            setSellData(closeData);
+            setSellData(deepClone(closeData));
 
             if (this.orderType != 2) return;
 
             // 将新数据添加到列表开头
             for (let i = 0; i < closeData.length; i++) {
+              const isRepeat = this.orderData.some((item: any) => {
+                return item.id == closeData[i].id;
+              });
+
+              if (isRepeat) continue;
+
               closeData[i].roi = accurateDecimal(
                 new bigNumber(closeData[i].roi).multipliedBy(100).toNumber(),
                 2,
@@ -1045,6 +1051,7 @@ export default defineComponent({
               );
 
               setTimeout(() => {
+                if (this.orderType != 2) return;
                 this.orderData.unshift(closeData[i]);
 
                 // 控制列表长度不超过50个项

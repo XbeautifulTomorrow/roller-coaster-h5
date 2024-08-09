@@ -387,10 +387,10 @@ export default {
                 type: "text",
                 z: 11,
                 style: {
-                  text: `${evnet.income > 0 ? "+" : "-"}$${this.formatIncome(
+                  text: `${evnet.income >= 0 ? "+" : ""}${this.formatIncome(
                     evnet.income
                   )}`,
-                  fill: evnet.income > 0 ? "#72f238" : "#ff4949",
+                  fill: evnet.income >= 0 ? "#72f238" : "#ff4949",
                   x: 24,
                   y: 0,
                   fontSize: 10,
