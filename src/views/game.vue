@@ -1047,15 +1047,15 @@ export default defineComponent({
 
               setTimeout(() => {
                 this.orderData.unshift(closeData[i]);
+
+                // 控制列表长度不超过50个项
+                if (this.orderData.length > 50) {
+                  this.orderData = this.orderData.splice(0, 50); // 只保留前50个项
+                }
               }, 1000 / 60);
             }
 
             this.$forceUpdate();
-
-            // 控制列表长度不超过50个项
-            if (this.orderData.length > 50) {
-              this.orderData.splice(50); // 只保留前10个项
-            }
           } catch (error) {
             console.log(e);
             console.log(error);
