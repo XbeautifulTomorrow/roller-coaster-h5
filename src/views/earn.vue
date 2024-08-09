@@ -461,7 +461,7 @@ export default defineComponent({
       // 创建评论
       const body = beginCell()
         .storeUint(0, 32) // 写入32个零位以表示后面将跟随文本评论
-        .storeStringTail("gmcoin") // 写下我们的文本评论
+        .storeStringTail("x1000 LFG") // 写下我们的文本评论
         .endCell();
 
       // 创建交易体
