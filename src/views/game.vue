@@ -1537,11 +1537,11 @@ export default defineComponent({
       if (type == "buy") {
         // 多  0+(卖出价 - 买入价)/买入价*杠杆*本金
         const typeNum = new bigNumber(0).plus(profit).toNumber();
-        return Math.floor(typeNum);
+        return typeNum;
       } else {
         // 空  0-(卖出价 - 买入价)/买入价*杠杆*本金
         const typeNum = new bigNumber(0).minus(profit).toNumber();
-        return Math.floor(typeNum);
+        return typeNum;
       }
     },
     /**
@@ -1579,25 +1579,29 @@ export default defineComponent({
       const buyNumber = Number(removeTxt(this.buyNum));
 
       if (type == "profit") {
-        const profit = this.getProfit(
-          this.buyStatus,
-          this.currentPrice,
-          num,
-          buyNumber,
-          removeTxt(this.buyMultiplier),
-          true
+        const profit = Math.floor(
+          this.getProfit(
+            this.buyStatus,
+            this.currentPrice,
+            num,
+            buyNumber,
+            removeTxt(this.buyMultiplier),
+            true
+          )
         );
 
         this.stopProfit.profit =
           num && profit > 0 ? Number(profit).toLocaleString() : "";
       } else {
-        const profit = this.getProfit(
-          this.buyStatus,
-          this.currentPrice,
-          num,
-          buyNumber,
-          removeTxt(this.buyMultiplier),
-          false
+        const profit = Math.floor(
+          this.getProfit(
+            this.buyStatus,
+            this.currentPrice,
+            num,
+            buyNumber,
+            removeTxt(this.buyMultiplier),
+            false
+          )
         );
         const loss = profit < 0 ? Math.abs(profit) : "";
 
@@ -1613,11 +1617,15 @@ export default defineComponent({
     },
     // 计算盈亏比例
     handleProfitRatio(amount: number, income: number) {
-      if (amount == 0 || isNaN(amount) || isNaN(income)) {
-        return 0;
+      if (!amount || !income) {
+        return "0.00";
       }
 
-      const ratio = new bigNumber(income).dividedBy(amount).multipliedBy(100);
+      const ratio = new bigNumber(income)
+        .dividedBy(amount)
+        .multipliedBy(100)
+        .toNumber();
+
       return accurateDecimal(ratio, 2, true);
     },
     verifyProfit() {
