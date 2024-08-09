@@ -108,7 +108,7 @@
           Public Orders
         </div>
       </div>
-      <transition-group name="list" tag="ul">
+      <transition-group name="list" tag="ul" v-if="orderData.length > 0">
         <li class="list-item" v-for="item in orderData" :key="item.id">
           <div class="order_types" v-if="orderType != 2">
             <v-img
@@ -258,17 +258,15 @@
             ></v-img>
           </div>
         </li>
-        <li v-if="!(orderData.length > 0)">
-          <div class="no_data">
-            <v-img
-              :width="48"
-              cover
-              src="@/assets/images/svg/game/no_data.svg"
-            ></v-img>
-            <span>No Orders Found</span>
-          </div>
-        </li>
       </transition-group>
+      <div class="no_data" v-else>
+        <v-img
+          :width="48"
+          cover
+          src="@/assets/images/svg/game/no_data.svg"
+        ></v-img>
+        <span>No Orders Found</span>
+      </div>
     </div>
     <div class="buying_panel fixed">
       <div class="buy_types">
