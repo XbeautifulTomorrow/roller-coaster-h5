@@ -1298,6 +1298,24 @@ export default defineComponent({
 
         if (this.orderType != 2) {
           this.orderData.unshift(res.data);
+          for (let i = 0; i < this.orderData.length; i++) {
+            const element = this.orderData[i];
+            element.ebustPrice = this.handleEbust(
+              element.price,
+              element.side,
+              element.multiplier
+            );
+
+            if (this.orderType == 1) {
+              element.roi = accurateDecimal(
+                new bigNumber(element.roi).multipliedBy(100).toNumber(),
+                2,
+                true
+              );
+            }
+
+            this.orderData[i] = element;
+          }
         }
 
         // 更新余额
