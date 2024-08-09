@@ -395,7 +395,7 @@ export default defineComponent({
         openUrl("https://x.com/tonRCP");
       } else if (abbreviation == "3BASE") {
         // 在3Base群里转发
-        openUrl("https://t.me/ton_3base_bot/Ton3Base?startapp=673_BRZLED");
+        openUrl("https://t.me/ton_3base_bot/Ton3Base?startapp=702_U4L8DH");
       } else if (abbreviation == "TWEET") {
         // 转发Twitter帖子，跳到帖子
         openUrl("https://x.com/GMCoin_Fam/status/1808708189967561097");

@@ -2,12 +2,12 @@ import * as http from "@/services/apiService";
 const serverUrl = "/coaster-server-web";
 
 /**
- * Telegram登录。
+ * Telegram验证
  * @param params
  */
 const validateToken = (params: any) => http.get(serverUrl + "/tg-user/validate", params, { showLoading: false });
 /**
- * Telegram登录。
+ * Telegram登录
  * @param params
  */
 const telegramLogin = (params: any) => http.post(serverUrl + "/tg-user/login", params);
@@ -23,7 +23,6 @@ const getUserInfo = (params: any) => http.get(serverUrl + "/user/userInfo", para
  * @param params
  */
 const getLevelDetails = (params: any) => http.get(serverUrl + "/user-level/details", params);
-
 
 /**
  * 用户升级

@@ -15,7 +15,7 @@
     </v-snackbar>
     <v-dialog v-model="showGift" width="auto">
       <div class="gift_panel">
-        <v-img :width="160" cover src="@/assets/images/user/gift.png"></v-img>
+        <v-img :width="140" cover src="@/assets/images/earn/gift.png"></v-img>
         <div class="gift_text">
           Congratulations! Your exclusive 3BASE gift has arrived.
         </div>
@@ -32,11 +32,12 @@
         <v-btn
           class="close_btn"
           @click="showGift = false"
-          height="40"
+          height="38"
           rounded="lg"
           size="small"
-          >CONFIRM</v-btn
         >
+          CONFIRM
+        </v-btn>
       </div>
     </v-dialog>
     <recharge></recharge>
@@ -144,9 +145,11 @@ export default defineComponent({
 
   .gift_text {
     font-size: 20px;
-    color: #fdefd6;
+    font-weight: bold;
+    color: #b0b5c5;
     text-align: center;
     line-height: 1.2;
+    padding-top: 14px;
     padding-bottom: 24px;
   }
 
@@ -156,6 +159,7 @@ export default defineComponent({
     justify-content: center;
     margin-bottom: 24px;
     font-size: 36px;
+    font-weight: bold;
     color: #fbb11b;
 
     .v-img {
@@ -165,12 +169,9 @@ export default defineComponent({
   }
 
   .close_btn {
-    background: linear-gradient(
-      90deg,
-      rgba(253, 239, 213, 1) 0%,
-      rgba(248, 215, 156, 1) 101%
-    );
-    color: #fe2e75;
+    min-width: 80%;
+    background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+    color: #000;
     font-size: 20px;
     font-weight: bold;
     padding: 0 20px;
