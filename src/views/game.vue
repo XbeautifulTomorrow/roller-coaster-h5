@@ -1003,7 +1003,7 @@ export default defineComponent({
               this.showToast({ ...bustOrder, tipsType: 3 });
             }
 
-            if (this.orderType != 2) {
+            if (this.orderType == 0) {
               const index = this.orderData.findIndex(
                 (item: any) => item.id == bustOrder.id
               );
@@ -1011,6 +1011,15 @@ export default defineComponent({
               if (index > -1) {
                 this.orderData.splice(index, 1);
               }
+            } else if (this.orderType == 1) {
+              // roi 转化
+              bustOrder.roi = accurateDecimal(
+                new bigNumber(bustOrder.roi).multipliedBy(100).toNumber(),
+                2,
+                true
+              );
+
+              this.orderData.unshift(bustOrder);
             }
           } catch (error) {
             console.log(e);
@@ -1027,6 +1036,7 @@ export default defineComponent({
             setSellData(closeData);
 
             if (this.orderType != 2) return;
+
             // 将新数据添加到列表开头
             for (let i = 0; i < closeData.length; i++) {
               closeData[i].roi = accurateDecimal(
@@ -1296,7 +1306,7 @@ export default defineComponent({
       if (res.code == 200) {
         this.showToast({ ...res.data, tipsType: 1 });
 
-        if (this.orderType != 2) {
+        if (this.orderType == 0) {
           this.orderData.unshift(res.data);
           for (let i = 0; i < this.orderData.length; i++) {
             const element = this.orderData[i];
@@ -1306,13 +1316,11 @@ export default defineComponent({
               element.multiplier
             );
 
-            if (this.orderType == 1) {
-              element.roi = accurateDecimal(
-                new bigNumber(element.roi).multipliedBy(100).toNumber(),
-                2,
-                true
-              );
-            }
+            element.roi = accurateDecimal(
+              new bigNumber(element.roi).multipliedBy(100).toNumber(),
+              2,
+              true
+            );
 
             this.orderData[i] = element;
           }
