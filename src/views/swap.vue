@@ -51,8 +51,10 @@
             reverse
             @input="handleInput"
             @focus="fromOrTo = true"
+            placeholder="0"
           ></v-text-field>
-          <div class="unit" v-if="coinName == 'RCP'">M</div>
+          <div class="zero_fill" v-if="coinName != 'RCP'">00</div>
+          <div class="unit" v-else>M</div>
           <div class="max_btn" @click="handleMax()">MAX</div>
         </div>
         <div v-if="isError" class="error_box">$RCP is not enough.</div>
@@ -92,10 +94,12 @@
             variant="plain"
             hide-details="auto"
             @input="handleInput"
+            placeholder="0"
             @focus="fromOrTo = false"
             reverse
           ></v-text-field>
-          <div class="unit" v-if="coinName != 'RCP'">M</div>
+          <div class="zero_fill" v-if="coinName == 'RCP'">00</div>
+          <div class="unit" v-else>M</div>
         </div>
       </div>
       <div class="tips_text">1$RCT=10,000$RCP</div>
@@ -157,7 +161,8 @@ export default defineComponent({
         }
       } else {
         if (rctAmount >= 100) {
-          return Math.floor(rctAmount).toLocaleString();
+          const rctV = new bigNumber(rctAmount).dividedBy(100).toNumber();
+          return Math.floor(rctV).toLocaleString();
         } else {
           return "";
         }
@@ -183,6 +188,20 @@ export default defineComponent({
       // 处理整数部分添加逗号
       parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
+      if (this.coinName == "RCP") {
+        if (!this.fromOrTo) {
+          const past = parts[0] + "00";
+          parts[0] = past.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          parts[0] = parts[0].slice(0, -2);
+        }
+      } else {
+        if (this.fromOrTo) {
+          const past = parts[0] + "00";
+          parts[0] = past.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          parts[0] = parts[0].slice(0, -2);
+        }
+      }
+
       // 判断余额
       if (
         Number(this.removeTxt(this.fromAmount)) >
@@ -195,24 +214,18 @@ export default defineComponent({
 
       // 更新输入框的值
       if (this.fromOrTo) {
-        if (this.coinName == "RCP") {
-          this.fromAmount = parts[0];
-        } else {
-          const fromV = Number(parts[0]);
-          this.fromAmount = fromV > 0 && fromV < 100 ? "100" : parts[0];
-        }
+        this.fromAmount = parts[0];
       } else {
-        if (this.coinName == "RCT") {
-          this.toAmount = parts[0];
-        } else {
-          const fromV = Number(parts[0]);
-          this.toAmount = fromV > 0 && fromV < 100 ? "100" : parts[0];
-        }
+        this.toAmount = parts[0];
       }
     },
     handleMax() {
       this.fromOrTo = true;
       this.fromAmount = this.maxAmount;
+
+      if (!this.fromAmount) {
+        this.isError = false;
+      }
     },
     async handleConvert() {
       if (this.coinName == "RCP") {
@@ -230,6 +243,8 @@ export default defineComponent({
 
       if (this.coinName == "RCP") {
         amountVal = new bigNumber(fromAmount).multipliedBy(1000000).toNumber();
+      } else {
+        amountVal = new bigNumber(fromAmount).multipliedBy(100).toNumber();
       }
 
       const res = await transferSwap({
@@ -239,6 +254,10 @@ export default defineComponent({
       if (res.code == 200) {
         const { fetchUserInfo } = useUserStore();
         fetchUserInfo();
+
+        this.fromOrTo = true;
+        this.fromAmount = "";
+
         const { setMessageText } = useMessageStore();
         setMessageText("Swap successful");
       }
@@ -263,12 +282,16 @@ export default defineComponent({
       const fromV = Number(this.removeTxt(newV));
       if (coinName == "RCP") {
         const amount = new bigNumber(fromV || 0).multipliedBy(100).toNumber();
-        this.toAmount = amount ? Math.floor(amount).toLocaleString() : "";
+        this.toAmount = amount
+          ? Math.floor(amount).toLocaleString().slice(0, -2)
+          : "";
       } else {
         const amount = new bigNumber(fromV || 0)
+          .multipliedBy(100) // 乘以100
           .multipliedBy(10000)
           .dividedBy(1000000)
           .toNumber();
+
         this.toAmount = amount ? Math.floor(amount).toLocaleString() : "";
       }
     },
@@ -283,13 +306,16 @@ export default defineComponent({
       const fromV = Number(this.removeTxt(newV));
       if (coinName == "RCP") {
         const amount = new bigNumber(fromV || 0)
+          .multipliedBy(100) // 乘以100
           .multipliedBy(10000)
           .dividedBy(1000000)
           .toNumber();
         this.fromAmount = amount ? Math.floor(amount).toLocaleString() : "";
       } else {
         const amount = new bigNumber(fromV || 0).multipliedBy(100).toNumber();
-        this.fromAmount = amount ? Math.floor(amount).toLocaleString() : "";
+        this.fromAmount = amount
+          ? Math.floor(amount).toLocaleString().slice(0, -2)
+          : "";
       }
     },
   },
@@ -357,10 +383,17 @@ export default defineComponent({
   }
 
   :deep(.v-field__input) {
+    font-size: 16px;
     padding: 0;
     min-height: 0;
     line-height: 1.2;
     font-weight: bold;
+  }
+
+  .zero_fill {
+    font-size: 16px;
+    font-weight: 700;
+    color: #b0b5c5;
   }
 
   .unit {
