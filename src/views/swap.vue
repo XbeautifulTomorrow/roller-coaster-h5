@@ -9,7 +9,7 @@
               {{ `Available ${unitConversion(userInfo.rcpAmount)}` }}
             </span>
             <span v-else>
-              {{ `Available ${unitConversion(userInfo.rctAmount)}` }}
+              {{ `Available ${unitConversion(userInfo.rctAmount, 2, false)}` }}
             </span>
             <v-img
               v-if="coinName == 'RCP'"
@@ -50,6 +50,7 @@
             hide-details="auto"
             reverse
             @input="handleInput"
+            @focus="fromOrTo = true"
           ></v-text-field>
           <div class="unit" v-if="coinName == 'RCP'">M</div>
           <div class="max_btn" @click="handleMax()">MAX</div>
@@ -90,6 +91,8 @@
             color="#fff"
             variant="plain"
             hide-details="auto"
+            @input="handleInput"
+            @focus="fromOrTo = false"
             reverse
           ></v-text-field>
           <div class="unit" v-if="coinName != 'RCP'">M</div>
@@ -105,7 +108,7 @@
         height="40"
         rounded="lg"
         size="small"
-        :disabled="!fromAmount || isError"
+        :disabled="!fromAmount || !toAmount || isError"
       >
         <span class="finished">SWAP</span>
       </v-btn>
@@ -118,7 +121,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import bigNumber from "bignumber.js";
-import { accurateDecimal, unitConversion } from "@/utils";
+import { unitConversion, isEmpty } from "@/utils";
 import { transferSwap } from "@/services/api/user";
 import { useMessageStore } from "@/store/message.js";
 
@@ -128,8 +131,9 @@ export default defineComponent({
   data() {
     return {
       coinName: "RCP" as coin,
-      fromAmount: null as number | any,
-      toAmount: null as number | any,
+      fromAmount: "" as string | any,
+      toAmount: "" as string | any,
+      fromOrTo: false,
       isError: false,
     };
   },
@@ -144,45 +148,70 @@ export default defineComponent({
       } = useUserStore();
       if (this.coinName == "RCP") {
         // swap只能输入百万以上
-        const amount = new bigNumber(rcpAmount).dividedBy(1000000);
-        return accurateDecimal(amount, 0);
+        const amount = new bigNumber(rcpAmount).dividedBy(1000000).toNumber();
+
+        if (amount >= 1) {
+          return Math.floor(amount).toLocaleString();
+        } else {
+          return "";
+        }
       } else {
-        return rctAmount;
+        if (rctAmount >= 100) {
+          return Math.floor(rctAmount).toLocaleString();
+        } else {
+          return "";
+        }
       }
     },
   },
   methods: {
     unitConversion: unitConversion,
-    handleInput(val: any) {
-      if (!this.fromAmount) return;
+    handleInput(event: any) {
+      let {
+        target: { _value },
+      } = event;
 
+      if (isEmpty(_value)) {
+        this.isError = false;
+        return;
+      }
+
+      // 去除非数字字符
+      let value = _value.replace(/[^\d.]/g, "");
+      // 分割整数和小数部分
+      let parts = value.split(".");
+      // 处理整数部分添加逗号
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+      // 判断余额
       if (
-        Number(this.maxAmount) <= 0 ||
-        Number(this.fromAmount) > Number(this.maxAmount)
+        Number(this.removeTxt(this.fromAmount)) >
+        Number(this.removeTxt(this.maxAmount))
       ) {
         this.isError = true;
       } else {
         this.isError = false;
       }
 
-      // 去除非数字字符
-      let value = String(this.fromAmount).replace(/[^\d.]/g, "");
-
       // 更新输入框的值
-      if (this.coinName == "RCP") {
-        this.fromAmount = Math.floor(Number(value));
-      } else {
-        let parts = value.split(".");
-
-        if (parts[1]) {
-          const amount = accurateDecimal(Number(value), 2);
-          this.fromAmount = amount;
+      if (this.fromOrTo) {
+        if (this.coinName == "RCP") {
+          this.fromAmount = parts[0];
         } else {
-          this.fromAmount = value;
+          const fromV = Number(parts[0]);
+          this.fromAmount = fromV > 0 && fromV < 100 ? "100" : parts[0];
+        }
+      } else {
+        if (this.coinName == "RCT") {
+          this.toAmount = parts[0];
+        } else {
+          const fromV = Number(parts[0]);
+          this.toAmount = fromV > 0 && fromV < 100 ? "100" : parts[0];
         }
       }
     },
     handleMax() {
+      this.fromOrTo = true;
       this.fromAmount = this.maxAmount;
     },
     async handleConvert() {
@@ -192,11 +221,12 @@ export default defineComponent({
         this.coinName = "RCP";
       }
 
-      this.fromAmount = null;
+      this.fromOrTo = true;
+      this.fromAmount = this.toAmount;
     },
     async submitSwap() {
-      const { fromAmount, coinName } = this;
-      let amountVal = fromAmount;
+      const { fromAmount, coinName, removeTxt } = this;
+      let amountVal = Number(removeTxt(fromAmount));
 
       if (this.coinName == "RCP") {
         amountVal = new bigNumber(fromAmount).multipliedBy(1000000).toNumber();
@@ -213,26 +243,53 @@ export default defineComponent({
         setMessageText("Swap successful");
       }
     },
+    // 删除指定字符串
+    removeTxt(event: string, type = ",") {
+      return String(event).replace(new RegExp(type, "g"), "");
+    },
     handleBack() {
       this.$router.go(-1);
     },
   },
   watch: {
     fromAmount(newV: any) {
-      const { coinName } = this;
+      if (!this.fromOrTo) return;
 
       if (!newV) {
-        this.toAmount = null;
+        this.toAmount = "";
       }
 
+      const { coinName } = this;
+      const fromV = Number(this.removeTxt(newV));
       if (coinName == "RCP") {
-        const amount = new bigNumber(newV || 0).multipliedBy(100);
-        this.toAmount = accurateDecimal(amount, 2, true) || null;
+        const amount = new bigNumber(fromV || 0).multipliedBy(100).toNumber();
+        this.toAmount = amount ? Math.floor(amount).toLocaleString() : "";
       } else {
-        const amount = new bigNumber(newV || 0)
+        const amount = new bigNumber(fromV || 0)
           .multipliedBy(10000)
-          .dividedBy(1000000);
-        this.toAmount = accurateDecimal(amount, 4);
+          .dividedBy(1000000)
+          .toNumber();
+        this.toAmount = amount ? Math.floor(amount).toLocaleString() : "";
+      }
+    },
+    toAmount(newV: any) {
+      if (this.fromOrTo) return;
+
+      if (!newV) {
+        this.fromAmount = null;
+      }
+
+      const { coinName } = this;
+      const fromV = Number(this.removeTxt(newV));
+      if (coinName == "RCP") {
+        const amount = new bigNumber(fromV || 0)
+          .multipliedBy(10000)
+          .dividedBy(1000000)
+          .toNumber();
+        this.fromAmount = amount ? Math.floor(amount).toLocaleString() : "";
+      } else {
+        const amount = new bigNumber(fromV || 0).multipliedBy(100).toNumber();
+        this.fromAmount = amount ? Math.floor(amount).toLocaleString() : "";
       }
     },
   },
@@ -376,5 +433,10 @@ export default defineComponent({
       color: #000;
     }
   }
+}
+
+.finished {
+  text-transform: none;
+  letter-spacing: 0;
 }
 </style>

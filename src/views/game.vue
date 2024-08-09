@@ -1319,6 +1319,14 @@ export default defineComponent({
           profit: "", // 收益
           isError: false, // 阈值是否正确
         }; // 止损
+      } else {
+        const errorData = res[res.length - 1];
+        if (errorData.code == 20002) {
+          let _value = errorData.message.replace(/[^\d.]/g, "");
+          const buyV = new bigNumber(_value).dividedBy(1000).toNumber();
+          this.buyNum = Number(buyV).toLocaleString();
+          this.buyMultiplier = "1,000";
+        }
       }
     },
     // 切换订单类型
