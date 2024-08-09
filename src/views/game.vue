@@ -1241,7 +1241,6 @@ export default defineComponent({
       const multipleArray = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
       const multiple = Number(removeTxt(buyMultiplier));
       const multipleId = multipleArray.findIndex((e) => e >= multiple);
-      console.log(multipleId);
 
       if (multipleId > -1) {
         const multipleV =

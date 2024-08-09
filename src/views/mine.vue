@@ -267,7 +267,6 @@ export default defineComponent({
       const res = await getLevelDetails({});
       if (res.code === 200) {
         this.levelData = res.data;
-        console.log(222);
       }
     },
     async levelUp() {

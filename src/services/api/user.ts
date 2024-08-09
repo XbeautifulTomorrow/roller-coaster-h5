@@ -65,7 +65,7 @@ const buyProduct = (params: any) => http.get(serverUrl + "/product-info/purchase
  * 订单列表
  * @param params
  */
-const getOrderList = (params: any) => http.get(serverUrl + "/order/list", params);
+const getOrderList = (params: any) => http.get(serverUrl + "/order/list", params, { showLoading: false });
 
 /**
  * swap 购买

@@ -282,8 +282,6 @@ export default defineComponent({
         .plus(price)
         .toNumber();
 
-      console.log(profit);
-
       if (!isEmpty(profit)) {
         return Number(accurateDecimal(sellPrice, 2, true)).toLocaleString(
           undefined,

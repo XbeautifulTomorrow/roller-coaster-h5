@@ -244,7 +244,6 @@ export default defineComponent({
       if (this.coinName == "RCP") {
         amountVal = new bigNumber(amountVal).multipliedBy(1000000).toNumber();
       } else {
-        console.log("amountVal", amountVal);
         amountVal = new bigNumber(amountVal).multipliedBy(100).toNumber();
       }
 

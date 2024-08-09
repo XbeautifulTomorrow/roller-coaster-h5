@@ -304,8 +304,7 @@ export default defineComponent({
               this.timeMsg = this.countdown + "s";
             } else {
               this.timeMsg = this.countdown + "s";
-              clearInterval(this.timer);
-              this.timer = null;
+              this.clearTimerFun();
               this.status = "timeout";
             }
           }
@@ -314,8 +313,10 @@ export default defineComponent({
     },
     // 清除计时器
     clearTimerFun() {
-      setInterval(this.timer);
-      this.timer = null;
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
     },
     // 获取支付结果（刷新余额
     async fetchPaymentResults() {
