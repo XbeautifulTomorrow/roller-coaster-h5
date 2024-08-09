@@ -242,9 +242,10 @@ export default defineComponent({
       let amountVal = Number(removeTxt(fromAmount));
 
       if (this.coinName == "RCP") {
-        amountVal = new bigNumber(fromAmount).multipliedBy(1000000).toNumber();
+        amountVal = new bigNumber(amountVal).multipliedBy(1000000).toNumber();
       } else {
-        amountVal = new bigNumber(fromAmount).multipliedBy(100).toNumber();
+        console.log("amountVal", amountVal);
+        amountVal = new bigNumber(amountVal).multipliedBy(100).toNumber();
       }
 
       const res = await transferSwap({
