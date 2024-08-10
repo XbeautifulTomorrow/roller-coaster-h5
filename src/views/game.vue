@@ -211,7 +211,9 @@
             <div class="order_data_info">
               <div class="title">ROI</div>
               <div :class="['val', item.roi >= 0 ? 'up' : 'drop']">
-                {{ `${Number(item.roi) >= 0 ? "+" : ""}${item.roi || 0}%` }}
+                {{
+                  `${Number(item.roi) >= 0 ? "+" : ""}${formatRatio(item.roi)}%`
+                }}
               </div>
             </div>
             <div
@@ -1008,13 +1010,6 @@ export default defineComponent({
                 this.orderData.splice(index, 1);
               }
             } else if (this.orderType == 1) {
-              // roi 转化
-              bustOrder.roi = accurateDecimal(
-                new bigNumber(bustOrder.roi).multipliedBy(100).toNumber(),
-                2,
-                true
-              );
-
               this.orderData.unshift(bustOrder);
             }
           } catch (error) {
@@ -1040,12 +1035,6 @@ export default defineComponent({
               });
 
               if (isRepeat) continue;
-
-              closeData[i].roi = accurateDecimal(
-                new bigNumber(closeData[i].roi).multipliedBy(100).toNumber(),
-                2,
-                true
-              );
 
               setTimeout(() => {
                 if (this.orderType != 2) return;
@@ -1318,12 +1307,6 @@ export default defineComponent({
               element.multiplier
             );
 
-            element.roi = accurateDecimal(
-              new bigNumber(element.roi).multipliedBy(100).toNumber(),
-              2,
-              true
-            );
-
             this.orderData[i] = element;
           }
         }
@@ -1380,18 +1363,6 @@ export default defineComponent({
         if (this.orderType != status) return;
         this.orderData = res.data;
 
-        for (let i = 0; i < this.orderData.length; i++) {
-          const element = this.orderData[i];
-
-          element.roi = accurateDecimal(
-            new bigNumber(element.roi).multipliedBy(100).toNumber(),
-            2,
-            true
-          );
-
-          this.orderData[i] = element;
-        }
-
         this.$forceUpdate();
       }
     },
@@ -1435,14 +1406,6 @@ export default defineComponent({
             element.side,
             element.multiplier
           );
-
-          if (this.orderType == 1) {
-            element.roi = accurateDecimal(
-              new bigNumber(element.roi).multipliedBy(100).toNumber(),
-              2,
-              true
-            );
-          }
 
           this.orderData[i] = element;
         }
@@ -1616,15 +1579,12 @@ export default defineComponent({
     // 计算盈亏比例
     handleProfitRatio(amount: number, income: number) {
       if (!amount || !income) {
-        return "0.00";
+        return 0;
       }
 
-      const ratio = new bigNumber(income)
-        .dividedBy(amount)
-        .multipliedBy(100)
-        .toNumber();
+      const ratio = new bigNumber(income).dividedBy(amount).toNumber();
 
-      return accurateDecimal(ratio, 2, true);
+      return ratio;
     },
     verifyProfit() {
       const {
@@ -1697,6 +1657,15 @@ export default defineComponent({
       } else {
         return unitConversion(Math.floor(income) || 0);
       }
+    },
+    // 格式化百分比
+    formatRatio(num: string | number | any) {
+      if (!num) {
+        return "0.00";
+      }
+
+      const ratio = new bigNumber(num || 0).multipliedBy(100).toNumber();
+      return accurateDecimal(ratio, 2, true);
     },
     // 删除指定字符串
     removeTxt(event: string, type = ",") {
@@ -1791,6 +1760,7 @@ export default defineComponent({
             element.multiplier,
             true
           );
+
           element.roi = this.handleProfitRatio(element.amount, element.income);
           this.orderData[i] = element;
         }

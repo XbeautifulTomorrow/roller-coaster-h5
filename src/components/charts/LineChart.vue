@@ -12,6 +12,8 @@ import bigNumber from "bignumber.js";
 
 import drop from "@/assets/images/svg/game/drop.svg";
 import up from "@/assets/images/svg/game/up.svg";
+import rcp from "@/assets/images/game/icon_rcp.png";
+import rct from "@/assets/images/game/icon_roller.png";
 
 interface LineData {
   localDateTime: string | number | any;
@@ -55,6 +57,8 @@ export default {
       markArray: [] as Array<number>,
       drop: drop,
       up: up,
+      rcp: rcp,
+      rct: rct,
     };
   },
   computed: {
@@ -384,6 +388,17 @@ export default {
                 },
               },
               {
+                type: "image",
+                z: 11,
+                style: {
+                  image: evnet.coinName == "RCP" ? rcp : rct,
+                  x: 24,
+                  y: -1,
+                  width: 10,
+                  height: 10,
+                },
+              },
+              {
                 type: "text",
                 z: 11,
                 style: {
@@ -391,7 +406,7 @@ export default {
                     evnet.income
                   )}`,
                   fill: evnet.income >= 0 ? "#72f238" : "#ff4949",
-                  x: 24,
+                  x: 36,
                   y: 0,
                   fontSize: 10,
                 },
@@ -420,11 +435,9 @@ export default {
                 type: "text",
                 z: 11,
                 style: {
-                  text: `${accurateDecimal(
-                    new bigNumber(evnet.roi).multipliedBy(100).toNumber(),
-                    2,
-                    true
-                  )}%`,
+                  text: `${
+                    Number(evnet.roi || 0) >= 0 ? "+" : ""
+                  }${this.formatRatio(evnet.roi)}%`,
                   fill: evnet.income >= 0 ? "#72f238" : "#ff4949",
                   x: 24,
                   y: 0,
@@ -516,6 +529,15 @@ export default {
       } else {
         return unitConversion(Math.floor(income) || 0);
       }
+    },
+    // 格式化百分比
+    formatRatio(num: string | number | any) {
+      if (!num) {
+        return "0.00";
+      }
+
+      const ratio = new bigNumber(num || 0).multipliedBy(100).toNumber();
+      return accurateDecimal(ratio, 2, true);
     },
   },
 };
