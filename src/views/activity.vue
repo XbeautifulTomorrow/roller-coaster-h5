@@ -100,8 +100,22 @@
             Your $RCT balance is not enough to enter this room.
           </span>
         </div>
-        <v-btn class="enter_btn" @click="showTips = false">
-          <span class="finished">Close</span>
+        <v-btn
+          class="enter_btn"
+          v-if="tipsType == 1"
+          @click="startGame('ADVANCED')"
+        >
+          <span class="finished">OK, LFG</span>
+        </v-btn>
+        <v-btn
+          class="enter_btn"
+          v-else-if="tipsType == 2"
+          @click="toRecharge()"
+        >
+          <span class="finished">RECHARGE</span>
+        </v-btn>
+        <v-btn class="enter_btn" v-else @click="toSwap()">
+          <span class="finished">SWAP</span>
         </v-btn>
       </div>
     </v-dialog>
@@ -167,6 +181,15 @@ export default defineComponent({
       setGameLevel(event);
       // 开始游戏
       this.$router.push("/game");
+    },
+    // 去充值
+    toRecharge() {
+      const { setShowRecharge } = useUserStore();
+      setShowRecharge(true);
+    },
+    // 去Swap
+    toSwap() {
+      this.$router.push("/swap");
     },
     async fetchNumberSessions() {
       const res = await getNumberSessions({});
