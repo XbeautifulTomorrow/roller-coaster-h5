@@ -225,11 +225,12 @@ export default defineComponent({
     rgba(235, 170, 133, 1) 0%,
     rgba(191, 112, 118, 1) 100%
   );
-  font-size: 16px;
   border-radius: 8px;
   padding: 8px 0;
   margin: 8px 0;
-  text-shadow: 1px 1px 5px rgba(66, 20, 79, 1);
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
   box-shadow: 0px 5px 2px 0px rgba(230, 217, 217, 0.6) inset;
 
   .v-img {
