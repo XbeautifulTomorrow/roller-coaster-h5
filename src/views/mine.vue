@@ -69,9 +69,7 @@
             ></v-img>
             <span>
               {{
-                `Rewards: ${Number(levelData.rewardAmount).toLocaleString()} ${
-                  levelData.coinName
-                }`
+                `Rewards: ${Number(levelData.rewardAmount).toLocaleString()}`
               }}
             </span>
             <v-img

@@ -112,7 +112,7 @@
         height="40"
         rounded="lg"
         size="small"
-        :disabled="!fromAmount || !toAmount || isError"
+        :disabled="!fromAmount || !toAmount"
       >
         <span class="finished">SWAP</span>
       </v-btn>
@@ -238,13 +238,32 @@ export default defineComponent({
       this.fromAmount = this.toAmount;
     },
     async submitSwap() {
-      const { fromAmount, coinName, removeTxt } = this;
+      const {
+        fromAmount,
+        coinName,
+        removeTxt,
+        userInfo: { rcpAmount, rctAmount },
+      } = this;
       let amountVal = Number(removeTxt(fromAmount));
 
       if (this.coinName == "RCP") {
         amountVal = new bigNumber(amountVal).multipliedBy(1000000).toNumber();
       } else {
         amountVal = new bigNumber(amountVal).multipliedBy(100).toNumber();
+      }
+
+      if (coinName == "RCP") {
+        if (amountVal > rcpAmount) {
+          const { setShowRecharge } = useUserStore();
+          setShowRecharge(true);
+          return;
+        }
+      } else {
+        if (amountVal > rctAmount) {
+          const { setShowRecharge } = useUserStore();
+          setShowRecharge(true);
+          return;
+        }
       }
 
       const res = await transferSwap({

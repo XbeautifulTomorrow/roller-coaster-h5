@@ -6,7 +6,7 @@
         <div class="close_btn" @click="showRecharge = false">
           <v-img :width="16" cover src="@/assets/images/svg/icon_x.svg"></v-img>
         </div>
-        <div class="title_text">
+        <div class="title_text" @click="toEarn()">
           <v-img
             :width="20"
             cover
@@ -134,10 +134,10 @@ export default defineComponent({
         this.productList = res.data.records;
       }
     },
-    // 邀请
-    toFrens() {
+    // 任务
+    toEarn() {
       this.handleReady();
-      this.$router.push("/frens");
+      this.$router.push("/earn");
     },
     // 处理购买
     async handleBuy(event: productInfo) {
