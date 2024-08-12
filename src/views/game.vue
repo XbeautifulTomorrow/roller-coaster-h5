@@ -926,8 +926,8 @@ export default defineComponent({
     if (this.gameLevel == "BASIC") {
       if (getLocalStore("basicInfo")) {
         const saveInfo = JSON.parse(getLocalStore("basicInfo"));
-        this.buyNum = saveInfo.amount;
-        this.buyMultiplier = saveInfo.multiplier;
+        this.buyNum = Number(saveInfo.amount).toLocaleString();
+        this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
         this.buyNum = "10";
         this.coinName = "RCP";
@@ -935,8 +935,8 @@ export default defineComponent({
     } else if (this.gameLevel == "ADVANCED") {
       if (getLocalStore("advancedInfo")) {
         const saveInfo = JSON.parse(getLocalStore("advancedInfo"));
-        this.buyNum = saveInfo.amount;
-        this.buyMultiplier = saveInfo.multiplier;
+        this.buyNum = Number(saveInfo.amount).toLocaleString();
+        this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
         this.buyNum = "1,000";
         this.coinName = "RCP";
@@ -944,8 +944,8 @@ export default defineComponent({
     } else {
       if (getLocalStore("legendaryInfo")) {
         const saveInfo = JSON.parse(getLocalStore("legendaryInfo"));
-        this.buyNum = saveInfo.amount;
-        this.buyMultiplier = saveInfo.multiplier;
+        this.buyNum = Number(saveInfo.amount).toLocaleString();
+        this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
         this.buyNum = "100";
         this.coinName = "RCT";
@@ -1765,8 +1765,8 @@ export default defineComponent({
         if (this.gameLevel == "BASIC") {
           if (getLocalStore("basicInfo")) {
             const saveInfo = JSON.parse(getLocalStore("basicInfo"));
-            this.buyNum = saveInfo.amount;
-            this.buyMultiplier = saveInfo.multiplier;
+            this.buyNum = Number(saveInfo.amount).toLocaleString();
+            this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
           } else {
             this.buyNum = "10";
             this.coinName = "RCP";
@@ -1774,8 +1774,8 @@ export default defineComponent({
         } else if (this.gameLevel == "ADVANCED") {
           if (getLocalStore("advancedInfo")) {
             const saveInfo = JSON.parse(getLocalStore("advancedInfo"));
-            this.buyNum = saveInfo.amount;
-            this.buyMultiplier = saveInfo.multiplier;
+            this.buyNum = Number(saveInfo.amount).toLocaleString();
+            this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
           } else {
             this.buyNum = "1,000";
             this.coinName = "RCP";
@@ -1783,8 +1783,8 @@ export default defineComponent({
         } else {
           if (getLocalStore("legendaryInfo")) {
             const saveInfo = JSON.parse(getLocalStore("legendaryInfo"));
-            this.buyNum = saveInfo.amount;
-            this.buyMultiplier = saveInfo.multiplier;
+            this.buyNum = Number(saveInfo.amount).toLocaleString();
+            this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
           } else {
             this.buyNum = "100";
             this.coinName = "RCT";
