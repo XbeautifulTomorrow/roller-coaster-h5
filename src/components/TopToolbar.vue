@@ -175,7 +175,7 @@ export default defineComponent({
   align-items: center;
 
   .user_name {
-    width: 30px;
+    width: 36px;
     font-size: 12px;
     font-weight: bold;
     white-space: nowrap;
