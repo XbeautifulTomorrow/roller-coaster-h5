@@ -706,7 +706,14 @@ import countDown from "@/components/countDown/index.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { accurateDecimal, unitConversion, isEmpty, deepClone } from "@/utils";
+import {
+  accurateDecimal,
+  unitConversion,
+  isEmpty,
+  deepClone,
+  getLocalStore,
+  setLocalStore,
+} from "@/utils";
 import {
   addOrder,
   getOrderData,
@@ -917,18 +924,32 @@ export default defineComponent({
     this.fetchOrderData();
 
     if (this.gameLevel == "BASIC") {
-      this.buyNum = "10";
-      this.coinName = "RCP";
-    }
-
-    if (this.gameLevel == "ADVANCED") {
-      this.buyNum = "1,000";
-      this.coinName = "RCP";
-    }
-
-    if (this.gameLevel == "LEGENDARY") {
-      this.buyNum = "100";
-      this.coinName = "RCT";
+      if (getLocalStore("basicInfo")) {
+        const saveInfo = JSON.parse(getLocalStore("basicInfo"));
+        this.buyNum = saveInfo.amount;
+        this.buyMultiplier = saveInfo.multiplier;
+      } else {
+        this.buyNum = "10";
+        this.coinName = "RCP";
+      }
+    } else if (this.gameLevel == "ADVANCED") {
+      if (getLocalStore("advancedInfo")) {
+        const saveInfo = JSON.parse(getLocalStore("advancedInfo"));
+        this.buyNum = saveInfo.amount;
+        this.buyMultiplier = saveInfo.multiplier;
+      } else {
+        this.buyNum = "1,000";
+        this.coinName = "RCP";
+      }
+    } else {
+      if (getLocalStore("legendaryInfo")) {
+        const saveInfo = JSON.parse(getLocalStore("legendaryInfo"));
+        this.buyNum = saveInfo.amount;
+        this.buyMultiplier = saveInfo.multiplier;
+      } else {
+        this.buyNum = "100";
+        this.coinName = "RCT";
+      }
     }
   },
   methods: {
@@ -1296,6 +1317,19 @@ export default defineComponent({
 
       if (res.code == 200) {
         this.showToast({ ...res.data, tipsType: 1 });
+
+        const saveInfo = {
+          multiplier: params.multiplier,
+          amount: params.amount,
+        };
+
+        if (this.gameLevel == "BASIC") {
+          setLocalStore("basicInfo", JSON.stringify(saveInfo));
+        } else if (this.gameLevel == "ADVANCED") {
+          setLocalStore("advancedInfo", JSON.stringify(saveInfo));
+        } else {
+          setLocalStore("legendaryInfo", JSON.stringify(saveInfo));
+        }
 
         if (this.orderType == 0) {
           this.orderData.unshift(res.data);
@@ -1729,18 +1763,32 @@ export default defineComponent({
         }
 
         if (this.gameLevel == "BASIC") {
-          this.buyNum = "10";
-          this.coinName = "RCP";
-        }
-
-        if (this.gameLevel == "ADVANCED") {
-          this.buyNum = "1,000";
-          this.coinName = "RCP";
-        }
-
-        if (this.gameLevel == "LEGENDARY") {
-          this.buyNum = "100";
-          this.coinName = "RCT";
+          if (getLocalStore("basicInfo")) {
+            const saveInfo = JSON.parse(getLocalStore("basicInfo"));
+            this.buyNum = saveInfo.amount;
+            this.buyMultiplier = saveInfo.multiplier;
+          } else {
+            this.buyNum = "10";
+            this.coinName = "RCP";
+          }
+        } else if (this.gameLevel == "ADVANCED") {
+          if (getLocalStore("advancedInfo")) {
+            const saveInfo = JSON.parse(getLocalStore("advancedInfo"));
+            this.buyNum = saveInfo.amount;
+            this.buyMultiplier = saveInfo.multiplier;
+          } else {
+            this.buyNum = "1,000";
+            this.coinName = "RCP";
+          }
+        } else {
+          if (getLocalStore("legendaryInfo")) {
+            const saveInfo = JSON.parse(getLocalStore("legendaryInfo"));
+            this.buyNum = saveInfo.amount;
+            this.buyMultiplier = saveInfo.multiplier;
+          } else {
+            this.buyNum = "100";
+            this.coinName = "RCT";
+          }
         }
 
         this.chartData = [];
