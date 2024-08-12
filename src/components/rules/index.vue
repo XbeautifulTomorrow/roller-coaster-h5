@@ -18,22 +18,22 @@
         <div class="rules_content_item">
           <v-img width="100%" cover src="@/assets/images/rules/2.png"></v-img>
           <span>
-            Bet on the price going up if you think the price will rise. If the
+            Order on the price going up if you think the price will rise. If the
             price goes up, you will generate profit.
           </span>
         </div>
         <div class="rules_content_item">
           <v-img width="100%" cover src="@/assets/images/rules/3.png"></v-img>
           <span>
-            Bet on the price going down if you think the price will fall. If the
-            price goes down, you will generate profit.
+            Order on the price going down if you think the price will fall. If
+            the price goes down, you will generate profit.
           </span>
         </div>
         <div class="rules_content_item">
           <v-img width="100%" cover src="@/assets/images/rules/4.png"></v-img>
           <span>
-            Pick a multiplier to maximise your bet. Setting a higher multiplier
-            increases the risk of your bet.
+            Pick a multiplier to maximise your order. Setting a higher
+            multiplier increases the risk of your order.
           </span>
         </div>
         <div class="rules_content_item">

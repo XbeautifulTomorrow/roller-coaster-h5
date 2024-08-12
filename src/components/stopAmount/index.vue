@@ -43,7 +43,7 @@
           </div>
         </div>
         <div class="stop_loss">
-          <span>CLOSE BET AT PRICE/LOSS</span>
+          <span>CLOSE ORDER AT PRICE/LOSS</span>
           <div class="profit_input">
             <v-text-field
               label=""
