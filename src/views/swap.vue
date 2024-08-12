@@ -112,7 +112,7 @@
         height="40"
         rounded="lg"
         size="small"
-        :disabled="!fromAmount || !toAmount"
+        :disabled="(coinName == 'RCT' && isError) || !fromAmount || !toAmount"
       >
         <span class="finished">SWAP</span>
       </v-btn>
@@ -242,7 +242,7 @@ export default defineComponent({
         fromAmount,
         coinName,
         removeTxt,
-        userInfo: { rcpAmount, rctAmount },
+        userInfo: { rcpAmount },
       } = this;
       let amountVal = Number(removeTxt(fromAmount));
 
@@ -254,12 +254,6 @@ export default defineComponent({
 
       if (coinName == "RCP") {
         if (amountVal > rcpAmount) {
-          const { setShowRecharge } = useUserStore();
-          setShowRecharge(true);
-          return;
-        }
-      } else {
-        if (amountVal > rctAmount) {
           const { setShowRecharge } = useUserStore();
           setShowRecharge(true);
           return;
