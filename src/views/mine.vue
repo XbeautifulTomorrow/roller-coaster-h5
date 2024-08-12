@@ -74,6 +74,18 @@
                 }`
               }}
             </span>
+            <v-img
+              :width="16"
+              v-if="levelData.coinName == 'RCP'"
+              cover
+              src="@/assets/images/game/icon_rcp.png"
+            ></v-img>
+            <v-img
+              :width="16"
+              v-else
+              cover
+              src="@/assets/images/game/icon_roller.png"
+            ></v-img>
           </div>
           <div class="other_item">
             <v-img
