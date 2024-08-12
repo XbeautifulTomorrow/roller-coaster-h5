@@ -98,7 +98,7 @@
                 cover
                 src="@/assets/images/game/icon_rcp.png"
               ></v-img>
-              <span>{{ `+ 100` }}</span>
+              <span>{{ `+ 500` }}</span>
             </div>
             <div class="text">for you and your friend</div>
           </div>
