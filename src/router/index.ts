@@ -140,7 +140,10 @@ router.beforeEach(async (to, from, next) => {
     if (isEmpty(tg_certificate)) {
       const { logoutApi } = useUserStore();
       logoutApi();
+      next();
+      return
     }
+
 
     const inviteCode = getSessionStore("inviteCode");
     const res = await telegramLogin({

@@ -140,6 +140,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { TonConnectUI, ConnectedWallet } from "@tonconnect/ui";
+import { Address } from "@ton/ton";
 
 export default defineComponent({
   data() {
@@ -257,8 +258,12 @@ export default defineComponent({
     // 格式化地址
     formatAddr(event: string) {
       if (!event) return event;
+      const addr = Address.parse(event).toString({
+        bounceable: false,
+      });
+
       var reg = /^(\S{8})\S+(\S{6})$/;
-      return event.replace(reg, "$1...$2");
+      return addr.replace(reg, "$1...$2");
     },
   },
 });
