@@ -251,16 +251,6 @@ export default defineComponent({
   created() {
     this.fetchInviteUserList();
   },
-  mounted() {
-    const _this = this;
-    window.addEventListener("scroll", function () {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        if (!_this.finished) {
-          _this.nextQuery();
-        }
-      }
-    });
-  },
   methods: {
     timeForStr: timeForStr,
     unitConversion: unitConversion,
@@ -331,6 +321,19 @@ export default defineComponent({
         return unitConversion(Math.floor(income) || 0);
       }
     },
+  },
+  mounted() {
+    const _this = this;
+    window.addEventListener("scroll", function () {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (!_this.finished) {
+          _this.nextQuery();
+        }
+      }
+    });
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", function () {});
   },
 });
 </script>

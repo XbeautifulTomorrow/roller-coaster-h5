@@ -111,8 +111,8 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 
-// 没有导航按钮的页面
-const notNav = ["/", "/earn", "/frens", "/wallet"] as Array<string>;
+// 有底部导航的页面
+const navList = ["/", "/earn", "/frens", "/wallet"] as Array<string>;
 
 export default defineComponent({
   data() {
@@ -130,8 +130,7 @@ export default defineComponent({
   methods: {},
   watch: {
     "$route.path"(val: string) {
-      console.log();
-      if (notNav.includes(val)) {
+      if (navList.includes(val)) {
         this.activeNav = true;
       } else {
         this.activeNav = false;
