@@ -1423,7 +1423,7 @@ export default defineComponent({
         // 如果太卡，数据返回时，检查当前订单类型
         if (this.orderType != params.status) return;
         const pages = Math.ceil(res.data.total / res.data.size);
-        if (res.data.page >= pages) {
+        if (this.page >= pages) {
           this.finished = true;
         }
 
