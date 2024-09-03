@@ -816,6 +816,7 @@ export default defineComponent({
       showAuto: false,
       switchType: 2, // 1：升级 2：降级
       showSwitch: false, // 转场弹窗
+      timer: null as any,
     };
   },
   components: {
@@ -1451,8 +1452,11 @@ export default defineComponent({
     nextQuery() {
       if (this.orderType == 2) return;
 
-      this.page++;
-      this.fetchOrderData(2, false);
+      if (this.timer) clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        this.page++;
+        this.fetchOrderData(2, false);
+      }, 300);
     },
     // 平仓
     async handleCloseOrder(event: orderInfo) {
@@ -1718,7 +1722,10 @@ export default defineComponent({
   mounted() {
     const _this = this;
     window.addEventListener("scroll", function () {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      if (
+        window.innerHeight + window.scrollY + 10 >=
+        document.body.offsetHeight
+      ) {
         if (!_this.finished) {
           _this.nextQuery();
         }
@@ -1923,6 +1930,8 @@ export default defineComponent({
     },
   },
   beforeUnmount() {
+    window.removeEventListener("scroll", () => {});
+
     if (!this.eventSource) return;
     this.eventSource.close();
     this.eventSource = null;
