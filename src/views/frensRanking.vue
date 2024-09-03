@@ -41,7 +41,7 @@
         </v-btn>
       </div>
     </div>
-    <div class="ranking_list" @scroll="handleScroll">
+    <div class="ranking_list">
       <div
         class="ranking_list_item"
         v-for="(item, index) in frensRankingList"
@@ -172,21 +172,13 @@ export default defineComponent({
         });
       }
     },
-    // 处理滚动事件
-    async handleScroll(event: Event) {
-      const target = event.target as HTMLElement;
-
-      const scroll = target.scrollTop + target.clientHeight;
-      const bottom = scroll + 10 >= target.scrollHeight;
-
-      if (bottom && !this.finished) {
-        if (this.timer) clearTimeout(this.timer);
-
-        this.timer = setTimeout(() => {
-          this.page++;
-          this.fetchInviteUserList(2, false);
-        }, 300);
-      }
+    // 加载更多
+    nextQuery() {
+      if (this.timer) clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        this.page++;
+        this.fetchInviteUserList(2, false);
+      }, 300);
     },
     // 邀请
     inviteToTelegram() {
@@ -223,6 +215,22 @@ export default defineComponent({
       }
     },
   },
+  mounted() {
+    const _this = this;
+    window.addEventListener("scroll", function () {
+      if (
+        window.innerHeight + window.scrollY + 10 >=
+        document.body.offsetHeight
+      ) {
+        if (!_this.finished) {
+          _this.nextQuery();
+        }
+      }
+    });
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", () => {});
+  },
 });
 </script>
 <style lang="scss" scoped>
@@ -258,8 +266,6 @@ export default defineComponent({
 
 .ranking_list {
   padding-top: 16px;
-  height: calc(100vh - 224px);
-
   & > .ranking_list_item + .ranking_list_item {
     margin-top: 8px;
   }
