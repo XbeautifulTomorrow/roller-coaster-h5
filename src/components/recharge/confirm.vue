@@ -32,10 +32,25 @@
             </div>
           </div>
           <v-btn
+            class="connect_btn stars"
+            :elevation="8"
+            height="42"
+            @click="handleStars()"
+          >
+            <v-img
+              width="24"
+              class="reward_img"
+              cover
+              src="@/assets/images/recharge/icon_stars.png"
+            ></v-img>
+            <span class="finished">
+              {{ `${productInfo.starPrice} Stars` }}
+            </span>
+          </v-btn>
+          <v-btn
             v-if="!isConnect"
             class="connect_btn"
             :elevation="8"
-            width="auto"
             height="40"
             @click="connectToWallet()"
           >
@@ -47,16 +62,36 @@
             ></v-img>
             <span class="finished">TON CONNECT</span>
           </v-btn>
-          <v-btn
-            v-else
-            class="connect_btn"
-            :elevation="8"
-            width="auto"
-            height="40"
-            @click="handlePayment()"
-          >
-            <span class="finished">TON CONNECT</span>
-          </v-btn>
+          <template v-else>
+            <v-btn
+              class="connect_btn usdt"
+              :elevation="8"
+              height="40"
+              @click="handleBuy(2)"
+            >
+              <v-img
+                width="32"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/icon_usdt.png"
+              ></v-img>
+              <span class="finished">{{ `${productInfo.price} USDT` }}</span>
+            </v-btn>
+            <v-btn
+              class="connect_btn"
+              :elevation="8"
+              height="40"
+              @click="handleBuy(1)"
+            >
+              <v-img
+                width="24"
+                class="reward_img"
+                cover
+                src="@/assets/images/recharge/icon_ton.png"
+              ></v-img>
+              <span class="finished">{{ `${productInfo.amount} TON` }}</span>
+            </v-btn>
+          </template>
         </div>
         <div v-else class="recharge_box">
           <div v-if="status == 'complete'">
@@ -105,9 +140,10 @@
   </v-dialog>
 </template>
 <script lang="ts">
+import axios from "axios";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { getOrderList } from "@/services/api/user";
+import { getOrderList, buyProduct, buyStarsProduct } from "@/services/api/user";
 import { unitConversion } from "@/utils";
 import { TonConnectUI, ConnectedWallet } from "@tonconnect/ui";
 import { toNano, beginCell, Address } from "@ton/ton";
@@ -141,6 +177,8 @@ export default defineComponent({
       countdown: 60,
       timeMsg: "60s",
       orderData: [] as Array<order>,
+      gmtJettons:
+        "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
     };
   },
   computed: {
@@ -176,6 +214,11 @@ export default defineComponent({
       const { walletAddr } = useUserStore();
       return walletAddr;
     },
+    // jetton地址
+    jettonAddr() {
+      const { jettonAddr } = useUserStore();
+      return jettonAddr;
+    },
     productId() {
       const { productId } = useUserStore();
       return productId;
@@ -192,6 +235,30 @@ export default defineComponent({
     unitConversion: unitConversion,
     handleReady() {
       this.showConfirm = false;
+    },
+    // 获取余额
+    async fetchBalance() {
+      const { walletAddr, gmtJettons } = this;
+
+      let fetchUrl = `https://tonapi.io/v2/accounts/${encodeURIComponent(
+        walletAddr
+      )}`;
+
+      fetchUrl += `/jettons/${encodeURIComponent(gmtJettons)}`;
+
+      axios
+        .get(fetchUrl)
+        .then((res: any) => {
+          if (res.status == 200) {
+            const { wallet_address } = res.data;
+
+            const { setJettonAddr } = useUserStore();
+            setJettonAddr(wallet_address.address);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
     // 初始化ton-connect
     async initTonConnect() {
@@ -250,11 +317,52 @@ export default defineComponent({
         });
       }
     },
+    // 处理Stars
+    async handleStars() {
+      const { productId, walletAddr } = this;
+      const buy = await buyProduct({
+        productId: productId,
+        formAddress: walletAddr,
+      });
+
+      if (buy.code == 200) {
+        const confirm = await buyStarsProduct({
+          productId: buy.data.productId,
+          orderId: buy.data.orderId,
+        });
+        if (confirm.code == 200) {
+          const { Telegram } = window as any;
+          if (Telegram) {
+            const { WebApp } = Telegram;
+            WebApp.openInvoice(confirm.data, (e: any) => {
+              this.status = "pending";
+              this.payment = true;
+              this.countDown();
+            });
+          }
+        }
+      }
+    },
+    // 处理下单
+    async handleBuy(type: number) {
+      const { productId, walletAddr } = this;
+
+      const res = await buyProduct({
+        productId: productId,
+        formAddress: walletAddr,
+      });
+
+      if (res.code == 200) {
+        if (type == 1) {
+          this.handlePayment(res.data);
+        } else {
+          this.handleTransfer(res.data);
+        }
+      }
+    },
     // 处理购买
-    async handlePayment() {
-      const {
-        productInfo: { publicKey, amount, remark },
-      } = this;
+    async handlePayment(event: any) {
+      const { publicKey, amount, remark } = event;
 
       // 创建评论
       const body = beginCell()
@@ -277,6 +385,34 @@ export default defineComponent({
       this.tonConnect
         .sendTransaction(transaction)
         .then((res: any) => {
+          this.status = "pending";
+          this.payment = true;
+          console.log(res);
+          this.countDown();
+        })
+        .catch((err: any) => {
+          console.log(err);
+        });
+    },
+
+    async handleTransfer(event: any) {
+      const { jettonAddr } = this;
+
+      // 创建交易体
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 30000,
+        messages: [
+          {
+            address: jettonAddr,
+            amount: toNano("0.05").toString(), //以nanotons计的Toncoin
+            payload: event.cell,
+          },
+        ],
+      };
+
+      this.tonConnect
+        .sendTransaction(transaction)
+        .then(async (res: any) => {
           this.status = "pending";
           this.payment = true;
           console.log(res);
@@ -551,22 +687,38 @@ export default defineComponent({
   margin-bottom: 16px;
 }
 
+.connect_btn + .connect_btn {
+  margin-top: 8px;
+}
+
 .connect_btn {
-  background-color: rgba(73, 182, 246, 1);
+  min-width: 80%;
   box-sizing: border-box;
+  background-color: rgba(73, 182, 246, 1);
   border-width: 2px;
   border-style: solid;
   border-color: rgba(36, 36, 36, 1);
-  border-radius: 10px;
-  -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
   font-weight: 700;
   font-style: normal;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   color: #ffffff;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+
+  &.usdt {
+    background-color: #26a17b;
+  }
+
+  &.stars {
+    background: linear-gradient(
+      180deg,
+      rgba(93, 158, 252, 1) 0%,
+      rgba(150, 74, 245, 1) 51%,
+      rgba(230, 57, 173, 1) 98%
+    );
+  }
 
   .v-img {
     flex: none;
@@ -577,6 +729,7 @@ export default defineComponent({
 .finished {
   text-transform: none;
   letter-spacing: 0;
+  line-height: 1;
 }
 
 @keyframes rotate {

@@ -58,8 +58,14 @@ const getProductList = (params: any) => http.get(serverUrl + "/product-info/list
  * 购买产品
  * @param params
  */
-const buyProduct = (params: any) => http.get(serverUrl + "/product-info/purchase", params);
+const buyProduct = (params: any) => http.post(serverUrl + "/product-info/purchase", params);
 
+
+/**
+ * 星星购买产品
+ * @param params
+ */
+const buyStarsProduct = (params: any) => http.get(serverUrl + "/product-info/starPayment", params);
 
 /**
  * 订单列表
@@ -126,6 +132,7 @@ export {
   receiveGifts,
   getProductList,
   buyProduct,
+  buyStarsProduct,
   getOrderList,
   transferSwap,
   searchByTgId,
