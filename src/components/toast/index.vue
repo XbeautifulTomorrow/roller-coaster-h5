@@ -31,7 +31,10 @@
                   {{
                     `&nbsp;${
                       Number(toast.income || 0) >= 0 ? "+" : ""
-                    }${formatIncome(Number(toast.income || 0))}`
+                    }${formatIncome(
+                      Number(toast.income || 0),
+                      toast.coinName == "RCP" ? 1 : 2
+                    )}`
                   }}
                 </span>
                 <v-img
@@ -58,7 +61,10 @@
                   {{
                     `&nbsp;${
                       Number(toast.income || 0) >= 0 ? "+" : ""
-                    }${formatIncome(Number(toast.income || 0))}`
+                    }${formatIncome(
+                      Number(toast.income || 0),
+                      toast.coinName == "RCP" ? 1 : 2
+                    )}`
                   }}
                 </span>
                 <v-img
@@ -77,7 +83,12 @@
             </div>
             <div class="status_description">
               <span>
-                {{ `Amount: ${formatIncome(toast.amount)}, ` }}
+                {{
+                  `Amount: ${formatIncome(
+                    toast.amount,
+                    toast.coinName == "RCP" ? 1 : 2
+                  )}, `
+                }}
               </span>
               <span>{{
                 `Multiplier: x${Number(toast.multiplier).toLocaleString()}, `
@@ -117,7 +128,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game";
-import { unitConversion } from "@/utils";
+import { unitConversion, accurateDecimal } from "@/utils";
 
 interface ToastMessage {
   id: number; // 索引id
@@ -171,11 +182,19 @@ export default defineComponent({
       };
     },
     // 格式化收益
-    formatIncome(income: number) {
-      if (Math.abs(income || 0) < 1000) {
-        return Math.floor(income);
+    formatIncome(income: number, type = 1) {
+      if (type == 1) {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(Math.floor(income) || 0);
+        }
       } else {
-        return unitConversion(Math.floor(income) || 0);
+        if (Math.abs(income || 0) < 1000) {
+          return accurateDecimal(income, 2);
+        } else {
+          return unitConversion(accurateDecimal(income, 2) || 0);
+        }
       }
     },
   },

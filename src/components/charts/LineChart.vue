@@ -403,7 +403,8 @@ export default {
                 z: 11,
                 style: {
                   text: `${evnet.income >= 0 ? "+" : ""}${this.formatIncome(
-                    evnet.income
+                    evnet.income,
+                    evnet.coinName == "RCP" ? 1 : 2
                   )}`,
                   fill: evnet.income >= 0 ? "#72f238" : "#ff4949",
                   x: 36,
@@ -523,11 +524,19 @@ export default {
       }
     },
     // 格式化收益
-    formatIncome(income: number) {
-      if (Math.abs(income || 0) < 1000) {
-        return Math.floor(income);
+    formatIncome(income: number, type = 1) {
+      if (type == 1) {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(Math.floor(income) || 0);
+        }
       } else {
-        return unitConversion(Math.floor(income) || 0);
+        if (Math.abs(income || 0) < 1000) {
+          return accurateDecimal(income, 2);
+        } else {
+          return unitConversion(accurateDecimal(income, 2) || 0);
+        }
       }
     },
     // 格式化百分比

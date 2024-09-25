@@ -1211,7 +1211,17 @@ export default defineComponent({
 
       // 更新输入框的值
       if (this.currentInput == 1) {
-        this.buyNum = parts[0];
+        if (this.gameLevel != "LEGENDARY") {
+          this.buyNum = parts[0];
+        } else {
+          if (isDecimal) {
+            parts[1] =
+              parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1];
+            this.buyNum = parts.join(".");
+          } else {
+            this.buyNum = parts.join(".");
+          }
+        }
       } else if (this.currentInput == 2) {
         this.buyMultiplier = Number(value) >= 1000 ? "1,000" : parts[0];
       } else if (this.currentInput == 3) {
@@ -1693,10 +1703,20 @@ export default defineComponent({
     },
     // 格式化收益
     formatIncome(income: number) {
-      if (Math.abs(income || 0) < 1000) {
-        return Math.floor(income);
+      const type = this.coinName == "RCP" ? 1 : 2;
+
+      if (type == 1) {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(Math.floor(income) || 0);
+        }
       } else {
-        return unitConversion(Math.floor(income) || 0);
+        if (Math.abs(income || 0) < 1000) {
+          return accurateDecimal(income, 2);
+        } else {
+          return unitConversion(accurateDecimal(income, 2) || 0);
+        }
       }
     },
     // 格式化百分比
