@@ -6,7 +6,31 @@
         <div class="close_btn" @click="showRecharge = false">
           <v-img :width="16" cover src="@/assets/images/svg/icon_x.svg"></v-img>
         </div>
-        <div class="title_text" @click="toEarn()">
+        <div class="recharge_tabs">
+          <div
+            :class="['recharge_tab', rechargeType == 0 ? 'active' : '']"
+            @click="rechargeType = 0"
+          >
+            <v-img
+              :width="50"
+              cover
+              src="@/assets/images/recharge/token_6.png"
+            ></v-img>
+            <div>$RCP</div>
+          </div>
+          <div
+            :class="['recharge_tab', rechargeType == 1 ? 'active' : '']"
+            @click="rechargeType = 1"
+          >
+            <v-img
+              :width="50"
+              cover
+              src="@/assets/images/game/icon_usdt.png"
+            ></v-img>
+            <div>USDT</div>
+          </div>
+        </div>
+        <div v-if="rechargeType == 0" class="title_text" @click="toEarn()">
           <v-img
             :width="20"
             cover
@@ -14,7 +38,7 @@
           ></v-img>
           <span>FREE $RCP</span>
         </div>
-        <div class="product_items">
+        <div v-if="rechargeType == 0" class="product_items">
           <div
             class="product_item"
             v-for="(item, index) in productList"
@@ -74,19 +98,22 @@
                 cover
                 src="@/assets/images/svg/btn_bg.svg"
               ></v-img>
-              <div class="price_val">{{ `$${item.rctAmount / 100}` }}</div>
+              <div class="price_val">{{ `$${item.price}` }}</div>
             </div>
           </div>
         </div>
+        <buyTokens v-if="rechargeType == 1"></buyTokens>
       </div>
     </div>
   </v-dialog>
 </template>
 <script lang="ts">
+import axios from "axios";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getProductList } from "@/services/api/user.js";
 import { unitConversion } from "@/utils";
+import buyTokens from "@/components/recharge/buyTokens.vue";
 
 interface productInfo {
   productId: number; //产品ID
@@ -101,10 +128,20 @@ export default defineComponent({
   data() {
     return {
       productList: [] as Array<productInfo>,
+      gmtJettons:
+        "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe", // USDT
       tonConnect: null as any,
+      rechargeType: 0,
     };
   },
+  components: {
+    buyTokens,
+  },
   computed: {
+    walletAddr() {
+      const { walletAddr } = useUserStore();
+      return walletAddr;
+    },
     levelImages() {
       const { levelImages } = useUserStore();
       return levelImages;
@@ -128,6 +165,29 @@ export default defineComponent({
     handleReady() {
       this.showRecharge = false;
     },
+    // 获取余额
+    async fetchBalance() {
+      const { walletAddr, gmtJettons } = this;
+
+      let fetchUrl = `https://tonapi.io/v2/accounts/${encodeURIComponent(
+        walletAddr
+      )}`;
+
+      fetchUrl += `/jettons/${encodeURIComponent(gmtJettons)}`;
+
+      axios
+        .get(fetchUrl)
+        .then((res: any) => {
+          if (res.status == 200) {
+            const { wallet_address } = res.data;
+            const { setJettonAddr } = useUserStore();
+            setJettonAddr(wallet_address.address);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
     async fetchProductList() {
       const res = await getProductList({ page: 1, limit: 10 });
       if (res.code === 200) {
@@ -138,6 +198,16 @@ export default defineComponent({
     toEarn() {
       this.handleReady();
       this.$router.push("/earn");
+    },
+    // 末尾补零
+    formatZeroFill(event: any) {
+      let str = "1";
+
+      for (let i = 0; i < event; i++) {
+        str += "0";
+      }
+
+      return str;
     },
     // 处理购买
     async handleBuy(event: productInfo) {
@@ -156,6 +226,7 @@ export default defineComponent({
 }
 
 .dialog_box {
+  width: 100vw;
   border-radius: 16px;
   padding: 16px;
   display: flex;
@@ -206,6 +277,7 @@ export default defineComponent({
 
 .recharge_panel {
   width: 100%;
+  min-height: 500px;
   margin-top: -16px;
   padding: 4px;
   border-radius: 4px;
@@ -214,6 +286,45 @@ export default defineComponent({
   box-shadow: 0px 0px 4px rgba(21, 12, 7, 1);
   border-radius: 20px;
   padding: 16px;
+}
+
+.recharge_tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0 0px;
+
+  .recharge_tab + .recharge_tab {
+    margin-left: 8px;
+  }
+
+  .recharge_tab {
+    flex: 1;
+    height: 78px;
+    background-color: rgba(137, 104, 85, 1);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #b9b9b9;
+
+    &.active {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 200, 26, 1) 58%,
+        rgba(255, 231, 26, 1) 97%,
+        rgba(217, 163, 21, 1) 133%
+      );
+      color: #000;
+    }
+
+    .v-img {
+      flex: none;
+    }
+  }
 }
 
 .title_text {

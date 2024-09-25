@@ -9,7 +9,7 @@
               {{ `Available ${unitConversion(userInfo.rcpAmount)}` }}
             </span>
             <span v-else>
-              {{ `Available ${unitConversion(userInfo.rctAmount, 2, false)}` }}
+              {{ `Available ${unitConversion(userInfo.usdtAmount, 2, false)}` }}
             </span>
             <v-img
               v-if="coinName == 'RCP'"
@@ -21,7 +21,7 @@
               v-else
               :width="20"
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
           </div>
         </div>
@@ -37,9 +37,9 @@
               v-else
               :width="24"
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
-            <span>${{ coinName == "RCP" ? "RCP" : "RCT" }}</span>
+            <span>{{ coinName == "RCP" ? "$RCP" : "USDT" }}</span>
           </div>
           <v-text-field
             v-model="fromAmount"
@@ -53,11 +53,12 @@
             @focus="fromOrTo = true"
             placeholder="0"
           ></v-text-field>
-          <div class="zero_fill" v-if="coinName != 'RCP'">00</div>
-          <div class="unit" v-else>M</div>
+          <div class="unit" v-if="coinName == 'RCP'">M</div>
           <div class="max_btn" @click="handleMax()">MAX</div>
         </div>
-        <div v-if="isError" class="error_box">$RCP is not enough.</div>
+        <div v-if="isError" class="error_box">
+          {{ `${coinName == "RCP" ? "$RCP" : "USDT"} is not enough.` }}
+        </div>
       </div>
       <div class="convert_btn" @click="handleConvert()">
         <v-img
@@ -82,9 +83,9 @@
               v-else
               :width="24"
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
-            <span>${{ coinName != "RCP" ? "RCP" : "RCT" }}</span>
+            <span>{{ coinName != "RCP" ? "$RCP" : "USDT" }}</span>
           </div>
           <v-text-field
             v-model="toAmount"
@@ -98,11 +99,10 @@
             @focus="fromOrTo = false"
             reverse
           ></v-text-field>
-          <div class="zero_fill" v-if="coinName == 'RCP'">00</div>
-          <div class="unit" v-else>M</div>
+          <div class="unit" v-if="coinName == 'USDT'">M</div>
         </div>
       </div>
-      <div class="tips_text">1$RCT=10,000$RCP</div>
+      <div class="tips_text">1USDT=1,000,000$RCP</div>
     </div>
     <div class="swap_buttons">
       <v-btn
@@ -112,7 +112,7 @@
         height="40"
         rounded="lg"
         size="small"
-        :disabled="(coinName == 'RCT' && isError) || !fromAmount || !toAmount"
+        :disabled="(coinName == 'USDT' && isError) || !fromAmount || !toAmount"
       >
         <span class="finished">SWAP</span>
       </v-btn>
@@ -129,7 +129,7 @@ import { unitConversion, isEmpty } from "@/utils";
 import { transferSwap } from "@/services/api/user";
 import { useMessageStore } from "@/store/message.js";
 
-type coin = "RCP" | "RCT";
+type coin = "RCP" | "USDT";
 
 export default defineComponent({
   data() {
@@ -148,7 +148,7 @@ export default defineComponent({
     },
     maxAmount() {
       const {
-        userInfo: { rcpAmount, rctAmount },
+        userInfo: { rcpAmount, usdtAmount },
       } = useUserStore();
       if (this.coinName == "RCP") {
         // swap只能输入百万以上
@@ -160,9 +160,8 @@ export default defineComponent({
           return "";
         }
       } else {
-        if (rctAmount >= 100) {
-          const rctV = new bigNumber(rctAmount).dividedBy(100).toNumber();
-          return Math.floor(rctV).toLocaleString();
+        if (Number(usdtAmount) >= 0) {
+          return Math.floor(usdtAmount).toLocaleString();
         } else {
           return "";
         }
@@ -187,20 +186,6 @@ export default defineComponent({
       let parts = value.split(".");
       // 处理整数部分添加逗号
       parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-      if (this.coinName == "RCP") {
-        if (!this.fromOrTo) {
-          const past = parts[0] + "00";
-          parts[0] = past.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          parts[0] = parts[0].slice(0, -2);
-        }
-      } else {
-        if (this.fromOrTo) {
-          const past = parts[0] + "00";
-          parts[0] = past.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          parts[0] = parts[0].slice(0, -2);
-        }
-      }
 
       // 判断余额
       if (
@@ -229,7 +214,7 @@ export default defineComponent({
     },
     async handleConvert() {
       if (this.coinName == "RCP") {
-        this.coinName = "RCT";
+        this.coinName = "USDT";
       } else {
         this.coinName = "RCP";
       }
@@ -248,8 +233,6 @@ export default defineComponent({
 
       if (this.coinName == "RCP") {
         amountVal = new bigNumber(amountVal).multipliedBy(1000000).toNumber();
-      } else {
-        amountVal = new bigNumber(amountVal).multipliedBy(100).toNumber();
       }
 
       if (coinName == "RCP") {
@@ -262,7 +245,7 @@ export default defineComponent({
 
       const res = await transferSwap({
         amount: amountVal,
-        coinName: coinName == "RCP" ? "RCT" : "RCP",
+        coinName: coinName == "RCP" ? "USDT" : "RCP",
       });
       if (res.code == 200) {
         const { fetchUserInfo } = useUserStore();
@@ -291,22 +274,8 @@ export default defineComponent({
         this.toAmount = "";
       }
 
-      const { coinName } = this;
       const fromV = Number(this.removeTxt(newV));
-      if (coinName == "RCP") {
-        const amount = new bigNumber(fromV || 0).multipliedBy(100).toNumber();
-        this.toAmount = amount
-          ? Math.floor(amount).toLocaleString().slice(0, -2)
-          : "";
-      } else {
-        const amount = new bigNumber(fromV || 0)
-          .multipliedBy(100) // 乘以100
-          .multipliedBy(10000)
-          .dividedBy(1000000)
-          .toNumber();
-
-        this.toAmount = amount ? Math.floor(amount).toLocaleString() : "";
-      }
+      this.toAmount = fromV ? Math.floor(fromV).toLocaleString() : "";
     },
     toAmount(newV: any) {
       if (this.fromOrTo) return;
@@ -315,21 +284,8 @@ export default defineComponent({
         this.fromAmount = null;
       }
 
-      const { coinName } = this;
       const fromV = Number(this.removeTxt(newV));
-      if (coinName == "RCP") {
-        const amount = new bigNumber(fromV || 0)
-          .multipliedBy(100) // 乘以100
-          .multipliedBy(10000)
-          .dividedBy(1000000)
-          .toNumber();
-        this.fromAmount = amount ? Math.floor(amount).toLocaleString() : "";
-      } else {
-        const amount = new bigNumber(fromV || 0).multipliedBy(100).toNumber();
-        this.fromAmount = amount
-          ? Math.floor(amount).toLocaleString().slice(0, -2)
-          : "";
-      }
+      this.fromAmount = fromV ? Math.floor(fromV).toLocaleString() : "";
     },
   },
 });

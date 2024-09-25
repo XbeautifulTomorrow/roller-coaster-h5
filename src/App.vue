@@ -42,6 +42,7 @@
     </v-dialog>
     <recharge></recharge>
     <confirm v-if="showConfirm"></confirm>
+    <buyUSDConfirm v-if="showBuyUSDConfirm"></buyUSDConfirm>
     <sendAmount></sendAmount>
     <v-dialog v-model="showLoading" width="auto" persistent>
       <div class="loading_box">
@@ -65,6 +66,7 @@ import { useMessageStore } from "@/store/message.js";
 import { useUserStore } from "@/store/user.js";
 import recharge from "@/components/recharge/index.vue";
 import confirm from "@/components/recharge/confirm.vue";
+import buyUSDConfirm from "@/components/recharge/buyUSDConfirm.vue";
 import sendAmount from "@/components/sendAmount/index.vue";
 
 import { defineComponent } from "vue";
@@ -77,6 +79,7 @@ export default defineComponent({
     BottomNav,
     recharge,
     confirm,
+    buyUSDConfirm,
     sendAmount,
   },
   computed: {
@@ -103,6 +106,10 @@ export default defineComponent({
     showConfirm() {
       const { showConfirm } = useUserStore();
       return showConfirm;
+    },
+    showBuyUSDConfirm() {
+      const { showBuyUSDConfirm } = useUserStore();
+      return showBuyUSDConfirm;
     },
     messageText() {
       const { messageText } = useMessageStore();

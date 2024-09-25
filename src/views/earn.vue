@@ -25,7 +25,7 @@
                   <v-img
                     :width="20"
                     cover
-                    src="@/assets/images/game/icon_roller.png"
+                    src="@/assets/images/game/icon_usdt.png"
                   ></v-img>
                   <div class="bonus">{{ `+ ${item.rollerAmount}` }}</div>
                 </div>
@@ -114,7 +114,7 @@
                   <v-img
                     :width="20"
                     cover
-                    src="@/assets/images/game/icon_roller.png"
+                    src="@/assets/images/game/icon_usdt.png"
                   ></v-img>
                   <div class="bonus">{{ `+ ${item.rollerAmount}` }}</div>
                 </div>
@@ -162,6 +162,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getTaskList, completeTask } from "@/services/api/task.js";
+import { useGameStore } from "@/store/game";
 import {
   shareOnTelegram,
   openUrl,
@@ -377,6 +378,27 @@ export default defineComponent({
       } else if (abbreviation == "GM") {
         // 去签到
         this.$router.push("/");
+      } else if (
+        abbreviation == "PLAYMIN" ||
+        abbreviation == "PLAYMULTIPLIER"
+      ) {
+        const {
+          userInfo: { rcpAmount },
+        } = this;
+
+        let level = "";
+
+        if (Number(rcpAmount) <= 100000) {
+          level = "BASIC";
+        } else {
+          level = "ADVANCED";
+        }
+        const { setGameLevel } = useGameStore();
+        setGameLevel(level);
+        // 开始游戏
+        this.$router.push("/game");
+        // 去完成任务
+        this.$router.push("/game");
       } else if (abbreviation == "GMCOIN") {
         // 打开GMCoin
         openUrl("https://t.me/theGMCoinBot/GMCoin?startapp=rpbWLrCa");

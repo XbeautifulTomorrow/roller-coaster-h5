@@ -17,10 +17,14 @@
           <v-img
             :width="24"
             cover
-            src="@/assets/images/game/icon_roller.png"
+            src="@/assets/images/game/icon_usdt.png"
           ></v-img>
           <div>
-            {{ Number(Math.floor(userInfo?.totalRctAmount)).toLocaleString() }}
+            {{
+              Number(
+                accurateDecimal(userInfo?.totalUsdtAmount, 2)
+              ).toLocaleString()
+            }}
           </div>
         </div>
       </div>
@@ -159,15 +163,15 @@
                     cover
                     src="@/assets/images/game/icon_rcp.png"
                   ></v-img>
-                  <span>{{ `+ ${formatIncome(item.rcpAmount)}` }}</span>
+                  <span>{{ `+ ${formatIncome(item.rcpAmount, 1)}` }}</span>
                 </div>
-                <div class="bonus" v-if="item.rctAmount">
+                <div class="bonus" v-if="item.usdtAmount">
                   <v-img
                     :width="18"
                     cover
-                    src="@/assets/images/game/icon_roller.png"
+                    src="@/assets/images/game/icon_usdt.png"
                   ></v-img>
-                  <span>{{ `+ ${formatIncome(item.rctAmount)}` }}</span>
+                  <span>{{ `+ ${formatIncome(item.usdtAmount, 2)}` }}</span>
                 </div>
               </div>
             </div>
@@ -180,7 +184,7 @@
               <v-img
                 :width="18"
                 cover
-                src="@/assets/images/game/icon_roller.png"
+                src="@/assets/images/game/icon_usdt.png"
               ></v-img>
               <span>TIP</span>
             </div>
@@ -213,7 +217,12 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getInviteUserList } from "@/services/api/user.js";
-import { shareOnTelegram, timeForStr, unitConversion } from "@/utils";
+import {
+  shareOnTelegram,
+  timeForStr,
+  unitConversion,
+  accurateDecimal,
+} from "@/utils";
 
 interface frensInfo {
   userId: number; //用户ID
@@ -223,7 +232,7 @@ interface frensInfo {
   tgId: number; //tgId
   registrationTime: string; //注册时间
   rcpAmount: number; //RCP数量
-  rctAmount: number; //RCT数量
+  usdtAmount: number; //USDT数量
   isMember: boolean; //是否为会员
   [x: string]: string | number | any;
 }
@@ -255,6 +264,7 @@ export default defineComponent({
   methods: {
     timeForStr: timeForStr,
     unitConversion: unitConversion,
+    accurateDecimal: accurateDecimal,
     // 获取邀请用户列表
     async fetchInviteUserList(type = 1, isSearch = true) {
       let _page = this.page;
@@ -318,11 +328,19 @@ export default defineComponent({
       });
     },
     // 格式化收益
-    formatIncome(income: number) {
-      if (Math.abs(income || 0) < 1000) {
-        return Math.floor(income);
+    formatIncome(income: number, type: number) {
+      if (type == 1) {
+        if (Math.abs(income || 0) < 1000) {
+          return Math.floor(income);
+        } else {
+          return unitConversion(Math.floor(income) || 0);
+        }
       } else {
-        return unitConversion(Math.floor(income) || 0);
+        if (Math.abs(income || 0) < 1000) {
+          return accurateDecimal(income, 2);
+        } else {
+          return unitConversion(accurateDecimal(income, 2) || 0);
+        }
       }
     },
   },

@@ -5,7 +5,7 @@ export interface orderInfo {
   userName: string, // 用户昵称
   userId: number, // 用户ID
   amount: number, // 购买数量
-  coinName: string, //币种:RCP/RCT,
+  coinName: string, //币种:RCP/USDT,
   price: number, // 价格
   multiplier: number, // 倍数
   exitPrice: number, // 退出价格

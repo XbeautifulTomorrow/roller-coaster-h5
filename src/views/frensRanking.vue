@@ -204,7 +204,7 @@ export default defineComponent({
     },
     // 格式化收益
     formatIncome(income: number, type: string) {
-      if (type == "RCT") {
+      if (type == "USDT") {
         return unitConversion(accurateDecimal(income, 2, true) || 0);
       } else {
         if (Math.abs(income || 0) < 1000) {

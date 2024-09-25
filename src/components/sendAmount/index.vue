@@ -41,7 +41,7 @@
               <v-img
                 :width="20"
                 cover
-                src="@/assets/images/game/icon_roller.png"
+                src="@/assets/images/game/icon_usdt.png"
               ></v-img>
               <v-text-field
                 v-model="amount"
@@ -53,10 +53,9 @@
                 @input="handleInput"
                 reverse
               ></v-text-field>
-              <div class="multiply_btn">x100</div>
             </div>
             <div v-if="isAmountError" class="error_box">
-              $RCT is not enough.
+              USDT is not enough.
             </div>
           </div>
         </div>
@@ -122,9 +121,9 @@ export default defineComponent({
       const { sendUserId } = useUserStore();
       return sendUserId;
     },
-    rctAmount() {
+    usdtAmount() {
       const { userInfo } = useUserStore();
-      return userInfo.rctAmount;
+      return userInfo.usdtAmount;
     },
     showSend: {
       get() {
@@ -142,12 +141,10 @@ export default defineComponent({
     async handleSubmit() {
       const { amount, userName, removeTxt } = this;
 
-      const sendNum = new bigNumber(removeTxt(amount))
-        .multipliedBy(100)
-        .toNumber();
+      const sendNum = removeTxt(amount);
 
       const res = await transferSendTip({
-        rctAmount: sendNum, //转账RCT数量
+        usdtAmount: sendNum, //转账USDT数量
         userName: userName, //用户名
       });
 
@@ -180,8 +177,8 @@ export default defineComponent({
         .toNumber();
 
       if (
-        Number(this.rctAmount) <= 0 ||
-        Number(sendNum) > Number(this.rctAmount)
+        Number(this.usdtAmount) <= 0 ||
+        Number(sendNum) > Number(this.usdtAmount)
       ) {
         this.isAmountError = true;
       } else {

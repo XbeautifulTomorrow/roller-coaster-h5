@@ -86,7 +86,34 @@ const searchByTgId = (params: any) => http.get(serverUrl + "/user/findByTgId", p
 const transferSendTip = (params: any) => http.post(serverUrl + "/transfer/sendTip", params);
 
 
+/**
+ * 获取价格
+ * @param params
+ */
+const getExchangeRate = (params: any) => http.get(serverUrl + "/coin/price/exchangeRate", params);
 
+/**
+ * 购买USD
+ * @param params
+ */
+const purchasePoints = (params: any) => http.post(serverUrl + "/usdt-order/purchase", params);
+/**
+ * 星星购买GMC点数
+ * @param params
+ */
+const starPurchasePoints = (params: any) => http.post(serverUrl + "/usdt-order/starPayment", params);
+
+/**
+ * 提款
+ * @param params
+ */
+const transferWithdraw = (params: any) => http.post(serverUrl + "/transfer/withdraw", params);
+
+/**
+ * 提币记录
+ * @param params
+ */
+const getWithdrawList = (params: any) => http.get(serverUrl + "/transfer/record/withdrawList", params, { showLoading: false });
 
 export {
   validateToken,
@@ -102,5 +129,10 @@ export {
   getOrderList,
   transferSwap,
   searchByTgId,
-  transferSendTip
+  transferSendTip,
+  getExchangeRate,
+  transferWithdraw,
+  getWithdrawList,
+  purchasePoints,
+  starPurchasePoints
 };

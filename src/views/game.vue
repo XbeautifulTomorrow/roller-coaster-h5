@@ -159,7 +159,7 @@
                   :width="14"
                   cover
                   v-else
-                  src="@/assets/images/game/icon_roller.png"
+                  src="@/assets/images/game/icon_usdt.png"
                 ></v-img>
               </div>
             </div>
@@ -299,7 +299,7 @@
                 :width="24"
                 cover
                 v-else
-                src="@/assets/images/game/icon_roller.png"
+                src="@/assets/images/game/icon_usdt.png"
               ></v-img>
               <v-text-field
                 label=""
@@ -505,7 +505,7 @@
                     :width="24"
                     cover
                     v-else
-                    src="@/assets/images/game/icon_roller.png"
+                    src="@/assets/images/game/icon_usdt.png"
                   ></v-img>
                   <v-text-field
                     label=""
@@ -733,7 +733,7 @@ interface orderInfo {
   userName: string; // 用户昵称
   userId: number; // 用户ID
   amount: number; // 购买数量
-  coinName: string; //币种:RCP/RCT,
+  coinName: string; //币种:RCP/USDT,
   price: number; // 价格
   multiplier: number; // 倍数
   exitPrice: number; // 退出价格
@@ -948,8 +948,9 @@ export default defineComponent({
         this.buyNum = Number(saveInfo.amount).toLocaleString();
         this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
-        this.buyNum = "100";
-        this.coinName = "RCT";
+        this.buyNum = "1";
+        this.coinName = "USDT";
+        console.log(this.coinName);
       }
     }
   },
@@ -1277,7 +1278,7 @@ export default defineComponent({
     async handleBuy() {
       const {
         removeTxt,
-        userInfo: { rcpAmount, rctAmount },
+        userInfo: { rcpAmount, usdtAmount },
       } = this;
 
       const buyV = Number(removeTxt(this.buyNum));
@@ -1289,7 +1290,7 @@ export default defineComponent({
           return;
         }
       } else {
-        if (buyV > rctAmount) {
+        if (buyV > usdtAmount) {
           const { setShowRecharge } = useUserStore();
           setShowRecharge(true);
           return;
@@ -1793,8 +1794,8 @@ export default defineComponent({
             this.buyNum = Number(saveInfo.amount).toLocaleString();
             this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
           } else {
-            this.buyNum = "100";
-            this.coinName = "RCT";
+            this.buyNum = "1";
+            this.coinName = "USDT";
           }
         }
 

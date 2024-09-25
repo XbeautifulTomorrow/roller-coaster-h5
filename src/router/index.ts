@@ -13,6 +13,9 @@ import mine from '@/views/mine.vue';
 import frensRanking from '@/views/frensRanking.vue';
 import swap from '@/views/swap.vue';
 import provablyFair from '@/views/provablyFair.vue';
+import withdraw from '@/views/withdraw.vue';
+import history from '@/views/history.vue';
+
 
 //2. 路由配置
 const routes = [
@@ -61,7 +64,16 @@ const routes = [
     name: 'ProvablyFair',
     component: provablyFair
   },
-
+  {
+    path: '/withdraw',
+    name: 'Withdraw',
+    component: withdraw
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: history
+  },
 ];
 
 // 3. 创建路由实例
@@ -96,6 +108,8 @@ router.beforeEach(async (to, from, next) => {
     setSessionStore("urlParams", urlParam);
     if (urlParam.indexOf("frens") > -1) {
       setSessionStore('nextPath', "/frens");
+    } else if (urlParam.indexOf("earn") > -1) {
+      setSessionStore('nextPath', "/earn");
     } else if (urlParam.indexOf("3base") > -1) {
       setSessionStore('recommend', "3base");
       const inviteArray = urlParam.split("_");

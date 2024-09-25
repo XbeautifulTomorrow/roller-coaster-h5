@@ -55,7 +55,7 @@
                 :width="12"
                 v-else
                 cover
-                src="@/assets/images/game/icon_roller.png"
+                src="@/assets/images/game/icon_usdt.png"
               ></v-img>
             </div>
           </div>
@@ -82,7 +82,7 @@
               :width="16"
               v-else
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
           </div>
           <div class="other_item">
@@ -128,15 +128,15 @@
             ></v-img>
             <span>
               {{
-                `Max $RCT Entry: ${Number(
-                  levelData.rctMaxAmount
+                `Max USDT Entry: ${Number(
+                  levelData.usdtMaxAmount
                 ).toLocaleString()}`
               }}
             </span>
             <v-img
               :width="16"
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
           </div>
         </div>
@@ -191,18 +191,18 @@
             <v-img
               :width="20"
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
-            <span class="coin_name">$RCT</span>
+            <span class="coin_name">USDT</span>
           </div>
           <div class="amount">
-            {{ Number(userInfo.rctAmount).toLocaleString() }}
+            {{ Number(userInfo.usdtAmount).toLocaleString() }}
           </div>
           <div class="btn" @click="handleSend()">
             <v-img
               :width="14"
               cover
-              src="@/assets/images/game/icon_roller.png"
+              src="@/assets/images/game/icon_usdt.png"
             ></v-img>
             <span>TIP</span>
           </div>
@@ -211,9 +211,8 @@
     </div>
     <div class="wallet_buttons">
       <div class="button swap" @click="toSwap()">SWAP</div>
-      <div class="button withdraw">
+      <div class="button withdraw" @click="toWithdraw()">
         <span>WITHDRAW</span>
-        <span class="soon">Soon</span>
       </div>
     </div>
   </div>
@@ -231,11 +230,11 @@ interface levelInfo {
   level: number; //等级
   name: string; //等级名称
   rcpAmount: number; //RCP经验数量
-  rctAmount: number; //RCT经验数量
+  usdtAmount: number; //USDT经验数量
   coinName: string; //下一等级代币名称
   upgradeAmount: number; //下一等级升级所需数量
   rcpMaxAmount: number; //RCP限红
-  rctMaxAmount: number; //RCT限红
+  usdtMaxAmount: number; //USDT限红
   rewardAmount: number; //下一等级奖励数量
   nextLevelName: string; //下一等级名称
   [x: string]: string | number | any;
@@ -259,14 +258,14 @@ export default defineComponent({
     },
     currentExp() {
       const {
-        levelData: { rcpAmount, rctAmount, level },
+        levelData: { rcpAmount, usdtAmount, level },
       } = this;
 
       if (level < 15) {
         return rcpAmount;
       }
 
-      return rctAmount;
+      return usdtAmount;
     },
   },
   created() {
@@ -287,7 +286,7 @@ export default defineComponent({
 
       if (res.code == 200) {
         this.levelData.rcpAmount = 0;
-        this.levelData.rctAmount = 0;
+        this.levelData.usdtAmount = 0;
         setTimeout(() => {
           const userStore = useUserStore();
           userStore.fetchUserInfo();
@@ -297,6 +296,9 @@ export default defineComponent({
     },
     toSwap() {
       this.$router.push("/swap");
+    },
+    toWithdraw() {
+      this.$router.push("/withdraw");
     },
     toRecharge() {
       const { setShowRecharge } = useUserStore();
@@ -549,20 +551,8 @@ export default defineComponent({
 
     &.withdraw {
       position: relative;
-      background-color: #a4a4a4;
-      color: #dbdbdb;
-
-      .soon {
-        position: absolute;
-        top: -10px;
-        right: -4px;
-        padding: 2px 8px;
-        font-size: 14px;
-        font-weight: normal;
-        color: #000;
-        background-color: rgba(247, 218, 25, 1);
-        border-radius: 20px;
-      }
+      background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
+      color: #000;
     }
   }
 }

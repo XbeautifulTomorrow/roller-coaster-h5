@@ -32,11 +32,11 @@
           <v-img
             :width="24"
             cover
-            src="@/assets/images/game/icon_roller.png"
+            src="@/assets/images/game/icon_usdt.png"
           ></v-img>
-          <div class="energy_item rct">
+          <div class="energy_item usdt">
             <div class="energy_val">
-              {{ Number(userInfo?.rctAmount || 0).toLocaleString() }}
+              {{ Number(userInfo?.usdtAmount || 0).toLocaleString() }}
             </div>
             <div class="plus_btn" @click="toSwap()">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
@@ -145,7 +145,7 @@ export default defineComponent({
     &.rcp {
       min-width: 120px;
     }
-    &.rct {
+    &.usdt {
       min-width: 80px;
     }
     .energy_val {

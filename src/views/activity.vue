@@ -71,9 +71,9 @@
           <v-img
             :width="20"
             cover
-            src="@/assets/images/game/icon_roller.png"
+            src="@/assets/images/game/icon_usdt.png"
           ></v-img>
-          <span>{{ `${100} - ${Number(10000000).toLocaleString()}` }}</span>
+          <span>{{ `${1} - ${Number(100000).toLocaleString()}` }}</span>
         </div>
         <div class="info_right">
           <v-img
@@ -97,7 +97,7 @@
             Your $RCP balance is not enough to enter this room.
           </span>
           <span v-else>
-            Your $RCT balance is not enough to enter this room.
+            Your USDT balance is not enough to enter this room.
           </span>
         </div>
         <v-btn
@@ -155,7 +155,7 @@ export default defineComponent({
   methods: {
     startGame(event: any) {
       const {
-        userInfo: { rcpAmount, rctAmount },
+        userInfo: { rcpAmount, usdtAmount },
       } = this;
 
       if (event == "BASIC") {
@@ -171,7 +171,7 @@ export default defineComponent({
           return;
         }
       } else {
-        if (Number(rctAmount) < 1) {
+        if (Number(usdtAmount) < 1) {
           this.tipsType = 3;
           this.showTips = true;
           return;

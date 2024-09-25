@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import { getLocalStore, setSessionStore, getSessionStore, removeSessionStore } from "@/utils";
+import { getLocalStore, setSessionStore, getSessionStore, removeSessionStore, accurateDecimal } from "@/utils";
 import { getUserInfo, receiveGifts } from "@/services/api/user";
-import { buyProduct } from "@/services/api/user.js";
+import { buyProduct, getExchangeRate } from "@/services/api/user.js";
 import { en, zhHant } from 'vuetify/locale'
 import { getLang } from "@/locales/index";
 
@@ -45,11 +45,11 @@ export interface userInterface {
   avatar: string, //头像
   userName: string, //用户名
   rcpAmount: number, //RCP数量
-  rctAmount: number, //RCT数量
+  usdtAmount: number, //USD数量
   level: number, //等级
   inviteCode: string, //邀请码
   totalRcpAmount: number, //总RCP返佣数量
-  totalRctAmount: number //总RCT返佣数量
+  totalUsdtAmount: number //总USDT佣数量
   isUpgrade: boolean, //是否升级
   [x: string]: string | number | any;
 }
@@ -84,6 +84,7 @@ export const useUserStore = defineStore("user", {
     locale: langMenu[getLang()],
     userInfo: {} as userInterface,
     logInfo: {} as logInterface,
+    tonConvertUsd: 0, // TON转USD价格
 
     userPage: null as string | any,
     currentTime: null as string | any,
@@ -94,8 +95,15 @@ export const useUserStore = defineStore("user", {
     productInfo: {} as productInfo, // 充值产品信息
     tonConnect: null as any, // 链接对象
     walletAddr: null as number | string | any,     // 钱包地址
+    jettonAddr: null as number | string | any,     // jetton钱包地址
     isConnect: false,     //链接状态
+
+    showWithdraw: false, // 提币确认弹窗
+    orderId: "", // 提币ID
+
     showConfirm: false, // 确认弹窗
+    usdtOrderId: "", // USDT订单ID
+    showBuyUSDConfirm: false, // USD确认弹窗
     retryCount: 5, // 登录重试次数
     loadLog: false,
     showSend: false, // 发送TIP弹窗
@@ -152,7 +160,7 @@ export const useUserStore = defineStore("user", {
       if (res.code == 200) {
         this.userInfo = res.data;
         this.userInfo.rcpAmount = Math.floor(this.userInfo.rcpAmount);
-        this.userInfo.rctAmount = Math.floor(this.userInfo.rctAmount);
+        this.userInfo.usdtAmount = accurateDecimal(this.userInfo.usdtAmount, 2);
       } else {
         this.logoutApi();
       }
@@ -191,6 +199,17 @@ export const useUserStore = defineStore("user", {
     setShowConfirm(data: any) {
       this.showConfirm = data;
     },
+    setJettonAddr(data: any) {
+      this.jettonAddr = data;
+    },
+
+    async setUsdtOrderId(data: any) {
+      this.usdtOrderId = data;
+      this.showBuyUSDConfirm = true;
+    },
+    setShowBuyUSDConfirm(data: any) {
+      this.showBuyUSDConfirm = data;
+    },
     setLocale(data: any) {
       this.locale = data == "en_US" ? en : zhHant;
     },
@@ -222,6 +241,24 @@ export const useUserStore = defineStore("user", {
     },
     setSendUserId(data: any) {
       this.sendUserId = data;
+    },
+    setShowWithdraw(data: any) {
+      this.showWithdraw = data;
+    },
+    setOrderId(data: any) {
+      this.orderId = data;
+    },
+    async fetchCoinExchange(data: any) {
+      const res = await getExchangeRate({
+        areaCoin: data,
+        coinName: "USDT"
+      });
+
+      if (res.code == 200) {
+
+
+        this.tonConvertUsd = res.data;
+      }
     },
     async logoutApi() {
       const invateCode = getSessionStore("invateCode");

@@ -13,7 +13,7 @@ import bigNumber from "bignumber.js";
 import drop from "@/assets/images/svg/game/drop.svg";
 import up from "@/assets/images/svg/game/up.svg";
 import rcp from "@/assets/images/game/icon_rcp.png";
-import rct from "@/assets/images/game/icon_roller.png";
+import usdt from "@/assets/images/game/icon_usdt.png";
 
 interface LineData {
   localDateTime: string | number | any;
@@ -58,7 +58,7 @@ export default {
       drop: drop,
       up: up,
       rcp: rcp,
-      rct: rct,
+      usdt: usdt,
     };
   },
   computed: {
@@ -391,7 +391,7 @@ export default {
                 type: "image",
                 z: 11,
                 style: {
-                  image: evnet.coinName == "RCP" ? rcp : rct,
+                  image: evnet.coinName == "RCP" ? rcp : usdt,
                   x: 24,
                   y: -1,
                   width: 10,

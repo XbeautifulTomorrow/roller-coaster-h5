@@ -44,7 +44,7 @@
                   :width="14"
                   cover
                   v-else
-                  src="@/assets/images/game/icon_roller.png"
+                  src="@/assets/images/game/icon_usdt.png"
                 ></v-img>
               </div>
               <div v-else>
@@ -71,7 +71,7 @@
                   :width="14"
                   cover
                   v-else
-                  src="@/assets/images/game/icon_roller.png"
+                  src="@/assets/images/game/icon_usdt.png"
                 ></v-img>
               </div>
             </div>
