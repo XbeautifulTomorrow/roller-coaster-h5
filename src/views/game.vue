@@ -931,8 +931,9 @@ export default defineComponent({
         this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
         this.buyNum = "10";
-        this.coinName = "RCP";
       }
+
+      this.coinName = "RCP";
     } else if (this.gameLevel == "ADVANCED") {
       if (getLocalStore("advancedInfo")) {
         const saveInfo = JSON.parse(getLocalStore("advancedInfo"));
@@ -940,8 +941,9 @@ export default defineComponent({
         this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
         this.buyNum = "1,000";
-        this.coinName = "RCP";
       }
+
+      this.coinName = "RCP";
     } else {
       if (getLocalStore("legendaryInfo")) {
         const saveInfo = JSON.parse(getLocalStore("legendaryInfo"));
@@ -949,9 +951,9 @@ export default defineComponent({
         this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
         this.buyNum = "1";
-        this.coinName = "USDT";
-        console.log(this.coinName);
       }
+
+      this.coinName = "USDT";
     }
   },
   methods: {
