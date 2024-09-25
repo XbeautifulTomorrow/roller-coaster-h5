@@ -102,7 +102,7 @@
             </div>
           </div>
         </div>
-        <buyTokens v-if="rechargeType == 1"></buyTokens>
+        <buyTokens v-if="rechargeType == 1" @closeBuy="handleReady"></buyTokens>
       </div>
     </div>
   </v-dialog>

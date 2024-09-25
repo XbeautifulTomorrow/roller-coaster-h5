@@ -98,6 +98,11 @@
         </span>
       </v-btn>
     </template>
+    <div class="split_box">OR</div>
+    <div class="title_text" @click="toFrens()">
+      <v-img :width="20" cover src="@/assets/images/game/icon_usdt.png"></v-img>
+      <span>FREE USDT</span>
+    </div>
   </div>
 </template>
 
@@ -178,6 +183,9 @@ export default defineComponent({
     this.getExchangePrice();
   },
   methods: {
+    toFrens() {
+      this.$router.push("/frens");
+    },
     // 初始化ton-connect
     async initTonConnect() {
       let miniappUrl = "https://t.me/test1gscbot/test1gsc";
@@ -621,5 +629,36 @@ export default defineComponent({
   display: inline-block;
   height: 20px;
   line-height: 1.2;
+}
+
+.split_box {
+  font-weight: 700;
+  font-size: 16px;
+  color: #ffffff;
+  padding: 20px 0;
+}
+
+.title_text {
+  width: calc(100% - 16px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    180deg,
+    rgba(235, 170, 133, 1) 0%,
+    rgba(191, 112, 118, 1) 100%
+  );
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
+  box-shadow: 0px 5px 2px 0px rgba(230, 217, 217, 0.6) inset;
+
+  .v-img {
+    flex: none;
+    margin-right: 4px;
+  }
 }
 </style>
