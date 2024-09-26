@@ -87,7 +87,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import bigNumber from "bignumber.js";
 import { searchByTgId, transferSendTip } from "@/services/api/user";
 import { useMessageStore } from "@/store/message.js";
 
@@ -170,26 +169,33 @@ export default defineComponent({
         }
       }
     },
-    handleInput(val: any) {
-      if (!this.amount) return;
-      const sendNum = new bigNumber(this.removeTxt(this.amount))
-        .multipliedBy(100)
-        .toNumber();
+
+    handleInput(event: any) {
+      let {
+        target: { _value },
+      } = event;
+
+      if (!_value) return;
+
+      // 去除非数字字符
+      let value = _value.replace(/[^\d.]/g, "");
 
       if (
         Number(this.usdtAmount) <= 0 ||
-        Number(sendNum) > Number(this.usdtAmount)
+        Number(value) > Number(this.usdtAmount)
       ) {
         this.isAmountError = true;
       } else {
         this.isAmountError = false;
       }
 
-      // 去除非数字字符
-      let value = this.amount.replace(/[^\d.]/g, "");
+      // 分割整数和小数部分
+      let parts = value.split(".");
+      // 处理整数部分添加逗号
+      // parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
       // 更新输入框的值
-      this.amount = Math.floor(Number(value));
+      this.amount = parts[0];
     },
 
     handleClose() {
