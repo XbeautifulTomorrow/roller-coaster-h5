@@ -108,7 +108,6 @@
   </v-dialog>
 </template>
 <script lang="ts">
-import axios from "axios";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getProductList } from "@/services/api/user.js";
@@ -137,10 +136,6 @@ export default defineComponent({
     buyTokens,
   },
   computed: {
-    walletAddr() {
-      const { walletAddr } = useUserStore();
-      return walletAddr;
-    },
     rechargeType: {
       get() {
         const { rechargeType } = useUserStore();
@@ -173,29 +168,6 @@ export default defineComponent({
     unitConversion: unitConversion,
     handleReady() {
       this.showRecharge = false;
-    },
-    // 获取余额
-    async fetchBalance() {
-      const { walletAddr, gmtJettons } = this;
-
-      let fetchUrl = `https://tonapi.io/v2/accounts/${encodeURIComponent(
-        walletAddr
-      )}`;
-
-      fetchUrl += `/jettons/${encodeURIComponent(gmtJettons)}`;
-
-      axios
-        .get(fetchUrl)
-        .then((res: any) => {
-          if (res.status == 200) {
-            const { wallet_address } = res.data;
-            const { setJettonAddr } = useUserStore();
-            setJettonAddr(wallet_address.address);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
     },
     async fetchProductList() {
       const res = await getProductList({ page: 1, limit: 10 });

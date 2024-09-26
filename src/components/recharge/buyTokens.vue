@@ -212,12 +212,12 @@ export default defineComponent({
           } = wallet;
           const isC = this.tonConnect.connected;
 
-          console.log(address);
-          this.fetchBalance();
           listening({
             isc: isC,
             account: address,
           });
+
+          this.fetchBalance();
         }
       });
     },

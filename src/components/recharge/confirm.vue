@@ -288,6 +288,8 @@ export default defineComponent({
             isc: isC,
             account: address,
           });
+
+          this.fetchBalance();
         }
       });
     },
@@ -486,7 +488,11 @@ export default defineComponent({
   },
   mounted() {
     this.$nextTick(() => {
-      this.initTonConnect();
+      if (!this.tonConnect) {
+        this.initTonConnect();
+      } else {
+        this.fetchBalance();
+      }
     });
   },
   beforeUnmount() {
