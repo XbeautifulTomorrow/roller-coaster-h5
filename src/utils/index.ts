@@ -713,7 +713,7 @@ export const shareOnTelegram = (url: string) => {
   const inviteText = `
   💸 Turn $10 into $10,000 IN SECONDS!
 
-🎢 RollerCoaster's 1000x multiplier awaits！
+🎢 RollerMaster's 1000x multiplier awaits！
 
 💰 Use my link for a FREE $100 RCP boost!
 `;

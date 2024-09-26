@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="description_item">
-      <div class="description_item_title">ROLLERCOASTER</div>
+      <div class="description_item_title">ROLLERMASTER</div>
       <div class="description_item_tabel">
         <div class="description_item_tabel_head">
           <div>DATE/TIME</div>

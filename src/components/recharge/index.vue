@@ -131,7 +131,6 @@ export default defineComponent({
       gmtJettons:
         "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe", // USDT
       tonConnect: null as any,
-      rechargeType: 0,
     };
   },
   components: {
@@ -141,6 +140,16 @@ export default defineComponent({
     walletAddr() {
       const { walletAddr } = useUserStore();
       return walletAddr;
+    },
+    rechargeType: {
+      get() {
+        const { rechargeType } = useUserStore();
+        return rechargeType;
+      },
+      set(val: number) {
+        const { setRechargeType } = useUserStore();
+        setRechargeType(val);
+      },
     },
     levelImages() {
       const { levelImages } = useUserStore();

@@ -11,7 +11,7 @@
         <div class="rules_content_item">
           <v-img width="100%" cover src="@/assets/images/rules/1.png"></v-img>
           <span>
-            Welcome to Rollercoaster! The Rollercoaster price resets every 24
+            Welcome to RollerMaster! The RollerMaster price resets every 24
             hours at 00:00 UTC to $1,000
           </span>
         </div>
@@ -46,7 +46,7 @@
         <div class="rules_content_item">
           <v-img width="100%" cover src="@/assets/images/rules/6.png"></v-img>
           <span>
-            Rollercoaster prices are generated using a provably fair algorithm.
+            RollerMaster prices are generated using a provably fair algorithm.
             The house edge is 2.5%.
             <span
               style="color: #ea980a; font-weight: bold"

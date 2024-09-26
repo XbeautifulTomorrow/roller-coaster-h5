@@ -23,7 +23,7 @@
             <div class="energy_val">
               {{ Number(userInfo?.rcpAmount || 0).toLocaleString() }}
             </div>
-            <div class="plus_btn" @click="toRecharge()">
+            <div class="plus_btn" @click="toRecharge(0)">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
           </div>
@@ -38,7 +38,7 @@
             <div class="energy_val">
               {{ Number(userInfo?.usdtAmount || 0).toLocaleString() }}
             </div>
-            <div class="plus_btn" @click="toSwap()">
+            <div class="plus_btn" @click="toRecharge(1)">
               <v-icon color="#000" size="20" icon="mdi-plus"></v-icon>
             </div>
           </div>
@@ -101,12 +101,10 @@ export default defineComponent({
     toMain() {
       this.$router.push("/activity");
     },
-    toRecharge() {
-      const { setShowRecharge } = useUserStore();
+    toRecharge(event: number) {
+      const { setShowRecharge, setRechargeType } = useUserStore();
+      setRechargeType(event);
       setShowRecharge(true);
-    },
-    toSwap() {
-      this.$router.push("/swap");
     },
   },
   watch: {

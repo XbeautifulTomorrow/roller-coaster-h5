@@ -34,6 +34,22 @@
       </div>
     </div>
     <v-btn
+      class="connect_btn stars"
+      :elevation="8"
+      height="42"
+      @click="handleStars()"
+    >
+      <v-img
+        width="24"
+        class="reward_img"
+        cover
+        src="@/assets/images/recharge/icon_stars.png"
+      ></v-img>
+      <span class="finished">
+        {{ `${formatRounding(convertStarPrice, 0)} Stars` }}
+      </span>
+    </v-btn>
+    <v-btn
       v-if="!isConnect"
       class="connect_btn"
       :elevation="8"
@@ -49,22 +65,6 @@
       <span class="finished">TON CONNECT</span>
     </v-btn>
     <template v-else>
-      <v-btn
-        class="connect_btn stars"
-        :elevation="8"
-        height="42"
-        @click="handleStars()"
-      >
-        <v-img
-          width="24"
-          class="reward_img"
-          cover
-          src="@/assets/images/recharge/icon_stars.png"
-        ></v-img>
-        <span class="finished">
-          {{ `${formatRounding(convertStarPrice, 0)} Stars` }}
-        </span>
-      </v-btn>
       <v-btn
         class="connect_btn usdt"
         :elevation="8"
@@ -185,6 +185,7 @@ export default defineComponent({
   methods: {
     toFrens() {
       this.$router.push("/frens");
+      this.$emit("closeBuy");
     },
     // 初始化ton-connect
     async initTonConnect() {

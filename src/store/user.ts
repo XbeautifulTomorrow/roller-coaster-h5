@@ -102,6 +102,7 @@ export const useUserStore = defineStore("user", {
     orderId: "", // 提币ID
 
     showConfirm: false, // 确认弹窗
+    rechargeType: 0, // 充值类型 0：RCP，1：USDT
     usdtOrderId: "", // USDT订单ID
     showBuyUSDConfirm: false, // USD确认弹窗
     retryCount: 5, // 登录重试次数
@@ -199,10 +200,12 @@ export const useUserStore = defineStore("user", {
     setShowConfirm(data: any) {
       this.showConfirm = data;
     },
+    setRechargeType(data: any) {
+      this.rechargeType = data;
+    },
     setJettonAddr(data: any) {
       this.jettonAddr = data;
     },
-
     async setUsdtOrderId(data: any) {
       this.usdtOrderId = data;
       this.showBuyUSDConfirm = true;
