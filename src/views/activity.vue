@@ -73,7 +73,7 @@
             cover
             src="@/assets/images/game/icon_usdt.png"
           ></v-img>
-          <span>{{ `${1} - ${Number(100000).toLocaleString()}` }}</span>
+          <span>{{ `${1} - ${Number(10000000).toLocaleString()}` }}</span>
         </div>
         <div class="info_right">
           <v-img
