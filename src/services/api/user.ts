@@ -104,10 +104,10 @@ const getExchangeRate = (params: any) => http.get(serverUrl + "/coin/price/excha
  */
 const purchasePoints = (params: any) => http.post(serverUrl + "/usdt-order/purchase", params);
 /**
- * 星星购买GMC点数
+ * 星星购买USDT
  * @param params
  */
-const starPurchasePoints = (params: any) => http.post(serverUrl + "/usdt-order/starPayment", params);
+const starPurchasePoints = (params: any) => http.get(serverUrl + "/usdt-order/starPayment", params);
 
 /**
  * 提款
