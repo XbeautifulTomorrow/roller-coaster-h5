@@ -110,11 +110,11 @@
         <v-btn
           class="enter_btn"
           v-else-if="tipsType == 2"
-          @click="toRecharge()"
+          @click="toRecharge(0)"
         >
           <span class="finished">RECHARGE</span>
         </v-btn>
-        <v-btn class="enter_btn" v-else @click="toSwap()">
+        <v-btn class="enter_btn" v-else @click="toRecharge(1)">
           <span class="finished">SWAP</span>
         </v-btn>
       </div>
@@ -183,13 +183,10 @@ export default defineComponent({
       this.$router.push("/game");
     },
     // 去充值
-    toRecharge() {
-      const { setShowRecharge } = useUserStore();
+    toRecharge(event: number) {
+      const { setShowRecharge, setRechargeType } = useUserStore();
+      setRechargeType(event);
       setShowRecharge(true);
-    },
-    // 去Swap
-    toSwap() {
-      this.$router.push("/swap");
     },
     async fetchNumberSessions() {
       const res = await getNumberSessions({});
