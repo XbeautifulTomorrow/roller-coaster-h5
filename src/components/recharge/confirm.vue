@@ -548,7 +548,6 @@ export default defineComponent({
   width: 100%;
   border-radius: 4px;
   max-height: 80vh;
-  overflow-y: scroll;
   font-size: 14px;
   background-color: rgba(66, 20, 79, 1);
   box-shadow: 0px 0px 4px rgba(21, 12, 7, 0.5),

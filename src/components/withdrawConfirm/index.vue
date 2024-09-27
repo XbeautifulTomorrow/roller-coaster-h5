@@ -30,7 +30,7 @@
             </v-btn>
           </div>
           <div v-else>
-            <div class="buy_title">PURCHASE</div>
+            <div class="buy_title">PROCESSING</div>
             <div class="wait">
               <v-img
                 :class="[status != 'pending' ? 'timeuot' : '']"
@@ -222,7 +222,6 @@ export default defineComponent({
   padding: 4px;
   border-radius: 4px;
   max-height: 80vh;
-  overflow-y: scroll;
   font-size: 14px;
   background-color: #42144f;
   border-radius: 16px;
