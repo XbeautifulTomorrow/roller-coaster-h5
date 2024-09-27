@@ -185,7 +185,7 @@ export default defineComponent({
       const { inviteCode } = this.userInfo;
       let inviteUrl = "";
       if (import.meta.env.MODE == "prod") {
-        inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
+        inviteUrl = `https://t.me/RollerMasterBot/RollerMaster?startapp=${inviteCode}`;
       } else {
         inviteUrl = `https://t.me/test1gscbot/test1gsc?startapp=${inviteCode}`;
       }
@@ -196,7 +196,7 @@ export default defineComponent({
       const { inviteCode } = this.userInfo;
       let inviteUrl = "";
       if (import.meta.env.MODE == "prod") {
-        inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
+        inviteUrl = `https://t.me/RollerMasterBot/RollerMaster?startapp=${inviteCode}`;
       } else {
         inviteUrl = `https://t.me/test1gscbot/test1gsc?startapp=${inviteCode}`;
       }

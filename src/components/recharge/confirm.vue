@@ -269,7 +269,7 @@ export default defineComponent({
       });
 
       if (import.meta.env.MODE == "prod") {
-        miniappUrl = "https://t.me/theRollerCoasterBot/RollerCoaster";
+        miniappUrl = "https://t.me/RollerMasterBot/RollerMaster";
       }
       // webapp重定向
       this.tonConnect.uiOptions = {

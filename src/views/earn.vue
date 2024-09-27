@@ -369,7 +369,7 @@ export default defineComponent({
         const { inviteCode } = this.userInfo;
         let inviteUrl = "";
         if (import.meta.env.MODE == "prod") {
-          inviteUrl = `https://t.me/theRollerCoasterBot/RollerCoaster?startapp=${inviteCode}`;
+          inviteUrl = `https://t.me/RollerMasterBot/RollerMaster?startapp=${inviteCode}`;
         } else {
           inviteUrl = `https://t.me/test1gscbot/test1gsc?startapp=${inviteCode}`;
         }
@@ -408,19 +408,19 @@ export default defineComponent({
         setShowRecharge(true);
       } else if (abbreviation == "TGGROUP") {
         // 加入Telegram群
-        openUrl("https://t.me/rollercoaster_chat");
+        openUrl("https://t.me/RollerMasterChat");
       } else if (abbreviation == "TGCHANNEL") {
         // 加入Telegram群
-        openUrl("https://t.me/theRollerCoaster");
+        openUrl("https://t.me/RollerMasterAnn");
       } else if (abbreviation == "TW") {
         // 关住Twitter，跳到用户
-        openUrl("https://x.com/tonRCP");
+        openUrl("https://x.com/RollerMasterFam");
       } else if (abbreviation == "3BASE") {
         // 在3Base群里转发
         openUrl("https://t.me/ton_3base_bot/Ton3Base?startapp=702_U4L8DH");
       } else if (abbreviation == "TWEET") {
         // 转发Twitter帖子，跳到帖子
-        openUrl("https://x.com/tonrcp/status/1821101347049238914");
+        openUrl("https://x.com/RollerMasterFam/status/1838454301729210434");
       }
     },
     // 初始化ton-connect
@@ -432,7 +432,7 @@ export default defineComponent({
       });
 
       if (import.meta.env.MODE == "prod") {
-        miniappUrl = "https://t.me/theRollerCoasterBot/RollerCoaster";
+        miniappUrl = "https://t.me/RollerMasterBot/RollerMaster";
       }
       // webapp重定向
       this.tonConnect.uiOptions = {
