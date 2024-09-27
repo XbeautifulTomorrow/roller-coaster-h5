@@ -102,7 +102,7 @@
                 cover
                 src="@/assets/images/game/icon_rcp.png"
               ></v-img>
-              <span>{{ `+ 500` }}</span>
+              <span>{{ `+ 2,500` }}</span>
             </div>
             <div class="text">for you and your friend</div>
           </div>
@@ -130,7 +130,7 @@
                 cover
                 src="@/assets/images/game/icon_rcp.png"
               ></v-img>
-              <span>{{ `+ 2,500` }}</span>
+              <span>{{ `+ 10,000` }}</span>
             </div>
             <div class="text">for you and your friend</div>
           </div>

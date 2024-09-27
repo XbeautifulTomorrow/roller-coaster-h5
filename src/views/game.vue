@@ -1382,9 +1382,17 @@ export default defineComponent({
         const errorData = res[res.length - 1];
         if (errorData.code == 20002) {
           let _value = errorData.message.replace(/[^\d.]/g, "");
-          const buyV = new bigNumber(_value).dividedBy(1000).toNumber();
-          this.buyNum = Number(buyV).toLocaleString();
-          this.buyMultiplier = "1,000";
+
+          if (this.coinName == "USDT") {
+            const buyV = new bigNumber(_value).dividedBy(100).toNumber();
+
+            this.buyNum = Number(buyV).toLocaleString();
+            this.buyMultiplier = "100";
+          } else {
+            const buyV = new bigNumber(_value).dividedBy(1000).toNumber();
+            this.buyNum = Number(buyV).toLocaleString();
+            this.buyMultiplier = "1,000";
+          }
         }
       }
     },

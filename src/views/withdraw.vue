@@ -118,6 +118,20 @@
       <div class="button back" @click="handleBack()">BACK</div>
     </div>
     <withdraw></withdraw>
+    <v-dialog v-model="showTips" width="280" persistent>
+      <div class="dialog_box">
+        <div class="dialog_title">
+          <span>Important</span>
+        </div>
+        <div class="dialog_text">
+          Both MEMO and an Address are required to successfully deposit your
+          USDT to CEX.
+        </div>
+        <v-btn class="enter_btn" width="200" @click="showTips = false">
+          <span class="finished">OK</span>
+        </v-btn>
+      </div>
+    </v-dialog>
   </div>
 </template>
 
@@ -135,6 +149,7 @@ import bigNumber from "bignumber.js";
 export default defineComponent({
   data() {
     return {
+      showTips: true,
       coinName: "USDT",
       withdrawAddr: "" as any,
       fromAmount: "" as string | any,
@@ -549,5 +564,48 @@ export default defineComponent({
 .finished {
   text-transform: none;
   letter-spacing: 0;
+}
+
+.dialog_box {
+  background-color: #fff;
+  box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 16px 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: #000;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.2;
+
+  .dialog_title {
+    margin-bottom: 24px;
+  }
+
+  .dialog_text {
+    font-size: 16px;
+  }
+
+  & > .v-btn {
+    font-size: 14px;
+    border-radius: 8px;
+    color: #fff;
+    margin-top: 12px;
+  }
+
+  .enter_btn {
+    border: 1px solid #000;
+    background-color: rgba(255, 232, 26, 1);
+    color: #c8c1c1;
+    font-size: 16px;
+    box-shadow: 0px 5px 5px 0px rgba(242, 9, 9, 0.15) inset;
+  }
+
+  .finished {
+    text-transform: none;
+    letter-spacing: 0;
+    color: #000;
+  }
 }
 </style>
