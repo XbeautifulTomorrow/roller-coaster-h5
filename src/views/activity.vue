@@ -115,6 +115,11 @@
           <span class="finished">RECHARGE</span>
         </v-btn>
         <v-btn class="enter_btn" v-else @click="toRecharge(1)">
+          <v-img
+            :width="16"
+            cover
+            src="@/assets/images/svg/activity/shop.svg"
+          ></v-img>
           <span class="finished">SHOP</span>
         </v-btn>
       </div>
