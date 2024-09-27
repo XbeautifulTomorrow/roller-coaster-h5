@@ -358,6 +358,7 @@ export default defineComponent({
     },
     async handleTransfer(event: any) {
       const { jettonAddr } = this;
+      const { usdtOrderId } = event;
 
       // 创建交易体
       const transaction = {
@@ -374,8 +375,10 @@ export default defineComponent({
       this.tonConnect
         .sendTransaction(transaction)
         .then(async (res: any) => {
-          const { setShowWithdraw } = useUserStore();
-          setShowWithdraw(true);
+          // 打开确认弹窗
+          const { setUsdtOrderId } = useUserStore();
+          setUsdtOrderId(usdtOrderId);
+          this.$emit("closeBuy");
         })
         .catch((err: any) => {
           console.log(err);
@@ -393,6 +396,7 @@ export default defineComponent({
         const confirm = await starPurchasePoints({
           usdtOrderId: buy.data.usdtOrderId,
         });
+
         if (confirm.code == 200) {
           const { Telegram } = window as any;
           if (Telegram) {

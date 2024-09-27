@@ -28,18 +28,9 @@
             >
               <span class="finished">OK</span>
             </v-btn>
-            <div class="exchange_btn exchange" @click="toExchange()">
-              <span>EXCHANGE</span>
-              <v-icon
-                color="#fe2e75"
-                class="exchange_icon"
-                size="24"
-                icon="mdi-open-in-new"
-              ></v-icon>
-            </div>
           </div>
           <div v-else>
-            <div class="buy_title">PROCESSING</div>
+            <div class="buy_title">PURCHASE</div>
             <div class="wait">
               <v-img
                 :class="[status != 'pending' ? 'timeuot' : '']"
@@ -58,19 +49,6 @@
               <div>Order processing is taking longer.</div>
               <div>You can keep waiting or close the window.</div>
               <div>We will notify you in bot after success.</div>
-            </div>
-            <div
-              class="exchange_btn exchange"
-              v-if="status == 'timeout'"
-              @click="toExchange()"
-            >
-              <span>EXCHANGE</span>
-              <v-icon
-                color="#fe2e75"
-                class="exchange_icon"
-                size="24"
-                icon="mdi-open-in-new"
-              ></v-icon>
             </div>
           </div>
         </div>
@@ -131,8 +109,9 @@ export default defineComponent({
       return orderId;
     },
   },
-  created() {
+  beforeUpdate() {
     this.status = "pending";
+    this.countDown();
   },
   methods: {
     handleReady() {
@@ -197,14 +176,6 @@ export default defineComponent({
       fetchUserInfo();
     }
   },
-  watch: {
-    showWithdraw(val) {
-      if (val) {
-        this.status = "pending";
-        this.countDown();
-      }
-    },
-  },
 });
 </script>
 <style lang="scss" scoped>
@@ -253,19 +224,12 @@ export default defineComponent({
   max-height: 80vh;
   overflow-y: scroll;
   font-size: 14px;
-  background-color: #555251;
+  background-color: #42144f;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0px 0px 4px rgba(21, 12, 7, 0.5),
-    0px 5px 5px 0px rgba(96, 69, 54, 0.6) inset;
 
   .recharge_box {
-    background-color: #413f3d;
     box-sizing: border-box;
-    border: 1px solid rgb(92, 83, 78);
-    border-radius: 16px;
-    box-shadow: 2px 2px 5px rgba(92, 83, 78, 0.5),
-      0px 5px 5px 0px rgba(96, 69, 54, 0.6) inset;
     padding: 8px 16px 16px;
   }
 }

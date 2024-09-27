@@ -1,8 +1,8 @@
 <template>
-  <v-dialog v-model="showConfirm" width="100%">
+  <v-dialog v-model="showBuyUSDConfirm" width="100%">
     <div class="dialog_box">
       <div class="recharge_panel">
-        <div class="close_btn" @click="showConfirm = false">
+        <div class="close_btn" @click="handleReady()">
           <v-img :width="16" cover src="@/assets/images/svg/icon_x.svg"></v-img>
         </div>
         <div class="recharge_box">
@@ -93,14 +93,14 @@ export default defineComponent({
       const { userInfo } = useUserStore();
       return userInfo;
     },
-    showConfirm: {
+    showBuyUSDConfirm: {
       get() {
-        const { showConfirm } = useUserStore();
-        return showConfirm;
+        const { showBuyUSDConfirm } = useUserStore();
+        return showBuyUSDConfirm;
       },
       set(val: boolean) {
-        const { setShowConfirm } = useUserStore();
-        setShowConfirm(val);
+        const { setShowBuyUSDConfirm } = useUserStore();
+        setShowBuyUSDConfirm(val);
       },
     },
     isConnect() {
@@ -111,13 +111,9 @@ export default defineComponent({
       const { walletAddr } = useUserStore();
       return walletAddr;
     },
-    productId() {
-      const { productId } = useUserStore();
-      return productId;
-    },
-    productInfo() {
-      const { productInfo } = useUserStore();
-      return productInfo;
+    usdtOrderId() {
+      const { usdtOrderId } = useUserStore();
+      return usdtOrderId;
     },
   },
   beforeUpdate() {},
@@ -128,7 +124,7 @@ export default defineComponent({
   methods: {
     unitConversion: unitConversion,
     handleReady() {
-      this.showConfirm = false;
+      this.showBuyUSDConfirm = false;
     },
     // 倒计时
     countDown() {
@@ -161,11 +157,9 @@ export default defineComponent({
     },
     // 获取支付结果（刷新余额
     async fetchPaymentResults() {
-      const {
-        productInfo: { orderId },
-      } = this;
+      const { usdtOrderId } = this;
       const res = await getOrderList({
-        orderId: orderId,
+        orderId: usdtOrderId,
         page: 1,
         size: 10,
       });
@@ -173,7 +167,7 @@ export default defineComponent({
         const orderData = res.data.records as Array<order>;
 
         const { fetchUserInfo } = useUserStore();
-        const order = orderData.find((e) => e.orderId == orderId);
+        const order = orderData.find((e) => e.orderId == Number(usdtOrderId));
         if (order && order.status == 1) {
           this.status = "complete";
           this.clearTimerFun();
@@ -328,6 +322,8 @@ export default defineComponent({
 }
 
 .count_down {
+  padding: 0 16px;
+
   .count_down_time {
     font-weight: 700;
     font-style: normal;
@@ -352,6 +348,7 @@ export default defineComponent({
   font-size: 14px;
   text-align: center;
   margin-top: 8px;
+  padding: 0 16px;
 }
 
 .success_img {

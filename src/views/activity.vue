@@ -115,7 +115,7 @@
           <span class="finished">RECHARGE</span>
         </v-btn>
         <v-btn class="enter_btn" v-else @click="toRecharge(1)">
-          <span class="finished">SWAP</span>
+          <span class="finished">SHOP</span>
         </v-btn>
       </div>
     </v-dialog>
@@ -171,7 +171,7 @@ export default defineComponent({
           return;
         }
       } else {
-        if (Number(usdtAmount) < 1) {
+        if (Number(usdtAmount) < 0.01) {
           this.tipsType = 3;
           this.showTips = true;
           return;

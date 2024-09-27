@@ -641,6 +641,8 @@ export default defineComponent({
 }
 
 .count_down {
+  padding: 0 16px;
+
   .count_down_time {
     font-weight: 700;
     font-style: normal;
@@ -665,6 +667,7 @@ export default defineComponent({
   font-size: 14px;
   text-align: center;
   margin-top: 8px;
+  padding: 0 16px;
 }
 
 .success_img {
