@@ -202,6 +202,17 @@ export default defineComponent({
       }
       onCopy(inviteUrl);
     },
+    handleScroll() {
+      const _this = this;
+      if (
+        window.innerHeight + window.scrollY + 10 >=
+        document.body.offsetHeight
+      ) {
+        if (!_this.finished) {
+          _this.nextQuery();
+        }
+      }
+    },
     // 格式化收益
     formatIncome(income: number, type: string) {
       if (type == "USDT") {
@@ -216,20 +227,10 @@ export default defineComponent({
     },
   },
   mounted() {
-    const _this = this;
-    window.addEventListener("scroll", function () {
-      if (
-        window.innerHeight + window.scrollY + 10 >=
-        document.body.offsetHeight
-      ) {
-        if (!_this.finished) {
-          _this.nextQuery();
-        }
-      }
-    });
+    window.addEventListener("scroll", this.handleScroll);
   },
   beforeUnmount() {
-    window.removeEventListener("scroll", () => {});
+    window.removeEventListener("scroll", this.handleScroll);
   },
 });
 </script>
@@ -312,6 +313,7 @@ export default defineComponent({
   }
 
   .user_name {
+    max-width: 80%;
     font-weight: bold;
     font-size: 18px;
     color: #fff;

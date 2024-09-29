@@ -1727,6 +1727,17 @@ export default defineComponent({
         }
       }
     },
+    handleScroll() {
+      const _this = this;
+      if (
+        window.innerHeight + window.scrollY + 10 >=
+        document.body.offsetHeight
+      ) {
+        if (!_this.finished) {
+          _this.nextQuery();
+        }
+      }
+    },
     // 格式化百分比
     formatRatio(num: string | number | any) {
       if (!num) {
@@ -1751,17 +1762,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    const _this = this;
-    window.addEventListener("scroll", function () {
-      if (
-        window.innerHeight + window.scrollY + 10 >=
-        document.body.offsetHeight
-      ) {
-        if (!_this.finished) {
-          _this.nextQuery();
-        }
-      }
-    });
+    window.addEventListener("scroll", this.handleScroll);
   },
   watch: {
     sseType(newV, oldV) {
@@ -1961,7 +1962,7 @@ export default defineComponent({
     },
   },
   beforeUnmount() {
-    window.removeEventListener("scroll", () => {});
+    window.removeEventListener("scroll", this.handleScroll);
 
     if (!this.eventSource) return;
     this.eventSource.close();

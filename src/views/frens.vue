@@ -327,6 +327,17 @@ export default defineComponent({
         path: "/frensRanking",
       });
     },
+    handleScroll() {
+      const _this = this;
+      if (
+        window.innerHeight + window.scrollY + 10 >=
+        document.body.offsetHeight
+      ) {
+        if (!_this.finished) {
+          _this.nextQuery();
+        }
+      }
+    },
     // 格式化收益
     formatIncome(income: number, type: number) {
       if (type == 1) {
@@ -345,20 +356,10 @@ export default defineComponent({
     },
   },
   mounted() {
-    const _this = this;
-    window.addEventListener("scroll", function () {
-      if (
-        window.innerHeight + window.scrollY + 10 >=
-        document.body.offsetHeight
-      ) {
-        if (!_this.finished) {
-          _this.nextQuery();
-        }
-      }
-    });
+    window.addEventListener("scroll", this.handleScroll);
   },
   beforeUnmount() {
-    window.removeEventListener("scroll", () => {});
+    window.removeEventListener("scroll", this.handleScroll);
   },
 });
 </script>
