@@ -727,3 +727,21 @@ export const shareOnTelegram = (url: string) => {
   // 打开Telegram小程序或网页版Telegram进行分享
   openUrl(shareUrl);
 }
+
+
+// base64转hex
+export const base64ToHex = (base64: string) => {
+  // 解码Base64字符串
+  const binaryString = atob(base64);
+
+  // 将每个字符转换为其对应的十六进制值
+  let hex = "";
+  for (let i = 0; i < binaryString.length; i++) {
+    const charCode = binaryString.charCodeAt(i);
+    const hexCode = charCode.toString(16);
+    // 确保每个字符的十六进制表示为两位数
+    hex += ("00" + hexCode).slice(-2);
+  }
+
+  return hex;
+};

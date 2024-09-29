@@ -61,7 +61,7 @@
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
 import { getWithdrawList } from "@/services/api/user";
-import { timeForStr, openUrl } from "@/utils";
+import { timeForStr, openUrl, base64ToHex } from "@/utils";
 import { Address } from "@ton/ton";
 
 interface orderInfo {
@@ -96,7 +96,7 @@ export default defineComponent({
     openLink(event: string) {
       if (!event) return;
       const tonUrl = `https://tonviewer.com/transaction/`;
-      openUrl(`${tonUrl}${event}`);
+      openUrl(`${tonUrl}${base64ToHex(event)}`);
     },
     async fetchHistoryList(type = 1, isSearch = true) {
       let _page = this.page;
