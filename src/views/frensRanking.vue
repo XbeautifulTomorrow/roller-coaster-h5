@@ -313,7 +313,7 @@ export default defineComponent({
   }
 
   .user_name {
-    max-width: 80%;
+    max-width: 200px;
     font-weight: bold;
     font-size: 18px;
     color: #fff;
