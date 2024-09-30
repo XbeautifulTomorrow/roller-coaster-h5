@@ -19,12 +19,15 @@
         <div class="history_info">
           <div class="info_title">WITHDRAW AMOUNT:</div>
           <div class="info_val amount">
-            <span>{{ Number(item.amount).toLocaleString() }}</span>
+            <span>{{ Number(item.actualArrival).toLocaleString() }}</span>
             <v-img
               :width="18"
               cover
               src="@/assets/images/game/icon_usdt.png"
             ></v-img>
+            <span style="font-size: 12px; color: #b0b5c5">
+              {{ `（Fee: $${item.fee} ）` }}
+            </span>
           </div>
         </div>
         <div class="history_info">
@@ -70,6 +73,8 @@ interface orderInfo {
   amount: number; //提币数量
   status: string; //状态
   time: string; //时间
+  actualArrival: string | number | any; // 实际到账
+  fee: string | number | any; // 手续费
 }
 
 export default defineComponent({

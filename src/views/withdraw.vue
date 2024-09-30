@@ -117,7 +117,7 @@
       </v-btn>
       <div class="button back" @click="handleBack()">BACK</div>
     </div>
-    <withdraw></withdraw>
+    <withdraw v-if="showWithdraw"></withdraw>
     <v-dialog v-model="showTips" width="280" persistent>
       <div class="dialog_box">
         <div class="dialog_title">
@@ -204,6 +204,10 @@ export default defineComponent({
       }
 
       return isV;
+    },
+    showWithdraw() {
+      const { showWithdraw } = useUserStore();
+      return showWithdraw;
     },
     gasFee() {
       const { fromAmount, removeTxt } = this;
@@ -309,6 +313,7 @@ export default defineComponent({
         coinName: coinName,
         chainName: "TON", //网络
         address: Address.parse(withdrawAddr).toRawString(), //提币地址
+        memo: this.tonMemo || "",
       });
 
       const { setOrderId, setShowWithdraw } = useUserStore();
