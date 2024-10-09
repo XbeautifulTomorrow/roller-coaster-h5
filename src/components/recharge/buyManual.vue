@@ -11,14 +11,14 @@
         </div>
         <div class="order_item">
           <div class="item_title">Deposit Address</div>
-          <div class="item_info">
+          <div
+            class="item_info"
+            @click="onCopy(formatAddr(manualInfo.publicKey))"
+          >
             <div class="item_val">
               {{ handleOmitted(formatAddr(manualInfo.publicKey)) }}
             </div>
-            <div
-              class="item_copy"
-              @click="onCopy(formatAddr(manualInfo.publicKey))"
-            >
+            <div class="item_copy">
               <v-img
                 :width="20"
                 cover
@@ -29,9 +29,9 @@
         </div>
         <div class="order_item">
           <div class="item_title">TONMEMO</div>
-          <div class="item_info">
+          <div class="item_info" @click="onCopy(manualInfo.remark)">
             <div class="item_val">{{ manualInfo.remark }}</div>
-            <div class="item_copy" @click="onCopy(manualInfo.remark)">
+            <div class="item_copy">
               <v-img
                 :width="20"
                 cover
@@ -223,6 +223,7 @@ export default defineComponent({
     border-color: rgba(0, 0, 0, 1);
     border-radius: 10px;
     padding: 12px 8px;
+    cursor: pointer;
   }
 
   .item_val {
@@ -232,10 +233,6 @@ export default defineComponent({
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 10px;
-  }
-
-  .item_copy {
-    cursor: pointer;
   }
 }
 
