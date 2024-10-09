@@ -117,7 +117,7 @@ export default defineComponent({
       const canvas = this.$refs.canvas as HTMLCanvasElement;
       QRCode.toCanvas(
         canvas,
-        this.manualInfo.publicKey,
+        this.formatAddr(this.manualInfo.publicKey),
         { margin: 2, width: 200, errorCorrectionLevel: "H" },
         (error: any) => {
           if (error) console.error(error);
