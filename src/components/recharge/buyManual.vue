@@ -42,11 +42,11 @@
         </div>
         <div class="buy_info">
           <span>Send </span>
-          <span style="color: #49b6f6">
+          <span style="color: #49b6f6; font-weight: bold">
             {{ `${manualInfo.tonAmount} TON ` }}
           </span>
           <span>or </span>
-          <span style="color: #26a17b">
+          <span style="color: #26a17b; font-weight: bold">
             {{ `${manualInfo.usdtAmount} USDT ` }}
           </span>
           <span>to this deposit address.</span>

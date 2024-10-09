@@ -97,22 +97,22 @@
           {{ `${formatRounding(convertTonPrice || 0) || 0} TON` }}
         </span>
       </v-btn>
-      <v-btn
-        class="connect_btn"
-        :elevation="8"
-        height="36"
-        @click="handleManual()"
-        :disabled="!toAmount"
-      >
-        <v-img
-          width="24"
-          class="reward_img"
-          cover
-          src="@/assets/images/svg/manual_transfer.svg"
-        ></v-img>
-        <span class="finished">Manual Transfer</span>
-      </v-btn>
     </template>
+    <v-btn
+      class="connect_btn"
+      :elevation="8"
+      height="36"
+      @click="handleManual()"
+      :disabled="!toAmount"
+    >
+      <v-img
+        width="24"
+        class="reward_img"
+        cover
+        src="@/assets/images/svg/manual_transfer.svg"
+      ></v-img>
+      <span class="finished">Manual Transfer</span>
+    </v-btn>
     <div class="split_box">OR</div>
     <div class="title_text" @click="toFrens()">
       <v-img :width="20" cover src="@/assets/images/game/icon_usdt.png"></v-img>
