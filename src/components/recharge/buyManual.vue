@@ -7,12 +7,14 @@
           <v-img :width="16" cover src="@/assets/images/svg/icon_x.svg"></v-img>
         </div>
         <div class="canvas_box">
-          <canvas ref="canvas"></canvas>
+          <canvas ref="canvas" style="border-radius: 8px"></canvas>
         </div>
         <div class="order_item">
           <div class="item_title">Deposit Address</div>
           <div class="item_info">
-            <div class="item_val">{{ formatAddr(manualInfo.publicKey) }}</div>
+            <div class="item_val">
+              {{ handleOmitted(formatAddr(manualInfo.publicKey)) }}
+            </div>
             <div
               class="item_copy"
               @click="onCopy(formatAddr(manualInfo.publicKey))"
@@ -104,6 +106,11 @@ export default defineComponent({
 
       return addr;
     },
+    // 处理省略
+    handleOmitted(event: any) {
+      var reg = /^(\S{16})\S+(\S{6})$/;
+      return event.replace(reg, "$1......$2");
+    },
   },
   mounted() {
     this.$nextTick(() => {
@@ -111,7 +118,7 @@ export default defineComponent({
       QRCode.toCanvas(
         canvas,
         this.manualInfo.publicKey,
-        { margin: 1, width: 200, errorCorrectionLevel: "H" },
+        { margin: 2, width: 200, errorCorrectionLevel: "H" },
         (error: any) => {
           if (error) console.error(error);
         }
@@ -219,11 +226,12 @@ export default defineComponent({
   }
 
   .item_val {
-    width: 210px;
+    flex: 1;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-right: 10px;
   }
 
   .item_copy {
