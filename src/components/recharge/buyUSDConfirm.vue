@@ -54,28 +54,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { getOrderList } from "@/services/api/user";
+import { getPurchaseDetails } from "@/services/api/user";
 import { unitConversion } from "@/utils";
 
 type statusType = "pending" | "complete" | "timeout";
-interface order {
-  orderId: number; //订单ID
-  userId: number; //用户ID
-  tgId: number; //tgID
-  productId: number; //产品ID
-  walletAddress: string; //充值钱包地址
-  amount: number; //充值数量
-  status: number; //订单状态（0-进行中，1-已完成，2-失败）
-  statusStr: string;
-  energyAmount: number; //能量数量
-  gmcAmount: number; //GMC数量
-  price: number; //产品价格
-  priceCoin: string; //价格币种
-  txid: string; //交易地址
-  publicKey: string; //公钥
-  amountCoin: string; //充值币种
-  [x: string]: string | number | any;
-}
 
 export default defineComponent({
   data() {
@@ -85,7 +67,6 @@ export default defineComponent({
       timer: null as number | any,
       countdown: 60,
       timeMsg: "60s",
-      orderData: [] as Array<order>,
     };
   },
   computed: {
@@ -157,18 +138,14 @@ export default defineComponent({
     },
     // 获取支付结果（刷新余额
     async fetchPaymentResults() {
-      const { usdtOrderId } = this;
-      const res = await getOrderList({
-        orderId: usdtOrderId,
-        page: 1,
-        size: 10,
+      const res = await getPurchaseDetails({
+        usdtOrderId: this.usdtOrderId,
       });
-      if (res.code == 200) {
-        const orderData = res.data.records as Array<order>;
 
+      if (res.code == 200) {
+        const orderInfo = res.data;
         const { fetchUserInfo } = useUserStore();
-        const order = orderData.find((e) => e.orderId == Number(usdtOrderId));
-        if (order && order.status == 1) {
+        if (orderInfo && orderInfo.status == 1) {
           this.status = "complete";
           this.clearTimerFun();
           fetchUserInfo();

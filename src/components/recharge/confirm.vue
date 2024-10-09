@@ -143,30 +143,16 @@
 import axios from "axios";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { getOrderList, buyProduct, buyStarsProduct } from "@/services/api/user";
+import {
+  getOrderDetails,
+  buyProduct,
+  buyStarsProduct,
+} from "@/services/api/user";
 import { unitConversion } from "@/utils";
 import { TonConnectUI, ConnectedWallet } from "@tonconnect/ui";
 import { toNano, beginCell, Address } from "@ton/ton";
 
 type statusType = "pending" | "complete" | "timeout";
-interface order {
-  orderId: number; //订单ID
-  userId: number; //用户ID
-  tgId: number; //tgID
-  productId: number; //产品ID
-  walletAddress: string; //充值钱包地址
-  amount: number; //充值数量
-  status: number; //订单状态（0-进行中，1-已完成，2-失败）
-  statusStr: string;
-  energyAmount: number; //能量数量
-  gmcAmount: number; //GMC数量
-  price: number; //产品价格
-  priceCoin: string; //价格币种
-  txid: string; //交易地址
-  publicKey: string; //公钥
-  amountCoin: string; //充值币种
-  [x: string]: string | number | any;
-}
 
 export default defineComponent({
   data() {
@@ -176,7 +162,6 @@ export default defineComponent({
       timer: null as number | any,
       countdown: 60,
       timeMsg: "60s",
-      orderData: [] as Array<order>,
       gmtJettons:
         "0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe",
     };
@@ -325,6 +310,7 @@ export default defineComponent({
       const buy = await buyProduct({
         productId: productId,
         formAddress: walletAddr,
+        buttonType: "STARS",
       });
 
       if (buy.code == 200) {
@@ -352,6 +338,7 @@ export default defineComponent({
       const res = await buyProduct({
         productId: productId,
         formAddress: walletAddr,
+        buttonType: type == 1 ? "TON" : "USDT",
       });
 
       if (res.code == 200) {
@@ -468,17 +455,14 @@ export default defineComponent({
       const {
         productInfo: { orderId },
       } = this;
-      const res = await getOrderList({
+      const res = await getOrderDetails({
         orderId: orderId,
-        page: 1,
-        size: 10,
       });
       if (res.code == 200) {
-        const orderData = res.data.records as Array<order>;
+        const orderInfo = res.data;
 
         const { fetchUserInfo } = useUserStore();
-        const order = orderData.find((e) => e.orderId == orderId);
-        if (order && order.status == 1) {
+        if (orderInfo && orderInfo.status == 1) {
           this.status = "complete";
           this.clearTimerFun();
           fetchUserInfo();

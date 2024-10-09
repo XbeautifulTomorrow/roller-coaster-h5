@@ -1,13 +1,13 @@
 <template>
   <div class="buy_tokens_wrapper">
-    <div class="buy_gmc">
-      <div class="buy_gmc_title">
+    <div class="buy_usdt">
+      <div class="buy_usdt_title">
         <div class="operating">Buy</div>
       </div>
       <div class="buy_to_input">
         <div class="coin_box">
           <v-img
-            :width="40"
+            :width="32"
             cover
             src="@/assets/images/game/icon_usdt.png"
           ></v-img>
@@ -25,8 +25,8 @@
         ></v-text-field>
       </div>
     </div>
-    <div class="buy_gmc">
-      <div class="buy_gmc_title">
+    <div class="buy_usdt">
+      <div class="buy_usdt_title">
         <div class="operating">Price</div>
         <div class="number">
           {{ `≈ ${formatRounding(convertTonPrice || 0) || 0} TON` }}
@@ -36,7 +36,7 @@
     <v-btn
       class="connect_btn stars"
       :elevation="8"
-      height="42"
+      height="36"
       @click="handleStars()"
     >
       <v-img
@@ -53,7 +53,7 @@
       v-if="!isConnect"
       class="connect_btn"
       :elevation="8"
-      height="40"
+      height="36"
       @click="connectToWallet()"
     >
       <v-img
@@ -68,7 +68,7 @@
       <v-btn
         class="connect_btn usdt"
         :elevation="8"
-        height="42"
+        height="36"
         @click="handleBuy(2)"
         :disabled="!toAmount"
       >
@@ -83,7 +83,7 @@
       <v-btn
         class="connect_btn"
         :elevation="8"
-        height="42"
+        height="36"
         @click="handleBuy(1)"
         :disabled="!toAmount"
       >
@@ -96,6 +96,21 @@
         <span class="finished">
           {{ `${formatRounding(convertTonPrice || 0) || 0} TON` }}
         </span>
+      </v-btn>
+      <v-btn
+        class="connect_btn"
+        :elevation="8"
+        height="36"
+        @click="handleManual()"
+        :disabled="!toAmount"
+      >
+        <v-img
+          width="24"
+          class="reward_img"
+          cover
+          src="@/assets/images/svg/manual_transfer.svg"
+        ></v-img>
+        <span class="finished">Manual Transfer</span>
       </v-btn>
     </template>
     <div class="split_box">OR</div>
@@ -312,6 +327,7 @@ export default defineComponent({
       const res = await purchasePoints({
         usdtAmount: amount,
         formAddress: walletAddr,
+        buttonType: type == 1 ? "TON" : "USDT",
       });
 
       if (res.code == 200) {
@@ -356,6 +372,7 @@ export default defineComponent({
           console.log(err);
         });
     },
+    // 处理USDT购买
     async handleTransfer(event: any) {
       const { jettonAddr } = this;
       const { usdtOrderId } = event;
@@ -390,6 +407,7 @@ export default defineComponent({
       const buy = await purchasePoints({
         usdtAmount: removeTxt(toAmount),
         formAddress: walletAddr,
+        buttonType: "STARS",
       });
 
       if (buy.code == 200) {
@@ -409,6 +427,21 @@ export default defineComponent({
             });
           }
         }
+      }
+    },
+    // 处理手动转账
+    async handleManual() {
+      const { toAmount, removeTxt, walletAddr } = this;
+      const buy = await purchasePoints({
+        usdtAmount: removeTxt(toAmount),
+        formAddress: walletAddr,
+        buttonType: "MANUAL",
+      });
+
+      if (buy.code == 200) {
+        const { setShowManual, setManualInfo } = useUserStore();
+        setManualInfo(buy.data);
+        setShowManual(true);
       }
     },
     // 向上取整
@@ -444,12 +477,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.buy_gmc {
+.buy_usdt {
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 4px 0;
   position: relative;
 
-  .buy_gmc_title {
+  .buy_usdt_title {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -585,11 +618,11 @@ export default defineComponent({
 }
 
 .connect_btn + .connect_btn {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .connect_btn {
-  width: calc(100% - 16px);
+  width: 100%;
   box-sizing: border-box;
   background-color: rgba(73, 182, 246, 1);
   border-width: 2px;
@@ -599,7 +632,7 @@ export default defineComponent({
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
   font-weight: 700;
   font-style: normal;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   color: #ffffff;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
@@ -640,11 +673,11 @@ export default defineComponent({
   font-weight: 700;
   font-size: 16px;
   color: #ffffff;
-  padding: 20px 0;
+  padding: 12px 0;
 }
 
 .title_text {
-  width: calc(100% - 16px);
+  width: 100%;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -656,7 +689,7 @@ export default defineComponent({
   );
   border-radius: 8px;
   padding: 8px 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.9);
   box-shadow: 0px 5px 2px 0px rgba(230, 217, 217, 0.6) inset;

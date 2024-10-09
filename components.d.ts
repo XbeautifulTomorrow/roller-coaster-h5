@@ -8,14 +8,16 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BottomNav: typeof import('./src/components/BottomNav.vue')['default']
+    BuyManual: typeof import('./src/components/recharge/buyManual.vue')['default']
     BuyTokens: typeof import('./src/components/recharge/buyTokens.vue')['default']
     BuyUSDConfirm: typeof import('./src/components/recharge/buyUSDConfirm.vue')['default']
     Calculator: typeof import('./src/components/calculator/index.vue')['default']
     CandlestickChart: typeof import('./src/components/charts/CandlestickChart.vue')['default']
     Confirm: typeof import('./src/components/recharge/confirm.vue')['default']
-    copy: typeof import('./src/components/recharge/confirm copy.vue')['default']
+    copy: typeof import('./src/components/recharge/index copy.vue')['default']
     CountDown: typeof import('./src/components/countDown/index.vue')['default']
     LineChart: typeof import('./src/components/charts/LineChart.vue')['default']
+    ManualTransfer: typeof import('./src/components/recharge/manualTransfer.vue')['default']
     Recharge: typeof import('./src/components/recharge/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

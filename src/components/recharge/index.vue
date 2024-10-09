@@ -12,7 +12,7 @@
             @click="rechargeType = 0"
           >
             <v-img
-              :width="50"
+              :width="40"
               cover
               src="@/assets/images/recharge/token_6.png"
             ></v-img>
@@ -23,7 +23,7 @@
             @click="rechargeType = 1"
           >
             <v-img
-              :width="50"
+              :width="40"
               cover
               src="@/assets/images/game/icon_usdt.png"
             ></v-img>
@@ -258,7 +258,7 @@ export default defineComponent({
 
 .recharge_panel {
   width: 100%;
-  min-height: 500px;
+  min-height: 460px;
   margin-top: -16px;
   padding: 4px;
   border-radius: 4px;
@@ -273,7 +273,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 0 0px;
+  padding: 12px 0 0px;
 
   .recharge_tab + .recharge_tab {
     margin-left: 8px;
@@ -281,7 +281,7 @@ export default defineComponent({
 
   .recharge_tab {
     flex: 1;
-    height: 78px;
+    height: 60px;
     background-color: rgba(137, 104, 85, 1);
     display: flex;
     align-items: center;

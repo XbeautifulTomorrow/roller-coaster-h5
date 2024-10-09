@@ -188,7 +188,7 @@ export default defineComponent({
       return usdtAmount;
     },
     isWithdraw() {
-      const { fromAmount, isError, withdrawAddr } = this;
+      const { fromAmount, isError, withdrawAddr, tonMemo } = this;
       let isV = false;
 
       if (!fromAmount) {
@@ -196,6 +196,10 @@ export default defineComponent({
       }
 
       if (!withdrawAddr) {
+        isV = true;
+      }
+
+      if (!tonMemo) {
         isV = true;
       }
 
@@ -315,10 +319,6 @@ export default defineComponent({
         address: Address.parse(withdrawAddr).toRawString(), //提币地址
         memo: this.tonMemo || "",
       });
-
-      const { setOrderId, setShowWithdraw } = useUserStore();
-      setOrderId(2);
-      setShowWithdraw(true);
 
       if (res.code == 200) {
         this.fromOrTo = true;

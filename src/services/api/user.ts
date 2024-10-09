@@ -68,10 +68,10 @@ const buyProduct = (params: any) => http.post(serverUrl + "/product-info/purchas
 const buyStarsProduct = (params: any) => http.get(serverUrl + "/product-info/starPayment", params);
 
 /**
- * 订单列表
+ * 获取订单结果
  * @param params
  */
-const getOrderList = (params: any) => http.get(serverUrl + "/order/list", params, { showLoading: false });
+const getOrderDetails = (params: any) => http.get(serverUrl + "/order/details", params, { showLoading: false });
 
 /**
  * swap 购买
@@ -103,6 +103,13 @@ const getExchangeRate = (params: any) => http.get(serverUrl + "/coin/price/excha
  * @param params
  */
 const purchasePoints = (params: any) => http.post(serverUrl + "/usdt-order/purchase", params);
+
+/**
+* 获取购买USD结果
+* @param params
+*/
+const getPurchaseDetails = (params: any) => http.get(serverUrl + "/usdt-order/details", params, { showLoading: false });
+
 /**
  * 星星购买USDT
  * @param params
@@ -114,6 +121,12 @@ const starPurchasePoints = (params: any) => http.get(serverUrl + "/usdt-order/st
  * @param params
  */
 const transferWithdraw = (params: any) => http.post(serverUrl + "/transfer/withdraw", params);
+
+/**
+ * 获取提款结果
+ * @param params
+ */
+const getWithdrawDetails = (params: any) => http.get(serverUrl + "/transfer/record/withdrawDetails", params, { showLoading: false });
 
 /**
  * 提币记录
@@ -133,13 +146,15 @@ export {
   getProductList,
   buyProduct,
   buyStarsProduct,
-  getOrderList,
+  getOrderDetails,
   transferSwap,
   searchByTgId,
   transferSendTip,
   getExchangeRate,
   transferWithdraw,
+  getWithdrawDetails,
   getWithdrawList,
   purchasePoints,
-  starPurchasePoints
+  starPurchasePoints,
+  getPurchaseDetails
 };

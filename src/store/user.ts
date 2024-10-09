@@ -78,6 +78,17 @@ export interface productInfo {
   [x: string]: string | number | any;
 }
 
+export interface manual {
+  usdtOrderId: number, //usdt订单ID
+  walletAddress: string, //充值钱包地址
+  publicKey: string, //公钥
+  usdtAmount: number, //usdt数量
+  tonAmount: number, //TON数量
+  starPrice: number, //星星数量
+  remark: string, //备注
+  cell: string //签名
+}
+
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -91,8 +102,10 @@ export const useUserStore = defineStore("user", {
     isLogin: getLocalStore("certificate") ? true : false,
     showGift: false, // 礼物弹窗
     showRecharge: false, // 充值弹窗
+    showManual: false, // 显示手动弹窗
     productId: null as number | string | any, // 充值产品ID
     productInfo: {} as productInfo, // 充值产品信息
+    manualInfo: {} as manual, // 手动转账信息
     tonConnect: null as any, // 链接对象
     walletAddr: null as number | string | any,     // 钱包地址
     jettonAddr: null as number | string | any,     // jetton钱包地址
@@ -175,18 +188,24 @@ export const useUserStore = defineStore("user", {
     setShowRecharge(data: any) {
       this.showRecharge = data;
     },
+    setShowManual(data: any) {
+      this.showManual = data;
+    },
     setTonConnect(data: any) {
       this.tonConnect = data;
     },
     async setProductId(data: any) {
       this.productId = data;
 
-      const res = await buyProduct({ productId: data });
+      const res = await buyProduct({ productId: data, buttonType: "TON" });
       if (res.code == 200) {
         this.productInfo = res.data;
       }
 
       this.showConfirm = true;
+    },
+    setManualInfo(data: any) {
+      this.manualInfo = data;
     },
     listening(data: any) {
       if (data.isc) {

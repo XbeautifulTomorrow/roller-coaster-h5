@@ -2155,6 +2155,7 @@ export default defineComponent({
     margin-bottom: 4px;
   }
 }
+
 .buy_type_box {
   display: flex;
   align-items: center;

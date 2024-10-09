@@ -59,7 +59,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
-import { getWithdrawList } from "@/services/api/user";
+import { getWithdrawDetails } from "@/services/api/user";
 import { openUrl } from "@/utils";
 
 type statusType = "pending" | "complete" | "timeout";
@@ -146,17 +146,14 @@ export default defineComponent({
     },
     // 获取支付结果，刷新余额
     async fetchWithdrawResults() {
-      const res = await getWithdrawList({
-        page: 1,
-        size: 10,
+      const res = await getWithdrawDetails({
+        withdrawId: this.orderId,
       });
+
       if (res.code == 200) {
-        const orderData = res.data.records as Array<order>;
-
+        const orderInfo = res.data;
         const { fetchUserInfo } = useUserStore();
-        const order = orderData.find((e) => e.withdrawId == this.orderId);
-
-        if (order && order.status == "Successful") {
+        if (orderInfo && orderInfo.status == "SUCCESS") {
           this.status = "complete";
           this.clearTimerFun();
           fetchUserInfo();
