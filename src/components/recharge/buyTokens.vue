@@ -25,6 +25,17 @@
         ></v-text-field>
       </div>
     </div>
+    <div class="first_deposit_reward" v-if="!userInfo.firstCharge">
+      <div>First Recharge Bonus</div>
+      <div class="reward_val">
+        <span>200,000</span>
+        <v-img
+          :width="16"
+          cover
+          src="@/assets/images/game/icon_rcp.png"
+        ></v-img>
+      </div>
+    </div>
     <div class="buy_usdt">
       <div class="buy_usdt_title">
         <div class="operating">Price</div>
@@ -38,6 +49,7 @@
       :elevation="8"
       height="36"
       @click="handleStars()"
+      :disabled="!Number(removeTxt(toAmount))"
     >
       <v-img
         width="24"
@@ -70,7 +82,7 @@
         :elevation="8"
         height="36"
         @click="handleBuy(2)"
-        :disabled="!toAmount"
+        :disabled="!Number(removeTxt(toAmount))"
       >
         <v-img
           width="24"
@@ -78,14 +90,16 @@
           cover
           src="@/assets/images/game/icon_usdt.png"
         ></v-img>
-        <span class="finished">{{ `${toAmount} USDT` }}</span>
+        <span class="finished">
+          {{ `${Number(removeTxt(toAmount)) ? toAmount : "-"} USDT` }}
+        </span>
       </v-btn>
       <v-btn
         class="connect_btn"
         :elevation="8"
         height="36"
         @click="handleBuy(1)"
-        :disabled="!toAmount"
+        :disabled="!Number(removeTxt(toAmount))"
       >
         <v-img
           width="24"
@@ -94,7 +108,7 @@
           src="@/assets/images/recharge/icon_ton.png"
         ></v-img>
         <span class="finished">
-          {{ `${formatRounding(convertTonPrice || 0) || 0} TON` }}
+          {{ `${formatRounding(convertTonPrice || 0)} TON` }}
         </span>
       </v-btn>
     </template>
@@ -103,7 +117,7 @@
       :elevation="8"
       height="36"
       @click="handleManual()"
-      :disabled="!toAmount"
+      :disabled="!Number(removeTxt(toAmount))"
     >
       <v-img
         width="24"
@@ -154,6 +168,10 @@ export default defineComponent({
         const { setTonConnect } = useUserStore();
         setTonConnect(val);
       },
+    },
+    userInfo() {
+      const { userInfo } = useUserStore();
+      return userInfo;
     },
     isConnect() {
       const { isConnect } = useUserStore();
@@ -431,21 +449,15 @@ export default defineComponent({
     },
     // 处理手动转账
     async handleManual() {
-      const { toAmount, removeTxt, walletAddr } = this;
-      const buy = await purchasePoints({
-        usdtAmount: removeTxt(toAmount),
-        formAddress: walletAddr,
-        buttonType: "MANUAL",
-      });
+      const { toAmount, removeTxt } = this;
 
-      if (buy.code == 200) {
-        const { setShowManual, setManualInfo } = useUserStore();
-        setManualInfo(buy.data);
-        setShowManual(true);
-      }
+      const { setShowManual, setBuyUsdtNum } = useUserStore();
+      setBuyUsdtNum(removeTxt(toAmount));
+      setShowManual(true);
     },
     // 向上取整
     formatRounding(event: number | string, type = 2) {
+      if (!event) return "-";
       const num = new bigNumber(event).multipliedBy(100).toNumber();
       const amount = new bigNumber(Math.ceil(num)).dividedBy(100).toNumber();
       return Number(amount).toLocaleString(undefined, {
@@ -477,6 +489,28 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.first_deposit_reward {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+  text-shadow: 1px 1px 4px rgba(197, 27, 24, 1);
+  font-weight: 700;
+  font-style: normal;
+  color: #ffedd6;
+  padding: 4px 0;
+
+  .reward_val {
+    display: flex;
+    align-items: center;
+
+    .v-img {
+      flex: 1;
+      margin-left: 4px;
+    }
+  }
+}
+
 .buy_usdt {
   border-radius: 8px;
   padding: 4px 0;
@@ -656,8 +690,12 @@ export default defineComponent({
   }
 
   &.v-btn--disabled {
-    background-color: rgba(53, 53, 53, 1);
+    background: rgba(53, 53, 53, 1);
     color: #696969;
+
+    .v-img {
+      filter: grayscale(100);
+    }
   }
 }
 

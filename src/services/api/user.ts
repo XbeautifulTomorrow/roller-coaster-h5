@@ -134,6 +134,12 @@ const getWithdrawDetails = (params: any) => http.get(serverUrl + "/transfer/reco
  */
 const getWithdrawList = (params: any) => http.get(serverUrl + "/transfer/record/withdrawList", params, { showLoading: false });
 
+/**
+ * 充值地址
+ * @param params
+ */
+const getRechargeAddress = (params: any) => http.get(serverUrl + "/transfer/rechargeAddress", params);
+
 export {
   validateToken,
   telegramLogin,
@@ -156,5 +162,6 @@ export {
   getWithdrawList,
   purchasePoints,
   starPurchasePoints,
-  getPurchaseDetails
+  getPurchaseDetails,
+  getRechargeAddress
 };

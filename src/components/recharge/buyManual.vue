@@ -13,10 +13,10 @@
           <div class="item_title">Deposit Address</div>
           <div
             class="item_info"
-            @click="onCopy(formatAddr(manualInfo.publicKey))"
+            @click="onCopy(formatAddr(rechargeInfo.publicKey))"
           >
             <div class="item_val">
-              {{ handleOmitted(formatAddr(manualInfo.publicKey)) }}
+              {{ handleOmitted(formatAddr(rechargeInfo.publicKey)) }}
             </div>
             <div class="item_copy">
               <v-img
@@ -29,8 +29,8 @@
         </div>
         <div class="order_item">
           <div class="item_title">TONMEMO</div>
-          <div class="item_info" @click="onCopy(manualInfo.remark)">
-            <div class="item_val">{{ manualInfo.remark }}</div>
+          <div class="item_info" @click="onCopy(rechargeInfo.memo)">
+            <div class="item_val">{{ rechargeInfo.memo }}</div>
             <div class="item_copy">
               <v-img
                 :width="20"
@@ -43,11 +43,11 @@
         <div class="buy_info">
           <span>Send </span>
           <span style="color: #49b6f6; font-weight: bold">
-            {{ `${manualInfo.tonAmount} TON ` }}
+            {{ `${usdtToTon} TON ` }}
           </span>
           <span>or </span>
           <span style="color: #26a17b; font-weight: bold">
-            {{ `${manualInfo.usdtAmount} USDT ` }}
+            {{ `${buyUsdtNum} USDT ` }}
           </span>
           <span>to this deposit address.</span>
         </div>
@@ -69,12 +69,22 @@
 import { defineComponent } from "vue";
 import QRCode from "qrcode";
 import { useUserStore } from "@/store/user.js";
+import { getRechargeAddress } from "@/services/api/user";
 import { Address } from "@ton/ton";
-import { onCopy } from "@/utils";
+import { accurateDecimal, onCopy } from "@/utils";
+import bigNumber from "bignumber.js";
+
+export interface recharge {
+  address: string; //充值地址
+  publicKey: string; //公钥
+  memo: string; //手动充值备注
+}
 
 export default defineComponent({
   data() {
-    return {};
+    return {
+      rechargeInfo: {} as recharge,
+    };
   },
   computed: {
     showManual: {
@@ -87,15 +97,38 @@ export default defineComponent({
         setShowManual(val);
       },
     },
-    manualInfo() {
-      const { manualInfo } = useUserStore();
-      return manualInfo;
+    // TON转化至USD价格
+    tonConvertUsd() {
+      const { tonConvertUsd } = useUserStore();
+      return tonConvertUsd;
     },
+    buyUsdtNum() {
+      const { buyUsdtNum } = useUserStore();
+      return buyUsdtNum;
+    },
+    // U转TON
+    usdtToTon(event: number) {
+      const { buyUsdtNum, tonConvertUsd } = this;
+      const usdtAmount = new bigNumber(buyUsdtNum)
+        .dividedBy(tonConvertUsd)
+        .toNumber();
+      return accurateDecimal(usdtAmount, 4);
+    },
+  },
+  created() {
+    this.fetchRechargeAddress();
   },
   methods: {
     onCopy: onCopy,
     handleReady() {
       this.showManual = false;
+    },
+    async fetchRechargeAddress() {
+      const res = await getRechargeAddress({});
+      if (res.code == 200) {
+        this.rechargeInfo = res.data;
+        this.handleQrcode();
+      }
     },
     // 格式化地址
     formatAddr(event: string) {
@@ -108,22 +141,24 @@ export default defineComponent({
     },
     // 处理省略
     handleOmitted(event: any) {
+      if (!event) return event;
       var reg = /^(\S{16})\S+(\S{6})$/;
       return event.replace(reg, "$1......$2");
     },
-  },
-  mounted() {
-    this.$nextTick(() => {
-      const canvas = this.$refs.canvas as HTMLCanvasElement;
-      QRCode.toCanvas(
-        canvas,
-        this.formatAddr(this.manualInfo.publicKey),
-        { margin: 2, width: 200, errorCorrectionLevel: "H" },
-        (error: any) => {
-          if (error) console.error(error);
-        }
-      );
-    });
+    // 处理二维码生成
+    handleQrcode() {
+      this.$nextTick(() => {
+        const canvas = this.$refs.canvas as HTMLCanvasElement;
+        QRCode.toCanvas(
+          canvas,
+          this.formatAddr(this.rechargeInfo.publicKey),
+          { margin: 2, width: 200, errorCorrectionLevel: "H" },
+          (error: any) => {
+            if (error) console.error(error);
+          }
+        );
+      });
+    },
   },
 });
 </script>

@@ -1,5 +1,34 @@
 <template>
   <div class="activity_wrapper">
+    <div class="activity_item legendary" @click="startGame('LEGENDARY')">
+      <v-img
+        class="game_img"
+        :width="220"
+        cover
+        src="@/assets/images/activity/legendary.png"
+      ></v-img>
+      <div class="item_name">LEGENDARY</div>
+      <div class="game_info">
+        <div class="info_left">
+          <v-img
+            :width="20"
+            cover
+            src="@/assets/images/game/icon_usdt.png"
+          ></v-img>
+          <span>{{ `${1} - ${Number(10000000).toLocaleString()}` }}</span>
+        </div>
+        <div class="info_right">
+          <v-img
+            :width="14"
+            cover
+            src="@/assets/images/svg/activity/user.svg"
+          ></v-img>
+          <span>{{
+            Number(attendeesNum.countThree || 0).toLocaleString()
+          }}</span>
+        </div>
+      </div>
+    </div>
     <div class="activity_item new_bie" @click="startGame('BASIC')">
       <v-img
         class="game_img"
@@ -55,35 +84,6 @@
             src="@/assets/images/svg/activity/user.svg"
           ></v-img>
           <span>{{ Number(attendeesNum.countTwo || 0).toLocaleString() }}</span>
-        </div>
-      </div>
-    </div>
-    <div class="activity_item legendary" @click="startGame('LEGENDARY')">
-      <v-img
-        class="game_img"
-        :width="220"
-        cover
-        src="@/assets/images/activity/legendary.png"
-      ></v-img>
-      <div class="item_name">LEGENDARY</div>
-      <div class="game_info">
-        <div class="info_left">
-          <v-img
-            :width="20"
-            cover
-            src="@/assets/images/game/icon_usdt.png"
-          ></v-img>
-          <span>{{ `${1} - ${Number(10000000).toLocaleString()}` }}</span>
-        </div>
-        <div class="info_right">
-          <v-img
-            :width="14"
-            cover
-            src="@/assets/images/svg/activity/user.svg"
-          ></v-img>
-          <span>{{
-            Number(attendeesNum.countThree || 0).toLocaleString()
-          }}</span>
         </div>
       </div>
     </div>

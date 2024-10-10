@@ -950,7 +950,7 @@ export default defineComponent({
         this.buyNum = Number(saveInfo.amount).toLocaleString();
         this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
-        this.buyNum = "1";
+        this.buyNum = "0.1";
       }
 
       this.coinName = "USDT";
@@ -1825,7 +1825,7 @@ export default defineComponent({
             this.buyNum = Number(saveInfo.amount).toLocaleString();
             this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
           } else {
-            this.buyNum = "1";
+            this.buyNum = "0.1";
             this.coinName = "USDT";
           }
         }

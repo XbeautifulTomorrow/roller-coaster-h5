@@ -51,6 +51,7 @@ export interface userInterface {
   totalRcpAmount: number, //总RCP返佣数量
   totalUsdtAmount: number //总USDT佣数量
   isUpgrade: boolean, //是否升级
+  firstCharge: boolean, //是否首充
   [x: string]: string | number | any;
 }
 
@@ -89,7 +90,6 @@ export interface manual {
   cell: string //签名
 }
 
-
 export const useUserStore = defineStore("user", {
   state: () => ({
     locale: langMenu[getLang()],
@@ -105,7 +105,7 @@ export const useUserStore = defineStore("user", {
     showManual: false, // 显示手动弹窗
     productId: null as number | string | any, // 充值产品ID
     productInfo: {} as productInfo, // 充值产品信息
-    manualInfo: {} as manual, // 手动转账信息
+    buyUsdtNum: null as number | any, // USDT购买数量
     tonConnect: null as any, // 链接对象
     walletAddr: null as number | string | any,     // 钱包地址
     jettonAddr: null as number | string | any,     // jetton钱包地址
@@ -204,8 +204,8 @@ export const useUserStore = defineStore("user", {
 
       this.showConfirm = true;
     },
-    setManualInfo(data: any) {
-      this.manualInfo = data;
+    setBuyUsdtNum(data: any) {
+      this.buyUsdtNum = data;
     },
     listening(data: any) {
       if (data.isc) {
