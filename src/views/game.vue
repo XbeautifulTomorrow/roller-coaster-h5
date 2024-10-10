@@ -930,7 +930,7 @@ export default defineComponent({
         this.buyNum = Number(saveInfo.amount).toLocaleString();
         this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
       } else {
-        this.buyNum = "10";
+        this.buyNum = "100";
       }
 
       this.coinName = "RCP";
@@ -1807,7 +1807,7 @@ export default defineComponent({
             this.buyNum = Number(saveInfo.amount).toLocaleString();
             this.buyMultiplier = Number(saveInfo.multiplier).toLocaleString();
           } else {
-            this.buyNum = "10";
+            this.buyNum = "100";
             this.coinName = "RCP";
           }
         } else if (this.gameLevel == "ADVANCED") {

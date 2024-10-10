@@ -124,6 +124,17 @@
         </v-btn>
       </div>
     </v-dialog>
+
+    <v-dialog v-model="showFirstCharge" width="300">
+      <div class="first_charge_box">
+        <v-img
+          :width="300"
+          cover
+          src="@/assets/images/activity/recharge.png"
+        ></v-img>
+        <div class="recharge_btn" @click="toRecharge(1)"></div>
+      </div>
+    </v-dialog>
   </div>
 </template>
 
@@ -145,10 +156,15 @@ export default defineComponent({
       attendeesNum: {} as attendeesInfo,
       showTips: false,
       tipsType: 1, // 1:新手场提示 2：高级场提示 3：终极场提示
+      showFirstCharge: false,
     };
   },
-  created() {
-    this.fetchNumberSessions();
+  watch: {
+    userInfo(newV) {
+      if (!newV.firstCharge) {
+        this.showFirstCharge = true;
+      }
+    },
   },
   computed: {
     // 用户信息
@@ -384,5 +400,19 @@ export default defineComponent({
     letter-spacing: 0;
     color: #000;
   }
+}
+
+.first_charge_box {
+  position: relative;
+}
+
+.recharge_btn {
+  width: 90%;
+  height: 48px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  position: absolute;
+  bottom: 10px;
 }
 </style>
