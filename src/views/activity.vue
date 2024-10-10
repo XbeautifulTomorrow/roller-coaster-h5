@@ -167,6 +167,9 @@ export default defineComponent({
       showFirstCharge: false,
     };
   },
+  created() {
+    this.fetchNumberSessions();
+  },
   watch: {
     userInfo(newV) {
       if (!newV.firstCharge) {
