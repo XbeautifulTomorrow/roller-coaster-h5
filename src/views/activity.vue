@@ -130,6 +130,7 @@
         <v-img
           :width="300"
           cover
+          style="cursor: pointer"
           @click="toRecharge(1)"
           src="@/assets/images/activity/recharge.png"
         ></v-img>
