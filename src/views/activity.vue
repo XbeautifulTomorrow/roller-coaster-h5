@@ -130,9 +130,9 @@
         <v-img
           :width="300"
           cover
+          @click="toRecharge(1)"
           src="@/assets/images/activity/recharge.png"
         ></v-img>
-        <div class="recharge_btn" @click="toRecharge(1)"></div>
       </div>
       <v-img
         :width="36"
@@ -416,15 +416,5 @@ export default defineComponent({
 .close_btn {
   margin: 0 auto;
   margin-top: 20px;
-}
-
-.recharge_btn {
-  width: 90%;
-  height: 48px;
-  left: 0;
-  right: 0;
-  margin: auto;
-  position: absolute;
-  bottom: 10px;
 }
 </style>
