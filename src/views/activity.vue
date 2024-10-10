@@ -134,6 +134,13 @@
         ></v-img>
         <div class="recharge_btn" @click="toRecharge(1)"></div>
       </div>
+      <v-img
+        :width="36"
+        cover
+        class="close_btn"
+        @click="showFirstCharge = false"
+        src="@/assets/images/svg/activity/close.svg"
+      ></v-img>
     </v-dialog>
   </div>
 </template>
@@ -404,6 +411,11 @@ export default defineComponent({
 
 .first_charge_box {
   position: relative;
+}
+
+.close_btn {
+  margin: 0 auto;
+  margin-top: 20px;
 }
 
 .recharge_btn {
