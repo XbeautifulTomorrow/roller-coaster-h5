@@ -25,10 +25,12 @@
         ></v-text-field>
       </div>
     </div>
-    <div class="first_deposit_reward" v-if="!userInfo.firstCharge">
-      <div>First Recharge Bonus</div>
+    <div class="first_deposit_reward">
+      <div v-if="userInfo.firstCharge">Extra Bonus</div>
+      <div v-else>First Recharge Bonus</div>
       <div class="reward_val">
-        <span>200,000</span>
+        <span v-if="userInfo.firstCharge">100,000</span>
+        <span v-else>200,000</span>
         <v-img
           :width="16"
           cover

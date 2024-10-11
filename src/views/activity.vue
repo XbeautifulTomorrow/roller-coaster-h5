@@ -130,9 +130,18 @@
         <v-img
           :width="300"
           cover
+          v-if="showType == 0"
           style="cursor: pointer"
           @click="toRecharge(1)"
           src="@/assets/images/activity/recharge.png"
+        ></v-img>
+        <v-img
+          :width="300"
+          cover
+          v-else
+          style="cursor: pointer"
+          @click="toRecharge(1)"
+          src="@/assets/images/activity/bonus.png"
         ></v-img>
       </div>
       <v-img
@@ -151,7 +160,7 @@ import { defineComponent } from "vue";
 import { useGameStore } from "@/store/game";
 import { getNumberSessions } from "@/services/api/order.js";
 import { useUserStore } from "@/store/user.js";
-
+import { getSessionStore, setSessionStore } from "@/utils";
 interface attendeesInfo {
   countOne: number; //BASIC场次人数
   countTwo: number; //ADVANCED场次人数
@@ -165,6 +174,7 @@ export default defineComponent({
       showTips: false,
       tipsType: 1, // 1:新手场提示 2：高级场提示 3：终极场提示
       showFirstCharge: false,
+      showType: 0, // 0: 首充 1：每次
     };
   },
   created() {
@@ -174,6 +184,12 @@ export default defineComponent({
     userInfo(newV) {
       if (!newV.firstCharge) {
         this.showFirstCharge = true;
+      } else {
+        const isRecharge = getSessionStore("isRecharge");
+        if (isRecharge) {
+          this.showFirstCharge = true;
+          setSessionStore("isRecharge", "1");
+        }
       }
     },
   },
