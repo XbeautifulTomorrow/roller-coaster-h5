@@ -188,7 +188,7 @@ export default defineComponent({
       return usdtAmount;
     },
     isWithdraw() {
-      const { fromAmount, isError, withdrawAddr, tonMemo } = this;
+      const { fromAmount, isError, withdrawAddr } = this;
       let isV = false;
 
       if (!fromAmount) {
@@ -196,10 +196,6 @@ export default defineComponent({
       }
 
       if (!withdrawAddr) {
-        isV = true;
-      }
-
-      if (!tonMemo) {
         isV = true;
       }
 
