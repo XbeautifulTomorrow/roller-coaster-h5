@@ -14,6 +14,12 @@
           <div class="info_val">
             <span style="margin-right: 4px">Status:</span>
             <span :class="[formatStatus(item.status)]">{{ item.status }}</span>
+            <span
+              v-if="item.status == 'Rejected'"
+              class="hint"
+              @click="handleRejected(item.remark)"
+              >?</span
+            >
           </div>
         </div>
         <div class="history_info">
@@ -57,6 +63,19 @@
       <div class="no_data_text">NO DATA</div>
       <div class="refresh_btn" @click="fetchHistoryList()">Refresh</div>
     </div>
+    <v-dialog v-model="showTips" width="280" persistent>
+      <div class="dialog_box">
+        <div class="dialog_title">
+          <span>Important</span>
+        </div>
+        <div class="dialog_text">
+          {{ rejectedText }}
+        </div>
+        <v-btn class="enter_btn" width="200" @click="showTips = false">
+          <span class="finished">OK</span>
+        </v-btn>
+      </div>
+    </v-dialog>
   </div>
 </template>
 
@@ -75,6 +94,7 @@ interface orderInfo {
   time: string; //时间
   actualArrival: string | number | any; // 实际到账
   fee: string | number | any; // 手续费
+  remark: string; // 备注 拒绝原因
 }
 
 export default defineComponent({
@@ -85,6 +105,8 @@ export default defineComponent({
       size: 10,
       finished: false,
       timer: null as any,
+      showTips: false,
+      rejectedText: "",
     };
   },
   computed: {
@@ -124,7 +146,16 @@ export default defineComponent({
         }
       }
     },
-
+    // 处理拒绝
+    handleRejected(event: string) {
+      this.showTips = true;
+      this.rejectedText = event;
+    },
+    // 处理弹窗关闭
+    handleClose() {
+      this.showTips = false;
+      this.rejectedText = "";
+    },
     // 处理滚动事件
     async handleScroll(event: Event) {
       const target = event.target as HTMLElement;
@@ -169,6 +200,8 @@ export default defineComponent({
         return "in_progress";
       } else if (event == "Successful") {
         return "successful";
+      } else if (event == "Rejected") {
+        return "rejected";
       } else {
         return "fail";
       }
@@ -230,9 +263,27 @@ export default defineComponent({
         color: #ff0000;
       }
 
+      .rejected {
+        color: #ff0000;
+      }
+
       &.amount {
         color: white;
         font-weight: 700;
+      }
+
+      .hint {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-left: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #ff0000;
+        color: #ff0000;
+        font-size: 12px;
+        font-weight: bold;
       }
 
       .v-img {
@@ -281,6 +332,49 @@ export default defineComponent({
     color: #666565;
     border-radius: 8px;
     cursor: pointer;
+  }
+}
+
+.dialog_box {
+  background-color: #fff;
+  box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 16px 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: #000;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.2;
+
+  .dialog_title {
+    margin-bottom: 24px;
+  }
+
+  .dialog_text {
+    font-size: 16px;
+  }
+
+  & > .v-btn {
+    font-size: 14px;
+    border-radius: 8px;
+    color: #fff;
+    margin-top: 12px;
+  }
+
+  .enter_btn {
+    border: 1px solid #000;
+    background-color: rgba(255, 232, 26, 1);
+    color: #c8c1c1;
+    font-size: 16px;
+    box-shadow: 0px 5px 5px 0px rgba(242, 9, 9, 0.15) inset;
+  }
+
+  .finished {
+    text-transform: none;
+    letter-spacing: 0;
+    color: #000;
   }
 }
 </style>

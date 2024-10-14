@@ -108,7 +108,13 @@
           Public Orders
         </div>
       </div>
-      <transition-group name="list" tag="ul" v-if="orderData.length > 0">
+      <transition-group
+        id="orderList"
+        ref="orderList"
+        name="list"
+        tag="ul"
+        v-if="orderData.length > 0"
+      >
         <li class="list-item" v-for="item in orderData" :key="item.id">
           <div class="order_types" v-if="orderType != 2">
             <v-img
@@ -1357,6 +1363,12 @@ export default defineComponent({
 
             this.orderData[i] = element;
           }
+          this.handleOrderLocation();
+        } else {
+          this.orderType = 0;
+          this.orderData = [];
+          this.fetchOrderData();
+          this.handleOrderLocation();
         }
 
         // 更新余额
@@ -1759,6 +1771,16 @@ export default defineComponent({
       nextDay.setDate(nextDay.getDate() + 1); // 增加一天
       nextDay.setHours(0, 0, 0, 0); // 将时间设置为午夜（0点）
       this.nextDayTime = nextDay.toUTCString();
+    },
+    // 切换至订单位置
+    handleOrderLocation() {
+      const element = document.getElementById("orderList");
+
+      if (element) {
+        const elementTop =
+          element.getBoundingClientRect().top + window.scrollY - 400; // 获取元素的顶部位置
+        window.scrollTo({ top: elementTop, behavior: "smooth" }); // 滚动到该位置
+      }
     },
   },
   mounted() {
