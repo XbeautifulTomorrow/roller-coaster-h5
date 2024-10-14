@@ -1778,7 +1778,7 @@ export default defineComponent({
 
       if (element) {
         const elementTop =
-          element.getBoundingClientRect().top + window.scrollY - 400; // 获取元素的顶部位置
+          element.getBoundingClientRect().top + window.scrollY - 300; // 获取元素的顶部位置
         window.scrollTo({ top: elementTop, behavior: "smooth" }); // 滚动到该位置
       }
     },
