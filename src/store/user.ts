@@ -284,12 +284,16 @@ export const useUserStore = defineStore("user", {
     },
     async logoutApi() {
       const invateCode = getSessionStore("invateCode");
+
       sessionStorage.clear();
       setSessionStore("invateCode", invateCode);
 
       localStorage.removeItem("logInfo");
       localStorage.removeItem("userInfo");
       localStorage.removeItem("certificate");
+      localStorage.removeItem("advancedInfo");
+      localStorage.removeItem("legendaryInfo");
+
       this.isLogin = false;
       this.userInfo = {} as userInterface;
       window.NavigationPreloadManager;

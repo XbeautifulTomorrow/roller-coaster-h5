@@ -266,7 +266,7 @@
           </div>
         </li>
       </transition-group>
-      <div class="no_data" v-else>
+      <div class="no_data" id="orderList" v-else>
         <v-img
           :width="48"
           cover
@@ -293,7 +293,7 @@
       </div>
       <div class="manual_box fixed">
         <div class="buy_numer_info fixed">
-          <div class="buy_price fixed">
+          <div class="buy_price fixed" id="buyNum">
             <div class="buy_input fixed">
               <v-img
                 :width="24"
@@ -321,7 +321,7 @@
               <div class="multiples_btn fixed" @click="handlePlus()">x2</div>
             </div>
           </div>
-          <div class="buy_type_box">
+          <div class="buy_type_box" id="buyStatus">
             <div
               :class="[
                 'buy_type_slider',
@@ -378,7 +378,7 @@
           <div class="buy_multiples fixed">
             <span>PAYOUT MULTIPLIER</span>
             <div class="multiples_box">
-              <div class="multiples_panel">
+              <div class="multiples_panel" id="buyMultiplier">
                 <div class="plus_btn" @click="multipleMinus()">
                   <v-icon color="#000" size="20" icon="mdi-minus"></v-icon>
                 </div>
@@ -418,6 +418,7 @@
           </div>
           <div class="btn_box">
             <v-btn
+              id="placeOrder"
               :class="['buy_btn', buyStatus == 'sell' && 'down']"
               @click="handleBuy()"
               width="100%"
@@ -428,6 +429,22 @@
             >
               <span class="finished">PLACE ORDER</span>
             </v-btn>
+          </div>
+        </div>
+      </div>
+      <div class="guide_wrapper" v-if="showGuide && guideIndex < 4">
+        <div class="guide_box">
+          <div class="guide_next" @click="handleGuideNext()">Next</div>
+          <div class="guide_operating"></div>
+          <div
+            :class="['guide_text', guideConfig[guideIndex].hintAlign]"
+            :style="{
+              top: `${guideLocation}px`,
+              left: guideConfig[guideIndex].hintAlign == 'left' ? '8px' : '',
+              right: guideConfig[guideIndex].hintAlign == 'right' ? '8px' : '',
+            }"
+          >
+            {{ guideConfig[guideIndex].hintText }}
           </div>
         </div>
       </div>
@@ -701,6 +718,42 @@
     <stopAmount @onStop="fetchOrderData"></stopAmount>
     <tipRules></tipRules>
     <profitCalculator></profitCalculator>
+    <advertiseTask
+      v-if="showAdvertise"
+      :showAdvertise="showAdvertise"
+      @showTask="showAdvertise = $event"
+    ></advertiseTask>
+    <doubleBenefit
+      v-if="showDouble"
+      :showDouble="showDouble"
+      :doubleInfo="doubleInfo"
+      @showDouble="showDouble = $event"
+    ></doubleBenefit>
+    <div
+      v-if="showGuide"
+      :class="['guide_mask', guideIndex == 4 ? 'guide_fit' : '']"
+    >
+      <div class="guide_box" v-if="guideIndex == 4">
+        <div class="guide_operating">
+          <div class="guide_operating_item" @click="handleGuideNext(false)">
+            Show Again
+          </div>
+          <div class="guide_operating_item auto" @click="handleGuideClose()">
+            GOT IT
+          </div>
+        </div>
+        <div
+          :class="['guide_text', guideConfig[guideIndex].hintAlign]"
+          :style="{
+            top: `${guideLocation}px`,
+            left: guideConfig[guideIndex].hintAlign == 'left' ? '8px' : '',
+            right: guideConfig[guideIndex].hintAlign == 'right' ? '8px' : '',
+          }"
+        >
+          {{ guideConfig[guideIndex].hintText }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -709,6 +762,8 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import LineChart from "@/components/charts/LineChart.vue";
 import CandlestickChart from "@/components/charts/CandlestickChart.vue";
 import countDown from "@/components/countDown/index.vue";
+import advertiseTask from "@/components/modals/advertise.vue";
+import doubleBenefit from "@/components/modals/doubleBenefit.vue";
 import config from "@/services/env";
 import { defineComponent } from "vue";
 import { useUserStore } from "@/store/user.js";
@@ -720,17 +775,20 @@ import {
   getLocalStore,
   setLocalStore,
 } from "@/utils";
+
 import {
   addOrder,
   getOrderData,
   closeOrder,
   getOrderAll,
 } from "@/services/api/order.js";
+
+import { getUserInfo } from "@/services/api/user.js";
 import bigNumber from "bignumber.js";
 import stopAmount from "@/components/stopAmount/index.vue";
 import tipRules from "@/components/rules/index.vue";
 import profitCalculator from "@/components/calculator/index.vue";
-import { useGameStore } from "@/store/game";
+import { useGameStore, guide } from "@/store/game";
 // import { useMessageStore } from "@/store/message.js";
 import Toast from "@/components/toast/index.vue";
 
@@ -823,6 +881,14 @@ export default defineComponent({
       switchType: 2, // 1：升级 2：降级
       showSwitch: false, // 转场弹窗
       timer: null as any,
+
+      showAdvertise: false, // 广告任务
+      showDouble: false, // 双倍领取
+      doubleInfo: {} as orderInfo,
+
+      showGuide: false, // 新手引导
+      guideIndex: 0, // 新手引导索引
+      guideLocation: 0,
     };
   },
   components: {
@@ -833,12 +899,18 @@ export default defineComponent({
     profitCalculator,
     Toast,
     countDown,
+    advertiseTask,
+    doubleBenefit,
   },
   computed: {
     // 用户信息
     userInfo() {
       const { userInfo } = useUserStore();
       return userInfo;
+    },
+    guideConfig() {
+      const { guideConfig } = useGameStore();
+      return guideConfig;
     },
     // 是否初始化
     isInit: {
@@ -1030,6 +1102,20 @@ export default defineComponent({
               this.showToast({ ...bustOrder, tipsType: 2 });
             } else {
               this.showToast({ ...bustOrder, tipsType: 3 });
+              if (
+                this.gameLevel == "BASIC" &&
+                !this.showAdvertise &&
+                this.orderData.length <= 1
+              ) {
+                this.doubleInfo = bustOrder;
+                this.doubleInfo.income = Math.floor(bustOrder.income);
+                if (5000 >= bustOrder.income && bustOrder.income >= 200) {
+                  var randomNum = Math.floor(Math.random() * 100) + 1;
+                  if (randomNum <= 40) {
+                    this.showDouble = true;
+                  }
+                }
+              }
             }
 
             if (this.orderType == 0) {
@@ -1496,9 +1582,7 @@ export default defineComponent({
       const res = await closeOrder({ id: event.id });
       if (res.code == 200) {
         this.fetchOrderData();
-        // 更新余额
-        const user = useUserStore();
-        user.fetchUserInfo();
+        this.handleUpdateBalance();
       }
     },
     // 设置止盈止损
@@ -1782,9 +1866,104 @@ export default defineComponent({
         window.scrollTo({ top: elementTop, behavior: "smooth" }); // 滚动到该位置
       }
     },
+    // 更新余额
+    async handleUpdateBalance() {
+      const res = await getUserInfo({});
+      if (res.code == 200) {
+        let info = res.data;
+        info.rcpAmount = Math.floor(this.userInfo.rcpAmount);
+        info.usdtAmount = accurateDecimal(this.userInfo.usdtAmount, 2);
+
+        const { setUserInfo } = useUserStore();
+        setUserInfo(info);
+
+        if (this.gameLevel != "BASIC") return;
+
+        // 如果余额低于800
+        if (
+          !this.showDouble &&
+          this.orderData.length < 1 &&
+          Number(info.rcpAmount) <= 800
+        ) {
+          this.showAdvertise = true;
+        }
+      }
+    },
+    // 处理新手引导下一步
+    handleGuideNext(event = true) {
+      const { guideConfig, guideIndex } = this;
+      const element = document.getElementById(guideConfig[guideIndex].eventId);
+
+      if (element) {
+        element.classList.remove("guide_highlight");
+
+        if (event) {
+          this.guideIndex++;
+        } else {
+          this.guideIndex = 0;
+        }
+
+        this.guideLocation = this.getElementPosition(
+          this.guideConfig[this.guideIndex]
+        );
+      }
+    },
+    // 处理关闭引导
+    handleGuideClose() {
+      this.showGuide = false;
+      setLocalStore("guide", "2");
+      const { guideConfig, guideIndex } = this;
+      const element = document.getElementById(guideConfig[guideIndex].eventId);
+      if (element) {
+        element.classList.remove("guide_highlight");
+      }
+    },
+    // 获取指定元素位置
+    getElementPosition(event: guide) {
+      const element = document.getElementById(event.eventId);
+      if (element) {
+        let location = null as number | any;
+        if (this.guideIndex == 4) {
+          const nodes = element.childNodes[0] as any;
+          if (nodes.localName == "li") {
+            nodes.classList.add("guide_highlight");
+
+            const rect = nodes.getBoundingClientRect();
+            location = rect.top + window.scrollY;
+            location += 90;
+          } else {
+            element.classList.add("guide_highlight");
+
+            const rect = element.getBoundingClientRect();
+            location = rect.top + window.scrollY;
+            location += 110;
+          }
+        } else {
+          element.classList.add("guide_highlight");
+
+          const rect = element.getBoundingClientRect();
+          location = rect.top + window.scrollY;
+        }
+
+        if (event.hintLocation == "top") {
+          location -= 50;
+        } else {
+          location += 50;
+        }
+        return location;
+      }
+      return -1;
+    },
   },
   mounted() {
     window.addEventListener("scroll", this.handleScroll);
+
+    if (!getLocalStore("guide")) {
+      this.showGuide = true;
+      this.guideLocation = this.getElementPosition(
+        this.guideConfig[this.guideIndex]
+      );
+    }
   },
   watch: {
     sseType(newV, oldV) {
@@ -1993,958 +2172,5 @@ export default defineComponent({
 });
 </script>
 <style lang="scss" scoped>
-.check_in_wrapper {
-  padding: 8px 0 150px;
-}
-
-.toolbar_panel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 8px;
-  position: relative;
-
-  .game_info {
-    display: flex;
-    align-items: center;
-  }
-}
-
-.price_box {
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 2px 16px;
-  border-radius: 16px;
-
-  &.drop {
-    color: #ff4949;
-    background-color: rgba(234, 69, 31, 0.2);
-  }
-
-  &.up {
-    color: #72f238;
-    background-color: rgba(122, 255, 0, 0.2);
-  }
-
-  .v-img {
-    flex: none;
-    margin-right: 4px;
-  }
-}
-
-.close_time {
-  padding: 0 8px;
-  font-family: "Arial Negreta", "Arial Normal", "Arial", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-  font-size: 12px;
-  line-height: 1;
-  color: #b0b5c5;
-  display: flex;
-  align-items: center;
-
-  .v-img {
-    flex: none;
-    margin-right: 4px;
-  }
-}
-
-.chart_type {
-  min-width: 60px;
-  background: rgba(203, 215, 255, 0.03);
-  border-radius: 4px;
-  text-align: center;
-  font-size: 14px;
-  color: #b0b5c5;
-  padding: 2px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.chart_type_items {
-  position: absolute;
-  right: 8px;
-  top: 44px;
-  background: #242735;
-  width: 60px;
-  border-radius: 4px;
-  z-index: 10;
-
-  .type_item {
-    font-size: 14px;
-    color: #b0b5c5;
-    text-align: left;
-    line-height: 1;
-    padding: 4px 8px;
-
-    &.active {
-      color: #ffb018;
-    }
-  }
-}
-
-.chart_box {
-  position: relative;
-
-  .chart_mask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    height: 100%;
-    width: 10px;
-    background: #1f212e;
-    z-index: 200;
-  }
-}
-
-.buying_panel {
-  width: 100%;
-  padding: 16px;
-
-  &.fixed {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 0;
-  }
-}
-
-.buy_types {
-  width: 200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  background-color: #161823;
-  border-radius: 4px 4px 0 0;
-  padding: 4px;
-  box-sizing: border-box;
-
-  .buy_type_item {
-    border-radius: 6px;
-    color: #ea980a;
-    text-align: center;
-    font-size: 14px;
-    color: #fff;
-    line-height: 1;
-    padding: 6px 8px;
-    box-sizing: border-box;
-    flex: 1;
-    z-index: 2;
-
-    &.active {
-      color: #ea980a;
-    }
-  }
-
-  .buy_type_slider {
-    position: absolute;
-    background-color: #353744;
-    transition: all 0.3s;
-    border-radius: 4px;
-    left: 4px;
-    width: calc(50% - 4px);
-    height: calc(100% - 8px);
-    z-index: 1;
-
-    &.auto {
-      left: 50%;
-      transition: all 0.3s;
-    }
-  }
-}
-
-.manual_box {
-  &.fixed {
-    padding: 8px 8px 16px;
-    background-color: #2e303e;
-    padding-bottom: 8px;
-  }
-}
-
-.buy_type_panel {
-  font-size: 14px;
-  color: #b0b5c5;
-  font-weight: bold;
-
-  .buy_type_title {
-    margin-bottom: 4px;
-  }
-}
-
-.buy_type_box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  background-color: #161823;
-  border-radius: 4px;
-  padding: 4px;
-
-  .buy_type_item {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 16px;
-    color: #fff;
-    padding: 4px;
-    border-radius: 4px;
-    z-index: 2;
-
-    &.fixed {
-      min-width: calc(50% - 2px);
-      font-size: 12px;
-      padding: 2px;
-
-      .v-img {
-        margin-right: 4px;
-      }
-    }
-
-    .v-img {
-      flex: none;
-      margin-right: 8px;
-      filter: grayscale(50%);
-    }
-
-    .type_down {
-      transform: rotateX(180deg);
-    }
-
-    &.up_active {
-      color: #85f353;
-    }
-
-    &.down_active {
-      color: #ff4949;
-    }
-  }
-
-  .buy_type_slider {
-    position: absolute;
-    background-color: rgba(133, 243, 83, 0.4);
-    transition: all 0.3s;
-    border-radius: 4px;
-    left: 4px;
-    width: calc(50% - 4px);
-    height: calc(100% - 8px);
-    z-index: 1;
-
-    &.down {
-      background-color: #41272b;
-      left: 50%;
-      transition: all 0.3s;
-    }
-  }
-}
-
-.buy_numer_info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-direction: column;
-  flex-wrap: wrap;
-
-  & > div {
-    flex: 1;
-    width: 100%;
-    margin-bottom: 14px;
-  }
-
-  &.fixed {
-    flex-direction: row;
-  }
-
-  &.fixed > div {
-    flex: 1;
-    min-width: 0;
-    max-width: none;
-    margin-bottom: 4px;
-
-    &.buy_price,
-    &.buy_multiples {
-      min-width: 60%;
-      margin-right: 8px;
-    }
-  }
-}
-
-.buy_price,
-.buy_multiples {
-  font-size: 14px;
-  font-weight: bold;
-  color: #b0b5c5;
-
-  & > div + div {
-    margin-top: 4px;
-  }
-
-  .buy_input {
-    background-color: #161823;
-    border-radius: 6px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    padding: 4px;
-
-    & > div + div {
-      margin-left: 4px;
-    }
-
-    .v-img {
-      flex: none;
-    }
-
-    &.fixed {
-      :deep(.v-field__input) {
-        line-height: 1;
-      }
-    }
-
-    :deep(.v-field__input) {
-      padding: 0;
-      min-height: 0;
-      line-height: 2;
-      color: #fff;
-      font-weight: bold;
-
-      &::-webkit-input-placeholder {
-        /* WebKit, Blink, Edge */
-        color: #b0b5c5;
-      }
-      &:-moz-placeholder {
-        /* Mozilla Firefox 4 to 18 */
-        color: #b0b5c5;
-        opacity: 1;
-      }
-      &::-moz-placeholder {
-        /* Mozilla Firefox 19+ */
-        color: #b0b5c5;
-        opacity: 1;
-      }
-      &:-ms-input-placeholder {
-        /* Internet Explorer 10-11 */
-        color: #b0b5c5;
-      }
-      &::-ms-input-placeholder {
-        /* Microsoft Edge */
-        color: #b0b5c5;
-      }
-
-      &::placeholder {
-        /* Most modern browsers support this now. */
-        color: #b0b5c5;
-      }
-    }
-
-    .multiples_btn {
-      background-color: #323444;
-      border-radius: 4px;
-      font-weight: 700;
-      font-style: normal;
-      font-size: 16px;
-      color: #b0b5c5;
-      padding: 6px 8px;
-      line-height: 1;
-      width: 50px;
-      text-align: center;
-
-      &.fixed {
-        padding: 4px;
-        width: 40px;
-      }
-    }
-
-    .multiples {
-      font-weight: 700;
-      font-style: normal;
-      font-size: 14px;
-      color: #b0b5c5;
-      padding: 0 8px;
-    }
-  }
-
-  .multiples_box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    & > div:nth-child(1) {
-      flex: 1;
-    }
-
-    & > div + div {
-      margin-left: 8px;
-    }
-  }
-
-  .multiples_panel {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    & > div {
-      flex: 1;
-    }
-
-    & > .buy_input {
-      border-radius: 0;
-    }
-
-    .plus_btn {
-      max-width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(#ffc81a 0%, #ffe71a 3%, #d9a315 100%);
-      border: 1px solid #000;
-      border-radius: 4px;
-    }
-  }
-
-  .bust_price {
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1;
-
-    .bust_val {
-      color: #fff;
-    }
-  }
-}
-
-.stop_profit,
-.stop_loss {
-  font-size: 14px;
-  font-weight: bold;
-  color: #b0b5c5;
-  padding-bottom: 14px;
-
-  & > div + div {
-    margin-top: 4px;
-  }
-}
-
-.profit_input {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-
-  & > div {
-    max-width: calc(50% - 2px);
-    flex: 1;
-  }
-
-  :deep(.v-field__input) {
-    padding: 4px 8px;
-    min-height: 0;
-    line-height: 2;
-    color: #fff;
-    background-color: #161823;
-    border-radius: 6px;
-    font-weight: bold;
-
-    &::-webkit-input-placeholder {
-      /* WebKit, Blink, Edge */
-      color: #b0b5c5;
-    }
-    &:-moz-placeholder {
-      /* Mozilla Firefox 4 to 18 */
-      color: #b0b5c5;
-      opacity: 1;
-    }
-    &::-moz-placeholder {
-      /* Mozilla Firefox 19+ */
-      color: #b0b5c5;
-      opacity: 1;
-    }
-    &:-ms-input-placeholder {
-      /* Internet Explorer 10-11 */
-      color: #b0b5c5;
-    }
-    &::-ms-input-placeholder {
-      /* Microsoft Edge */
-      color: #b0b5c5;
-    }
-
-    &::placeholder {
-      /* Most modern browsers support this now. */
-      color: #b0b5c5;
-    }
-  }
-
-  .profit_input_box {
-    background-color: #161823;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    padding: 4px 8px;
-
-    span {
-      font-size: 20px;
-      padding-right: 4px;
-      font-weight: bold;
-    }
-
-    :deep(.v-field__input) {
-      padding: 0;
-      min-height: 0;
-      background-color: transparent;
-      font-weight: bold;
-
-      &::-webkit-input-placeholder {
-        /* WebKit, Blink, Edge */
-        color: #b0b5c5;
-      }
-      &:-moz-placeholder {
-        /* Mozilla Firefox 4 to 18 */
-        color: #b0b5c5;
-        opacity: 1;
-      }
-      &::-moz-placeholder {
-        /* Mozilla Firefox 19+ */
-        color: #b0b5c5;
-        opacity: 1;
-      }
-      &:-ms-input-placeholder {
-        /* Internet Explorer 10-11 */
-        color: #b0b5c5;
-      }
-      &::-ms-input-placeholder {
-        /* Microsoft Edge */
-        color: #b0b5c5;
-      }
-
-      &::placeholder {
-        /* Most modern browsers support this now. */
-        color: #b0b5c5;
-      }
-    }
-
-    &.up {
-      color: #66ff07;
-
-      :deep(.v-field__input) {
-        color: #66ff07;
-      }
-
-      &:hover {
-        box-shadow: 0px 0px 4px #66ff07;
-      }
-    }
-
-    &.down {
-      color: #ff0000;
-
-      :deep(.v-field__input) {
-        color: #ff0000;
-      }
-
-      &:hover {
-        box-shadow: 0px 0px 4px #ff0000;
-      }
-    }
-  }
-
-  .error_text {
-    position: absolute;
-    bottom: -16px;
-    width: 100%;
-    max-width: none;
-    font-size: 12px;
-    color: #ff0000;
-  }
-}
-
-.multiples_slider_box {
-  padding-bottom: 14px;
-
-  :deep(.v-slider-track__background) {
-    background: linear-gradient(90deg, #0eff00 0%, #e68007 46%, #f60e0e 100%);
-    opacity: 1;
-  }
-}
-
-.multiples_point {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4px;
-
-  font-size: 14px;
-  color: #fff;
-}
-
-.buy_btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  font-size: 16px;
-  color: #000;
-  background-color: #85f353;
-  border-radius: 4px !important;
-  margin-top: 8px;
-
-  &.down {
-    background-color: #ff6969;
-  }
-}
-
-.buy_item_btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  line-height: 1;
-  padding: 8px 0;
-  border-radius: 4px;
-
-  .v-img {
-    flex: none;
-    margin: 0 4px;
-  }
-
-  &.up {
-    background-color: #223425;
-    color: #66ff07;
-  }
-
-  &.drop {
-    background-color: rgba(234, 69, 31, 0.2);
-    color: #e60b0b;
-  }
-}
-
-.other_box {
-  display: flex;
-  align-items: center;
-  padding: 8px 8px 0;
-
-  .other_item {
-    font-weight: bold;
-    font-size: 14px;
-    color: #b0b5c5;
-    display: flex;
-    align-items: center;
-
-    .v-img {
-      flex: none;
-      margin-right: 4px;
-    }
-  }
-
-  .other_item + .other_item {
-    margin-left: 8px;
-  }
-}
-
-.order_panel {
-  padding: 8px 0 0;
-}
-
-.order_type {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #242531;
-  border-radius: 4px 4px 0 0;
-  margin: 0 8px 0;
-  overflow: hidden;
-
-  .order_type_item {
-    flex: 1;
-    text-align: center;
-    line-height: 1;
-    font-weight: 700;
-    font-size: 14px;
-    color: #b0b5c5;
-    padding: 6px 0;
-
-    &.active {
-      background-color: #323444;
-      color: #ea980a;
-    }
-  }
-}
-
-.list-item {
-  opacity: 1;
-  transition: opacity 0.5s, transform 0.5s ease;
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: transform 0.5s ease;
-}
-
-.list-enter,
-.list-leave-to {
-  position: absolute;
-}
-
-.list-enter {
-  transform: translateY(-100%);
-}
-
-.list-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
-}
-
-.list-item:nth-child(2n-1) {
-  background-color: #323444;
-}
-
-.list-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background-color: #1f212e;
-
-  .order_types {
-    margin-right: 8px;
-  }
-
-  .order_user {
-    .user_name {
-      width: 30px;
-      font-size: 12px;
-      color: #ffffff;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-align: center;
-      text-overflow: ellipsis;
-      margin-right: 8px;
-    }
-  }
-
-  .order_data {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-
-  .order_data_info {
-    min-width: 30%;
-    padding: 4px 0;
-    flex: 1;
-
-    .title {
-      font-size: 12px;
-      color: #b0b5c5;
-    }
-
-    .val {
-      color: #fff;
-      font-weight: bold;
-      font-size: 12px;
-      line-height: 1;
-
-      &.amount {
-        display: flex;
-        align-items: center;
-
-        & > div + div {
-          margin-left: 4px;
-        }
-        .v-img {
-          flex: none;
-        }
-      }
-
-      &.drop {
-        color: #ff4949;
-      }
-
-      &.up {
-        color: #72f238;
-      }
-    }
-  }
-
-  .operating_btn {
-    flex: 1;
-    background-color: rgba(255, 232, 26, 1);
-    border: none;
-    border-radius: 4px;
-    box-shadow: 0px 4px 4px 0px rgba(242, 9, 9, 0.15) inset;
-    font-weight: 700;
-    font-size: 14px;
-    color: #000000;
-    padding: 6px 0;
-    line-height: 1;
-    text-align: center;
-  }
-
-  .order_btn {
-    width: 28px;
-    height: 28px;
-    position: relative;
-    margin-left: 8px;
-
-    .drop {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-    }
-
-    .up {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-  }
-}
-
-.finished {
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.dialog_panel {
-  :deep(.v-overlay__content) {
-    margin: 0 !important;
-    max-width: max-content !important;
-    bottom: 0;
-  }
-}
-
-.dialog_box {
-  width: 100vw;
-  background-color: #1f212e;
-  border-radius: 4px 4px 0 0;
-
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  color: #fff;
-  font-size: 20px;
-  line-height: 1.2;
-
-  .dialog_title {
-    color: #fdefd6;
-    font-size: 20px;
-    font-weight: bold;
-    padding: 16px 0 0;
-    color: #b0b5c5;
-  }
-
-  .close_btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    color: #b0b5c5;
-  }
-}
-
-.dialog_order_panel {
-  :deep(.v-overlay__content) {
-    margin: 0 !important;
-    max-width: max-content !important;
-  }
-
-  .order_box {
-    background-color: #161823;
-    margin: 0 16px;
-    padding: 8px;
-    border-radius: 8px;
-  }
-
-  .status_box {
-    display: flex;
-    align-items: center;
-
-    .v-img {
-      flex: none;
-      margin-right: 8px;
-    }
-  }
-
-  .status_info {
-    .status_text {
-      font-size: 16px;
-      color: white;
-      font-weight: bold;
-    }
-
-    .status_description {
-      font-weight: 400;
-      font-style: normal;
-      font-size: 12px;
-      color: #8c90a0;
-    }
-  }
-}
-
-.no_data {
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  font-size: 16px;
-  color: #b0b5c5;
-  font-weight: bold;
-  background-color: #2d303e;
-
-  .v-img {
-    flex: none;
-    margin: 0 auto;
-    margin-bottom: 16px;
-  }
-}
-
-.switch_box {
-  background-color: #1f212e;
-  box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  padding: 16px 8px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  color: #fff;
-  text-align: center;
-  font-size: 20px;
-  line-height: 1.2;
-
-  .switch_text {
-    margin-bottom: 24px;
-  }
-
-  & > .v-btn {
-    font-size: 14px;
-    border-radius: 8px;
-    color: #fff;
-    margin-top: 12px;
-  }
-
-  .enter_btn {
-    background-color: rgba(255, 232, 26, 1);
-    color: #c8c1c1;
-    font-size: 16px;
-    box-shadow: 0px 5px 5px 0px rgba(242, 9, 9, 0.15) inset;
-  }
-
-  .finished {
-    text-transform: none;
-    letter-spacing: 0;
-    color: #000;
-  }
-}
+@import url("./css/game.scss");
 </style>

@@ -42,6 +42,12 @@ const closeOrder = (params: any) => http.get(serverUrl + "/carOrder/closeOrder",
  */
 const getCarSeed = (params: any) => http.get(serverUrl + "/carSeed/list", params);
 
+/**
+ * 领取双倍奖励
+ * @param params
+ */
+const getdoubleBenefit = (params: any) => http.get(serverUrl + "/carOrder/orderDouble", params);
+
 export {
   getOrderAll,
   getNumberSessions,
@@ -49,5 +55,6 @@ export {
   getOrderData,
   setOrder,
   closeOrder,
-  getCarSeed
+  getCarSeed,
+  getdoubleBenefit
 };

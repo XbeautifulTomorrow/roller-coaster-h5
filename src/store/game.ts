@@ -22,14 +22,13 @@ export interface orderInfo {
   [x: string]: string | number | any;
 }
 
-// interface candlestick {
-//   bucket: string, // 开盘时间
-//   lastTs: string, // 最后更新时间
-//   open: string, // 开盘
-//   high: string, // 最高值
-//   low: string, // 最低值
-//   close: string // 收盘
-// }
+export interface guide {
+  index: number, // 引导序号
+  eventId: string, // 元素ID
+  hintText: string, // 提示文字
+  hintLocation: string // 提示位置
+  hintAlign: string // 提示对齐
+}
 
 
 
@@ -45,6 +44,37 @@ export const useGameStore = defineStore("game", {
     sellData: [],
     showCalculator: false, // 显示计算器
     initPrice: 1000.00, // 初始计算价格
+    guideConfig: [{
+      index: 0,
+      eventId: "buyNum",
+      hintText: "Enter $RCP Amount",
+      hintLocation: "top",
+      hintAlign: "left"
+    }, {
+      index: 1,
+      eventId: "buyStatus",
+      hintText: "Select Up or Down",
+      hintLocation: "top",
+      hintAlign: "right"
+    }, {
+      index: 2,
+      eventId: "buyMultiplier",
+      hintText: "Select Payout Multiplier",
+      hintLocation: "top",
+      hintAlign: "left"
+    }, {
+      index: 3,
+      eventId: "placeOrder",
+      hintText: "Place Order to Start Earn",
+      hintLocation: "top",
+      hintAlign: "right"
+    }, {
+      index: 4,
+      eventId: "orderList",
+      hintText: "Click Market Close at ROI > 0% to WIN",
+      hintLocation: "bottom",
+      hintAlign: "center"
+    }] as Array<guide>, // 新手引导配置
   }),
   persist: {
     enabled: true,

@@ -7,6 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Advertise: typeof import('./src/components/modals/advertise.vue')['default']
+    AdvertiseTask: typeof import('./src/components/advertiseTask/index.vue')['default']
     BottomNav: typeof import('./src/components/BottomNav.vue')['default']
     BuyManual: typeof import('./src/components/recharge/buyManual.vue')['default']
     BuyTokens: typeof import('./src/components/recharge/buyTokens.vue')['default']
@@ -16,8 +18,11 @@ declare module 'vue' {
     Confirm: typeof import('./src/components/recharge/confirm.vue')['default']
     copy: typeof import('./src/components/recharge/index copy.vue')['default']
     CountDown: typeof import('./src/components/countDown/index.vue')['default']
+    DoubleBenefit: typeof import('./src/components/modals/doubleBenefit.vue')['default']
     LineChart: typeof import('./src/components/charts/LineChart.vue')['default']
     ManualTransfer: typeof import('./src/components/recharge/manualTransfer.vue')['default']
+    Modals: typeof import('./src/components/modals/index.vue')['default']
+    NewbieGuide: typeof import('./src/components/modals/newbieGuide.vue')['default']
     Recharge: typeof import('./src/components/recharge/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
