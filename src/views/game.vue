@@ -1958,7 +1958,7 @@ export default defineComponent({
   mounted() {
     window.addEventListener("scroll", this.handleScroll);
 
-    if (!getLocalStore("guide")) {
+    if (this.gameLevel == "BASIC" && !getLocalStore("guide")) {
       this.showGuide = true;
       this.guideLocation = this.getElementPosition(
         this.guideConfig[this.guideIndex]
